@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "catalog": "Katalog",
+    "cart": "Warenkorb",
+    "about": "Über uns",
+    "contacts": "Kontakt",
+    "account": "Konto",
+    "admin": "Verwaltung",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren"
+  },
+  "hero": {
+    "title": "Seltene Antiquitäten von außergewöhnlicher Schönheit",
+    "subtitle": "Entdecken Sie eine sorgfältig kuratierte Sammlung von Stücken mit Geschichte, Charakter und bleibendem Wert.",
+    "ctaButton": "Kollektion entdecken"
+  },
+  "categories": {
+    "title": "Kategorien",
+    "porcelain": "Porzellan",
+    "crystal": "Kristall",
+    "silver": "Silber",
+    "bronze": "Bronze",
+    "paintings": "Gemälde",
+    "furniture": "Möbel",
+    "clocks": "Uhren",
+    "jewelry": "Schmuck",
+    "other": "Sonstiges"
+  },
+  "catalog": {
+    "title": "Antiquitätenkatalog",
+    "filters": {
+      "era": "Epoche",
+      "material": "Material",
+      "country": "Land",
+      "price": "Preis",
+      "condition": "Zustand"
+    },
+    "sort": "Sortieren",
+    "noResults": "Keine Artikel entsprechen Ihrer Suche",
+    "loadMore": "Mehr laden",
+    "searchPlaceholder": "Artikel suchen"
+  },
+  "product": {
+    "addToCart": "In den Warenkorb",
+    "condition": {
+      "excellent": "Ausgezeichnet",
+      "very_good": "Sehr gut",
+      "good": "Gut",
+      "fair": "Angemessen"
+    },
+    "era": "Epoche",
+    "material": "Material",
+    "country": "Land",
+    "year": "Jahr",
+    "provenance": "Provenienz",
+    "gallery": "Galerie",
+    "shareButton": "Teilen",
+    "similarItems": "Ähnliche Artikel"
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versand",
+    "total": "Gesamtsumme",
+    "checkout": "Zur Kasse",
+    "remove": "Entfernen",
+    "quantity": "Menge",
+    "continueShopping": "Weiter einkaufen"
+  },
+  "checkout": {
+    "title": "Kasse",
+    "shippingAddress": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "address": "Adresse",
+      "city": "Stadt",
+      "state": "Bundesland / Region",
+      "postalCode": "Postleitzahl",
+      "country": "Land"
+    },
+    "shippingMethod": "Versandart",
+    "paymentMethod": "Zahlungsart",
+    "placeOrder": "Bestellung aufgeben",
+    "orderSummary": "Bestellübersicht",
+    "success": {
+      "title": "Bestellung bestätigt",
+      "orderNumber": "Bestellnummer",
+      "thankYou": "Vielen Dank für Ihre Bestellung. Wir kontaktieren Sie, um die Lieferdetails zu bestätigen.",
+      "continueShopping": "Weiter einkaufen"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Anmelden",
+      "forgotPassword": "Passwort vergessen?",
+      "noAccount": "Noch kein Konto?"
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "name": "Name",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Konto erstellen",
+      "hasAccount": "Bereits ein Konto?"
+    }
+  },
+  "account": {
+    "orders": {
+      "title": "Meine Bestellungen",
+      "empty": "Sie haben noch keine Bestellungen",
+      "orderNumber": "Bestellnummer",
+      "date": "Datum",
+      "status": "Status",
+      "total": "Gesamtsumme",
+      "viewDetails": "Details anzeigen"
+    }
+  },
+  "orders": {
+    "status": {
+      "new": "Neu",
+      "paid": "Bezahlt",
+      "shipped": "Versandt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert"
+    }
+  },
+  "about": {
+    "title": "Über Antiqua",
+    "mission": "Wir bewahren die Schönheit der Vergangenheit und bieten modernen Sammlern authentische Objekte.",
+    "team": "Unser Team",
+    "history": "Unsere Geschichte",
+    "contact": "Kontaktieren Sie uns"
+  },
+  "contacts": {
+    "title": "Kontakt",
+    "address": "Adresse",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "hours": "Öffnungszeiten",
+    "form": {
+      "name": "Ihr Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "message": "Nachricht",
+      "submit": "Nachricht senden",
+      "success": "Vielen Dank! Ihre Nachricht wurde gesendet.",
+      "error": "Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+    }
+  },
+  "legal": {
+    "offer": {
+      "title": "Öffentliches Angebot"
+    },
+    "privacy": {
+      "title": "Datenschutzerklärung"
+    }
+  },
+  "admin": {
+    "title": "Verwaltung",
+    "products": {
+      "title": "Produkte",
+      "add": "Produkt hinzufügen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "noProducts": "Keine Produkte gefunden",
+      "locales": "{count} von 3 Sprachen"
+    },
+    "orders": {
+      "title": "Bestellungen",
+      "status": "Status",
+      "region": "Region",
+      "provider": "Zahlungsanbieter"
+    },
+    "content": {
+      "title": "Inhalte",
+      "save": "Speichern"
+    },
+    "contacts": {
+      "title": "Anfragen",
+      "unread": "Ungelesen",
+      "markRead": "Als gelesen markieren"
+    },
+    "dashboard": {
+      "title": "Übersicht",
+      "revenue": "Umsatz",
+      "orders": "Bestellungen",
+      "categories": "Kategorien",
+      "conversion": "Conversion-Rate",
+      "regions": "Regionen"
+    }
+  },
+  "currency": {
+    "converted": "≈ aus EUR umgerechnet",
+    "rateDate": "Kurs vom {date}"
+  },
+  "cookie": {
+    "message": "Wir verwenden Cookies, um Ihren Besuch angenehmer zu gestalten.",
+    "accept": "Akzeptieren",
+    "decline": "Ablehnen",
+    "settings": "Einstellungen"
+  },
+  "region": {
+    "title": "Region",
+    "EU": "Europäische Union",
+    "CIS": "GUS",
+    "US": "Vereinigte Staaten",
+    "UK": "Vereinigtes Königreich",
+    "OTHER": "Andere Länder"
+  },
+  "payment": {
+    "card": "Karte",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
+    "klarna": "Klarna",
+    "sbp": "SBP",
+    "yooMoney": "YooMoney",
+    "mir": "Mir"
+  },
+  "errors": {
+    "general": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "notFound": "Seite nicht gefunden",
+    "unauthorized": "Autorisierung erforderlich"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "yes": "Ja",
+    "no": "Nein",
+    "search": "Suchen"
+  }
+}

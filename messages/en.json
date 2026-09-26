@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "cart": "Cart",
+    "about": "About",
+    "contacts": "Contact",
+    "account": "Account",
+    "admin": "Administration",
+    "login": "Log in",
+    "logout": "Log out",
+    "register": "Register"
+  },
+  "hero": {
+    "title": "Rare Antique Objects of Exceptional Beauty",
+    "subtitle": "Discover a carefully curated collection of pieces with history, character, and enduring value.",
+    "ctaButton": "Explore the Collection"
+  },
+  "categories": {
+    "title": "Categories",
+    "porcelain": "Porcelain",
+    "crystal": "Crystal",
+    "silver": "Silver",
+    "bronze": "Bronze",
+    "paintings": "Paintings",
+    "furniture": "Furniture",
+    "clocks": "Clocks",
+    "jewelry": "Jewelry",
+    "other": "Other"
+  },
+  "catalog": {
+    "title": "Antique Catalog",
+    "filters": {
+      "era": "Era",
+      "material": "Material",
+      "country": "Country",
+      "price": "Price",
+      "condition": "Condition"
+    },
+    "sort": "Sort",
+    "noResults": "No items match your search",
+    "loadMore": "Load More",
+    "searchPlaceholder": "Search items"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "condition": {
+      "excellent": "Excellent",
+      "very_good": "Very Good",
+      "good": "Good",
+      "fair": "Fair"
+    },
+    "era": "Era",
+    "material": "Material",
+    "country": "Country",
+    "year": "Year",
+    "provenance": "Provenance",
+    "gallery": "Gallery",
+    "shareButton": "Share",
+    "similarItems": "Similar Items"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "remove": "Remove",
+    "quantity": "Quantity",
+    "continueShopping": "Continue Shopping"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shippingAddress": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "city": "City",
+      "state": "State / Region",
+      "postalCode": "Postal Code",
+      "country": "Country"
+    },
+    "shippingMethod": "Shipping Method",
+    "paymentMethod": "Payment Method",
+    "placeOrder": "Place Order",
+    "orderSummary": "Order Summary",
+    "success": {
+      "title": "Order Confirmed",
+      "orderNumber": "Order Number",
+      "thankYou": "Thank you for your order. We will contact you to confirm the delivery details.",
+      "continueShopping": "Continue Shopping"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log In",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?"
+    },
+    "register": {
+      "title": "Create an Account",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?"
+    }
+  },
+  "account": {
+    "orders": {
+      "title": "My Orders",
+      "empty": "You have no orders yet",
+      "orderNumber": "Order Number",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total",
+      "viewDetails": "View Details"
+    }
+  },
+  "orders": {
+    "status": {
+      "new": "New",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "about": {
+    "title": "About Antiqua",
+    "mission": "We preserve the beauty of the past by offering authentic objects to modern collectors.",
+    "team": "Our Team",
+    "history": "Our History",
+    "contact": "Contact Us"
+  },
+  "contacts": {
+    "title": "Contact Us",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "hours": "Opening Hours",
+    "form": {
+      "name": "Your Name",
+      "email": "Email",
+      "phone": "Phone",
+      "message": "Message",
+      "submit": "Send Message",
+      "success": "Thank you! Your message has been sent.",
+      "error": "We could not send your message. Please try again."
+    }
+  },
+  "legal": {
+    "offer": {
+      "title": "Public Offer"
+    },
+    "privacy": {
+      "title": "Privacy Policy"
+    }
+  },
+  "admin": {
+    "title": "Administration",
+    "products": {
+      "title": "Products",
+      "add": "Add Product",
+      "edit": "Edit",
+      "delete": "Delete",
+      "noProducts": "No products found",
+      "locales": "{count} of 3 locales"
+    },
+    "orders": {
+      "title": "Orders",
+      "status": "Status",
+      "region": "Region",
+      "provider": "Payment Provider"
+    },
+    "content": {
+      "title": "Content",
+      "save": "Save"
+    },
+    "contacts": {
+      "title": "Inquiries",
+      "unread": "Unread",
+      "markRead": "Mark as Read"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "categories": "Categories",
+      "conversion": "Conversion",
+      "regions": "Regions"
+    }
+  },
+  "currency": {
+    "converted": "≈ converted from EUR",
+    "rateDate": "rate on {date}"
+  },
+  "cookie": {
+    "message": "We use cookies to make your visit more enjoyable.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "settings": "Settings"
+  },
+  "region": {
+    "title": "Region",
+    "EU": "European Union",
+    "CIS": "CIS",
+    "US": "United States",
+    "UK": "United Kingdom",
+    "OTHER": "Other Countries"
+  },
+  "payment": {
+    "card": "Card",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
+    "klarna": "Klarna",
+    "sbp": "SBP",
+    "yooMoney": "YooMoney",
+    "mir": "Mir"
+  },
+  "errors": {
+    "general": "Something went wrong. Please try again.",
+    "notFound": "Page not found",
+    "unauthorized": "Authorization required"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search"
+  }
+}
