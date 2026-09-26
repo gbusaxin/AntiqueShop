@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+docker-compose.yml
+Dockerfile
+README.md
+plan.md
+.eslintrc.json
+*.tsbuildinfo
+coverage
+.DS_Store
