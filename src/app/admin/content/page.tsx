@@ -1,40 +1,56 @@
 import { createAdminClient } from '@/lib/supabaseServer'
 import { ContentEditor } from '@/components/admin/ContentEditor'
+import { FileText } from 'lucide-react'
 
-export default async function AdminContent() {
+const PAGES = ['about', 'contacts', 'legal/offer', 'legal/privacy']
+
+export default async function AdminContent({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: activePage = 'about' } = await searchParams
   const supabase = createAdminClient()
+
   const { data: contents } = await supabase
     .from('site_content')
     .select('*')
-    .order('page')
+    .eq('page', activePage)
     .order('section')
-
-  const grouped: Record<string, typeof contents> = {}
-  for (const item of contents ?? []) {
-    if (!grouped[item.page]) grouped[item.page] = []
-    grouped[item.page]!.push(item)
-  }
 
   return (
     <div>
-      <h1 className="mb-8 font-serif text-2xl text-[#c9a84c]">Site Content</h1>
-      <div className="space-y-10">
-        {Object.entries(grouped).map(([page, items]) => (
-          <div key={page}>
-            <h2 className="mb-4 text-[11px] uppercase tracking-widest text-[#c9a84c]/60">
-              /{page}
-            </h2>
-            <div className="space-y-4">
-              {(items ?? []).map((item) => (
-                <ContentEditor key={item.id} item={item} />
-              ))}
-            </div>
-          </div>
+      <h1 className="mb-6 font-serif text-2xl text-[var(--fg)]">Site Content</h1>
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        {PAGES.map((p) => (
+          <a
+            key={p}
+            href={`/admin/content?page=${p}`}
+            className={`px-4 py-2 text-[11px] uppercase tracking-wider transition-colors ${
+              activePage === p
+                ? 'border border-[var(--accent)] text-[var(--accent)]'
+                : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
+            }`}
+          >
+            /{p}
+          </a>
         ))}
-        {Object.keys(grouped).length === 0 && (
-          <p className="text-sm text-[#f4ead1]/30">
-            No content rows found. Add rows to the site_content table in Supabase.
-          </p>
+      </div>
+
+      <div className="space-y-4">
+        {(contents ?? []).map((item) => (
+          <ContentEditor key={item.id} item={item} />
+        ))}
+
+        {(contents ?? []).length === 0 && (
+          <div className="py-20 text-center border border-[var(--border)]">
+            <FileText size={36} className="mx-auto mb-3 text-[var(--fg-muted)]/30" />
+            <p className="text-[var(--fg-muted)]">No content rows for /{activePage}</p>
+            <p className="mt-1 text-[12px] text-[var(--fg-muted)]/60">
+              Add rows to the site_content table in Supabase with page = &quot;{activePage}&quot;.
+            </p>
+          </div>
         )}
       </div>
     </div>

@@ -1,14 +1,35 @@
 import { createAdminClient } from '@/lib/supabaseServer'
 import { DashboardCharts } from '@/components/admin/DashboardCharts'
+import Link from 'next/link'
+import type { OrderStatus } from '@/types'
 
-function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
-  return (
-    <div className="border border-[#c9a84c]/20 p-6">
-      <p className="text-[10px] uppercase tracking-widest text-[#c9a84c]/60">{label}</p>
-      <p className="mt-2 font-serif text-3xl text-[#c9a84c]">{value}</p>
-      {sub && <p className="mt-1 text-[11px] text-[#f4ead1]/40">{sub}</p>}
+const STATUS_BADGE: Record<OrderStatus, string> = {
+  new: 'bg-blue-400/10 text-blue-400',
+  paid: 'bg-emerald-400/10 text-emerald-400',
+  shipped: 'bg-amber-400/10 text-amber-400',
+  completed: 'bg-green-400/10 text-green-400',
+  cancelled: 'bg-red-400/10 text-red-400',
+}
+
+function StatCard({
+  label,
+  value,
+  sub,
+  href,
+}: {
+  label: string
+  value: string | number
+  sub?: string
+  href?: string
+}) {
+  const inner = (
+    <div className="border border-[var(--border)] bg-[var(--bg)] p-5 transition-colors hover:border-[var(--accent)]/40">
+      <p className="text-[10px] uppercase tracking-widest text-[var(--fg-muted)]">{label}</p>
+      <p className="mt-2 font-serif text-3xl text-[var(--accent)]">{value}</p>
+      {sub && <p className="mt-1 text-[11px] text-[var(--fg-muted)]">{sub}</p>}
     </div>
   )
+  return href ? <Link href={href}>{inner}</Link> : inner
 }
 
 export default async function AdminDashboard() {
@@ -27,6 +48,7 @@ export default async function AdminDashboard() {
     { data: byRegion },
     { count: totalProducts },
     { count: unreadContacts },
+    { data: recentOrders },
     { data: recentPaidOrders },
   ] = await Promise.all([
     supabase.from('orders').select('*', { count: 'exact', head: true }),
@@ -44,6 +66,11 @@ export default async function AdminDashboard() {
     supabase.from('orders').select('region'),
     supabase.from('products').select('*', { count: 'exact', head: true }),
     supabase.from('contact_requests').select('*', { count: 'exact', head: true }).eq('is_read', false),
+    supabase
+      .from('orders')
+      .select('id, status, total_eur, region, created_at')
+      .order('created_at', { ascending: false })
+      .limit(8),
     supabase
       .from('orders')
       .select('created_at, total_eur')
@@ -98,16 +125,22 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="mb-8 font-serif text-2xl text-[#c9a84c]">Dashboard</h1>
+      <h1 className="mb-6 font-serif text-2xl text-[var(--fg)]">Dashboard</h1>
 
-      <div className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Total Orders" value={totalOrders ?? 0} />
-        <StatCard label="Paid Orders" value={paidOrders ?? 0} sub={`${conversionRate}% conversion`} />
-        <StatCard label="Revenue this month" value={`€${monthRevenue.toFixed(2)}`} />
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Total Orders" value={totalOrders ?? 0} href="/admin/orders" />
         <StatCard
-          label="Total Products"
+          label="Paid Orders"
+          value={paidOrders ?? 0}
+          sub={`${conversionRate}% conversion`}
+          href="/admin/orders?status=paid"
+        />
+        <StatCard label="Revenue This Month" value={`€${monthRevenue.toFixed(2)}`} />
+        <StatCard
+          label="Products"
           value={totalProducts ?? 0}
-          sub={`${unreadContacts ?? 0} unread contacts`}
+          sub={unreadContacts ? `${unreadContacts} unread messages` : undefined}
+          href="/admin/products"
         />
       </div>
 
@@ -117,6 +150,77 @@ export default async function AdminDashboard() {
         regionCount={regionCount}
         revenueByDay={revenueByDay}
       />
+
+      <div className="mt-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-[12px] uppercase tracking-widest text-[var(--fg-muted)]">
+            Recent Orders
+          </h2>
+          <Link
+            href="/admin/orders"
+            className="text-[11px] text-[var(--accent)] hover:underline"
+          >
+            View all →
+          </Link>
+        </div>
+
+        <div className="overflow-x-auto border border-[var(--border)]">
+          <table className="w-full text-[12px]">
+            <thead>
+              <tr className="border-b border-[var(--border)] text-[10px] uppercase tracking-widest text-[var(--fg-muted)]">
+                <th className="px-4 py-3 text-left">Order ID</th>
+                <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-left">Region</th>
+                <th className="px-4 py-3 text-left">Total</th>
+                <th className="px-4 py-3 text-left">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(recentOrders ?? []).map((order) => (
+                <tr
+                  key={order.id}
+                  className="border-b border-[var(--border)] last:border-0 transition-colors hover:bg-[var(--accent)]/5"
+                >
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="font-mono text-[var(--accent)] hover:underline"
+                    >
+                      #{order.id.slice(0, 8).toUpperCase()}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded px-2 py-0.5 text-[10px] uppercase tracking-wider ${STATUS_BADGE[order.status as OrderStatus] ?? ''}`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-[var(--fg-muted)]">{order.region ?? '—'}</td>
+                  <td className="px-4 py-3 text-[var(--accent)]">
+                    €{Number(order.total_eur).toFixed(2)}
+                  </td>
+                  <td className="px-4 py-3 text-[var(--fg-muted)]">
+                    {new Date(order.created_at).toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {(recentOrders ?? []).length === 0 && (
+            <div className="py-16 text-center">
+              <p className="text-[var(--fg-muted)]">No orders yet</p>
+              <p className="mt-1 text-[12px] text-[var(--fg-muted)]/60">
+                Orders will appear here once customers start purchasing.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

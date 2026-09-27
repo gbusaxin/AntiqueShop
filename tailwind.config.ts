@@ -6,27 +6,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        emerald: {
-          dark: '#064E3B',
-          deep: '#065F46'
+        bronze: {
+          DEFAULT: '#A67C52',
+          light: '#C4975A',
+          dark: '#8B6F47',
         },
-        burgundy: {
-          DEFAULT: '#6B1A1A',
-          dark: '#7F1D1D'
+        surface: {
+          light: '#FAFAF8',
+          dark: '#14110F',
         },
-        gold: {
-          DEFAULT: '#B8860B',
-          rich: '#D4AF37',
-          light: '#F5D547'
-        }
+        ink: {
+          DEFAULT: '#1A1A1A',
+          muted: '#5A5A5A',
+        },
+        cream: {
+          DEFAULT: '#EDEDED',
+          muted: '#B5B5B5',
+        },
+        rim: {
+          light: '#E5E2DC',
+          dark: '#2A2A2A',
+        },
       },
       fontFamily: {
         serif: ['var(--font-playfair-display)', 'Playfair Display', 'serif'],
-        sans: ['var(--font-inter)', 'Inter', 'sans-serif']
-      }
-    }
+        sans: ['var(--font-inter)', 'Inter', 'sans-serif'],
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
 
 export default config;

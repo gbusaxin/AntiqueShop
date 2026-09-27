@@ -1,51 +1,104 @@
 import { createAdminClient } from '@/lib/supabaseServer'
 import Link from 'next/link'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Package } from 'lucide-react'
 import type { ProductCondition } from '@/types'
+
+const CONDITION_BADGE: Record<ProductCondition, string> = {
+  excellent: 'bg-emerald-400/10 text-emerald-400',
+  very_good: 'bg-green-400/10 text-green-400',
+  good: 'bg-yellow-400/10 text-yellow-400',
+  fair: 'bg-orange-400/10 text-orange-400',
+}
 
 function localesFilled(p: { name_ru: string | null; name_en: string | null; name_de: string | null }) {
   return [p.name_ru, p.name_en, p.name_de].filter(Boolean).length
 }
 
-const CONDITION_COLORS: Record<ProductCondition, string> = {
-  excellent: 'text-emerald-400',
-  very_good: 'text-green-400',
-  good: 'text-yellow-400',
-  fair: 'text-orange-400',
-}
-
-export default async function AdminProducts() {
+export default async function AdminProducts({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; available?: string }>
+}) {
+  const { q, available } = await searchParams
   const supabase = createAdminClient()
-  const { data: products } = await supabase
+
+  let query = supabase
     .from('products')
     .select('id, slug, name_ru, name_en, name_de, price_eur, condition, is_available, created_at, images, categories(name_en)')
     .order('created_at', { ascending: false })
 
+  if (q) {
+    query = query.or(`name_en.ilike.%${q}%,name_ru.ilike.%${q}%`)
+  }
+  if (available === 'true') query = query.eq('is_available', true)
+  if (available === 'false') query = query.eq('is_available', false)
+
+  const { data: products } = await query
+
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="font-serif text-2xl text-[#c9a84c]">Products</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="font-serif text-2xl text-[var(--fg)]">Products</h1>
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-2 border border-[#c9a84c] px-4 py-2 text-[11px] uppercase tracking-wider text-[#c9a84c] transition-colors hover:bg-[#c9a84c] hover:text-[#0d1f1a]"
+          className="flex items-center gap-2 border border-[var(--accent)] px-4 py-2 text-[11px] uppercase tracking-wider text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-white"
         >
-          <Plus size={14} />
+          <Plus size={13} />
           Add Product
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <form className="flex items-center gap-2">
+          <input
+            name="q"
+            defaultValue={q}
+            placeholder="Search products…"
+            className="border border-[var(--border)] bg-transparent px-3 py-1.5 text-[12px] text-[var(--fg)] placeholder:text-[var(--fg-muted)] focus:border-[var(--accent)] focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="border border-[var(--border)] px-3 py-1.5 text-[11px] uppercase tracking-wider text-[var(--fg-muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
+            Search
+          </button>
+        </form>
+        <div className="flex items-center gap-2">
+          {[
+            { label: 'All', value: '' },
+            { label: 'Active', value: 'true' },
+            { label: 'Hidden', value: 'false' },
+          ].map(({ label, value }) => (
+            <Link
+              key={value}
+              href={value ? `/admin/products?available=${value}` : '/admin/products'}
+              className={`px-3 py-1.5 text-[10px] uppercase tracking-wider transition-colors ${
+                (available ?? '') === value
+                  ? 'border border-[var(--accent)] text-[var(--accent)]'
+                  : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+        <span className="ml-auto text-[11px] text-[var(--fg-muted)]">
+          {(products ?? []).length} items
+        </span>
+      </div>
+
+      <div className="overflow-x-auto border border-[var(--border)]">
+        <table className="w-full text-[12px]">
           <thead>
-            <tr className="border-b border-[#c9a84c]/20 text-[10px] uppercase tracking-widest text-[#c9a84c]/60">
-              <th className="pb-3 pr-4 text-left">Image</th>
-              <th className="pb-3 pr-4 text-left">Name</th>
-              <th className="pb-3 pr-4 text-left">Category</th>
-              <th className="pb-3 pr-4 text-left">Price EUR</th>
-              <th className="pb-3 pr-4 text-left">Condition</th>
-              <th className="pb-3 pr-4 text-left">Locales</th>
-              <th className="pb-3 pr-4 text-left">Status</th>
-              <th className="pb-3 text-left">Actions</th>
+            <tr className="border-b border-[var(--border)] text-[10px] uppercase tracking-widest text-[var(--fg-muted)]">
+              <th className="px-4 py-3 text-left">Image</th>
+              <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3 text-left">Category</th>
+              <th className="px-4 py-3 text-left">Price</th>
+              <th className="px-4 py-3 text-left">Condition</th>
+              <th className="px-4 py-3 text-left">Locales</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -58,51 +111,60 @@ export default async function AdminProducts() {
               return (
                 <tr
                   key={product.id}
-                  className="border-b border-[#c9a84c]/10 transition-colors hover:bg-[#c9a84c]/5"
+                  className="border-b border-[var(--border)] last:border-0 transition-colors hover:bg-[var(--accent)]/5"
                 >
-                  <td className="py-3 pr-4">
+                  <td className="px-4 py-3">
                     {image ? (
                       <img
                         src={image}
                         alt={name}
-                        className="h-12 w-12 object-cover"
+                        className="h-11 w-11 object-cover"
                       />
                     ) : (
-                      <div className="h-12 w-12 bg-[#c9a84c]/10" />
+                      <div className="flex h-11 w-11 items-center justify-center bg-[var(--border)]">
+                        <Package size={14} className="text-[var(--fg-muted)]" />
+                      </div>
                     )}
                   </td>
-                  <td className="py-3 pr-4 text-[#f4ead1]/80">{name}</td>
-                  <td className="py-3 pr-4 text-[#f4ead1]/50">{cat?.name_en ?? '—'}</td>
-                  <td className="py-3 pr-4 text-[#c9a84c]">€{product.price_eur}</td>
-                  <td className="py-3 pr-4">
+                  <td className="px-4 py-3 text-[var(--fg)]">{name}</td>
+                  <td className="px-4 py-3 text-[var(--fg-muted)]">{cat?.name_en ?? '—'}</td>
+                  <td className="px-4 py-3 text-[var(--accent)]">€{product.price_eur}</td>
+                  <td className="px-4 py-3">
                     {product.condition ? (
-                      <span className={CONDITION_COLORS[product.condition as ProductCondition]}>
+                      <span className={`rounded px-2 py-0.5 text-[10px] uppercase tracking-wider ${CONDITION_BADGE[product.condition as ProductCondition]}`}>
                         {product.condition.replace('_', ' ')}
                       </span>
-                    ) : (
-                      '—'
-                    )}
+                    ) : '—'}
                   </td>
-                  <td className="py-3 pr-4">
+                  <td className="px-4 py-3">
                     <span
-                      className={`text-[10px] ${filled === 3 ? 'text-emerald-400' : filled >= 1 ? 'text-yellow-400' : 'text-red-400'}`}
+                      className={`text-[11px] font-medium ${
+                        filled === 3
+                          ? 'text-emerald-400'
+                          : filled >= 1
+                          ? 'text-yellow-400'
+                          : 'text-red-400'
+                      }`}
+                      title={`${filled} of 3 locales filled`}
                     >
                       {filled}/3
                     </span>
                   </td>
-                  <td className="py-3 pr-4">
+                  <td className="px-4 py-3">
                     <span
-                      className={`text-[10px] uppercase tracking-wider ${product.is_available ? 'text-emerald-400' : 'text-[#f4ead1]/30'}`}
+                      className={`text-[10px] uppercase tracking-wider ${
+                        product.is_available ? 'text-emerald-400' : 'text-[var(--fg-muted)]'
+                      }`}
                     >
                       {product.is_available ? 'Active' : 'Hidden'}
                     </span>
                   </td>
-                  <td className="py-3">
+                  <td className="px-4 py-3">
                     <Link
                       href={`/admin/products/${product.id}`}
-                      className="flex items-center gap-1 text-[#c9a84c]/60 transition-colors hover:text-[#c9a84c]"
+                      className="flex items-center gap-1.5 text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
                     >
-                      <Pencil size={13} />
+                      <Pencil size={12} />
                       Edit
                     </Link>
                   </td>
@@ -111,8 +173,19 @@ export default async function AdminProducts() {
             })}
           </tbody>
         </table>
+
         {(products ?? []).length === 0 && (
-          <p className="py-16 text-center text-sm text-[#f4ead1]/30">No products yet</p>
+          <div className="py-20 text-center">
+            <Package size={36} className="mx-auto mb-3 text-[var(--fg-muted)]/30" />
+            <p className="text-[var(--fg-muted)]">No products found</p>
+            <Link
+              href="/admin/products/new"
+              className="mt-4 inline-flex items-center gap-2 border border-[var(--accent)] px-4 py-2 text-[11px] uppercase tracking-wider text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-white"
+            >
+              <Plus size={13} />
+              Add your first product
+            </Link>
+          </div>
         )}
       </div>
     </div>
