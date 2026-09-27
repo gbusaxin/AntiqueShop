@@ -1,5 +1,4 @@
 import { getRequestConfig } from 'next-intl/server';
-import { hasLocale } from 'next-intl';
 import { routing } from './routing';
 
 const timeZones = {
@@ -8,15 +7,18 @@ const timeZones = {
   de: 'Europe/Berlin'
 } as const;
 
+type SupportedLocale = keyof typeof timeZones;
+
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
-  const locale = hasLocale(routing.locales, requested)
-    ? requested
-    : routing.defaultLocale;
+  const locale: SupportedLocale =
+    requested && (routing.locales as readonly string[]).includes(requested)
+      ? (requested as SupportedLocale)
+      : routing.defaultLocale as SupportedLocale;
 
   return {
     locale,
     messages: (await import(`../../messages/${locale}.json`)).default,
-    timeZone: timeZones[locale as keyof typeof timeZones]
+    timeZone: timeZones[locale]
   };
 });
