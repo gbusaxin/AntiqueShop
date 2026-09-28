@@ -190,7 +190,7 @@ export async function POST(request: Request) {
       ],
       metadata: { orderId: order.id },
       success_url: `${baseUrl}/${locale}/checkout/success?session_id={CHECKOUT_SESSION_ID}&orderId=${order.id}`,
-      cancel_url: `${baseUrl}/${locale}/checkout`,
+      cancel_url: `${baseUrl}/${locale}/checkout/failed`,
     })
 
     if (!session.url) {

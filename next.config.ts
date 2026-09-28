@@ -44,7 +44,13 @@ const nextConfig: NextConfig = {
       {
         source: '/',
         destination: '/en',
-        permanent: false,
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.belle-epoque.com' }],
+        destination: 'https://belle-epoque.com/:path*',
+        permanent: true,
       },
     ]
   },
