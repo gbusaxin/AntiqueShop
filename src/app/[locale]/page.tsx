@@ -5,6 +5,48 @@ import { FeaturedCarousel } from '@/components/home/FeaturedCarousel'
 import { CategoriesGrid } from '@/components/home/CategoriesGrid'
 import { AboutTeaser } from '@/components/home/AboutTeaser'
 import type { Product, Category, Locale } from '@/types'
+import type { Metadata } from 'next'
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
+const LOCALE_LABELS: Record<string, string> = {
+  en: 'Belle Époque — Antique Shop',
+  ru: 'Belle Époque — Антикварный магазин',
+  de: 'Belle Époque — Antiquitätengeschäft',
+}
+const LOCALE_DESCS: Record<string, string> = {
+  en: 'Rare antique porcelain, crystal, silver and art objects from around the world.',
+  ru: 'Редкий антикварный фарфор, хрусталь, серебро и предметы искусства со всего мира.',
+  de: 'Seltenes antikes Porzellan, Kristall, Silber und Kunstobjekte aus aller Welt.',
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+
+  return {
+    title: LOCALE_LABELS[locale] ?? LOCALE_LABELS['en'],
+    description: LOCALE_DESCS[locale] ?? LOCALE_DESCS['en'],
+    alternates: {
+      canonical: `${BASE_URL}/${locale}`,
+      languages: {
+        en: `${BASE_URL}/en`,
+        ru: `${BASE_URL}/ru`,
+        de: `${BASE_URL}/de`,
+        'x-default': `${BASE_URL}/en`,
+      },
+    },
+    openGraph: {
+      type: 'website',
+      url: `${BASE_URL}/${locale}`,
+      title: LOCALE_LABELS[locale] ?? LOCALE_LABELS['en'],
+      description: LOCALE_DESCS[locale] ?? LOCALE_DESCS['en'],
+      siteName: 'Belle Époque',
+    },
+  }
+}
 
 export default async function HomePage({
   params,

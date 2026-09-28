@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabaseServer'
-import { DashboardCharts } from '@/components/admin/DashboardCharts'
+import { DashboardChartsClient } from '@/components/admin/DashboardChartsClient'
 import Link from 'next/link'
 import type { OrderStatus } from '@/types'
 
@@ -144,7 +144,7 @@ export default async function AdminDashboard() {
         />
       </div>
 
-      <DashboardCharts
+      <DashboardChartsClient
         top5={top5}
         providerCount={providerCount}
         regionCount={regionCount}

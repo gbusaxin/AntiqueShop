@@ -41,6 +41,8 @@ export async function generateStaticParams() {
   }
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
+
 export async function generateMetadata({
   params,
 }: {
@@ -48,18 +50,40 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params
   try {
-  const supabase = createAdminClient()
-  const { data } = await supabase.from('products').select('name_en, name_ru, description_en').eq('slug', slug).single()
+    const supabase = createAdminClient()
+    const { data } = await supabase
+      .from('products')
+      .select('name_en, name_ru, name_de, description_en, images, price_eur')
+      .eq('slug', slug)
+      .single()
 
-  if (!data) return { title: 'Product — Belle Époque' }
+    if (!data) return { title: 'Product — Belle Époque' }
 
-  const name = getLocalizedField(data as Record<string, string | null | undefined>, 'name', locale as Locale)
-  const description = data.description_en?.slice(0, 160) ?? ''
+    const name = getLocalizedField(data as Record<string, string | null | undefined>, 'name', locale as Locale)
+    const description = (data.description_en ?? '').slice(0, 160)
+    const ogImage = Array.isArray(data.images) && data.images[0] ? data.images[0] : undefined
 
-  return {
-    title: `${name} — Belle Époque`,
-    description,
-  }
+    return {
+      title: `${name} — Belle Époque`,
+      description,
+      alternates: {
+        canonical: `${BASE_URL}/${locale}/catalog/${slug}`,
+        languages: {
+          en: `${BASE_URL}/en/catalog/${slug}`,
+          ru: `${BASE_URL}/ru/catalog/${slug}`,
+          de: `${BASE_URL}/de/catalog/${slug}`,
+          'x-default': `${BASE_URL}/en/catalog/${slug}`,
+        },
+      },
+      openGraph: {
+        type: 'website',
+        url: `${BASE_URL}/${locale}/catalog/${slug}`,
+        title: `${name} — Belle Époque`,
+        description,
+        siteName: 'Belle Époque',
+        ...(ogImage ? { images: [{ url: ogImage, width: 1200, height: 800, alt: name }] } : {}),
+      },
+    }
   } catch {
     return { title: 'Product — Belle Époque' }
   }
@@ -114,8 +138,31 @@ export default async function ProductPage({
     exchangeRates
   )
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name,
+    description: description ?? undefined,
+    image: product.images ?? [],
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: priceInfo.currency,
+      price: priceInfo.amount,
+      availability: 'https://schema.org/InStock',
+      url: `${BASE_URL}/${locale}/catalog/${slug}`,
+    },
+    brand: {
+      '@type': 'Organization',
+      name: 'Belle Époque',
+    },
+  }
+
   return (
     <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ViewTracker slug={slug} />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <nav className="mb-8 flex items-center gap-2 text-[11px] tracking-wide text-gold/50">

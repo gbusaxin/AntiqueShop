@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import Zoom from 'react-medium-image-zoom'
 import 'react-medium-image-zoom/dist/styles.css'
@@ -43,6 +44,8 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
                 src={allImages[selected]}
                 alt={`${alt} — view ${selected + 1}`}
                 className="h-full w-full object-cover"
+                width={800}
+                height={1000}
               />
             </Zoom>
           </motion.div>
@@ -59,7 +62,7 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
                 i === selected ? 'border-gold' : 'border-gold/20 hover:border-gold/50'
               }`}
             >
-              <img src={img} alt={`${alt} thumbnail ${i + 1}`} className="h-full w-full object-cover" />
+              <Image src={img} alt={`${alt} thumbnail ${i + 1}`} fill sizes="64px" className="object-cover" />
               {i === selected && (
                 <div className="absolute inset-0 bg-gold/10" />
               )}

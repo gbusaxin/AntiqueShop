@@ -6,6 +6,8 @@ import { SortControls } from '@/components/catalog/SortControls'
 import type { Product, Locale } from '@/types'
 import type { Metadata } from 'next'
 
+export const revalidate = 300
+
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Antique Catalog — Belle Époque',

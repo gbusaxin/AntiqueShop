@@ -32,12 +32,15 @@ export async function POST(request: Request) {
   const body = await request.text()
   const webhookSecret = process.env.YOOKASSA_WEBHOOK_SECRET
 
-  if (webhookSecret) {
-    const signature = request.headers.get('x-yookassa-signature')
-    if (!verifyYooKassaSignature(body, signature, webhookSecret)) {
-      console.error('[yookassa webhook] signature verification failed')
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
-    }
+  if (!webhookSecret) {
+    console.error('[yookassa webhook] YOOKASSA_WEBHOOK_SECRET is not configured')
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+  }
+
+  const signature = request.headers.get('x-yookassa-signature')
+  if (!verifyYooKassaSignature(body, signature, webhookSecret)) {
+    console.error('[yookassa webhook] signature verification failed')
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
   let event: YooKassaEvent

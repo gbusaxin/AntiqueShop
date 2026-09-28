@@ -37,3 +37,12 @@ body {
   background: #A67C52;
   color: #FAFAF8;
 }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}

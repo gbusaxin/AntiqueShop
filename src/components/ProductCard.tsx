@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice } from '@/lib/getPriceForRegion'
@@ -35,10 +36,12 @@ export function ProductCard({ product, locale }: ProductCardProps) {
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-emerald-dark/30">
         {product.images?.[0] ? (
-          <img
+          <Image
             src={product.images[0]}
             alt={name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
