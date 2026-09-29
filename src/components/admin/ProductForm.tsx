@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -258,9 +259,11 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
           <div className="mb-4 flex flex-wrap gap-3">
             {uploadedImages.map((url) => (
               <div key={url} className="relative group">
-                <img
+                <Image
                   src={url}
                   alt=""
+                  width={96}
+                  height={96}
                   className="h-24 w-24 object-cover border border-[#c9a84c]/20"
                 />
                 <button

@@ -45,7 +45,7 @@ async function getServerRegion(): Promise<Region> {
 
 export async function POST(request: Request) {
   const ip = getClientIp(request)
-  const { allowed, retryAfter } = rateLimit(`checkout-yk:${ip}`, 10, 60 * 60 * 1000)
+  const { allowed, retryAfter } = await rateLimit(`checkout:yk:${ip}`, 10, 60 * 60 * 1000)
   if (!allowed) {
     return NextResponse.json(
       { error: 'Too many requests' },

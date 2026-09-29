@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabaseServer'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Plus, Pencil, Package } from 'lucide-react'
 import type { ProductCondition } from '@/types'
 
@@ -115,9 +116,11 @@ export default async function AdminProducts({
                 >
                   <td className="px-4 py-3">
                     {image ? (
-                      <img
+                      <Image
                         src={image}
                         alt={name}
+                        width={44}
+                        height={44}
                         className="h-11 w-11 object-cover"
                       />
                     ) : (

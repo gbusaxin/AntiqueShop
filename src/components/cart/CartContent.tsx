@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { useCartStore } from '@/store/cartStore'
@@ -69,12 +70,14 @@ export function CartContent({ locale }: CartContentProps) {
                 transition={{ duration: 0.3 }}
                 className="flex gap-5 border-b border-gold/10 py-6"
               >
-                <div className="h-28 w-20 shrink-0 overflow-hidden bg-emerald-dark/30">
+                <div className="relative h-28 w-20 shrink-0 overflow-hidden bg-emerald-dark/30">
                   {item.product.images?.[0] ? (
-                    <img
+                    <Image
                       src={item.product.images[0]}
                       alt={name}
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">

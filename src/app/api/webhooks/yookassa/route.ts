@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabaseServer'
 import { createHmac, timingSafeEqual } from 'crypto'
+import { sendOrderConfirmation, notifyAdminNewOrder } from '@/lib/email'
 
 function verifyYooKassaSignature(body: string, signature: string | null, secret: string): boolean {
   if (!signature) return false
@@ -75,6 +76,42 @@ export async function POST(request: Request) {
     if (error) {
       console.error('[yookassa webhook] failed to update order', error)
       return NextResponse.json({ error: 'DB update failed' }, { status: 500 })
+    }
+
+    const { data: order } = await supabase
+      .from('orders')
+      .select('id, email, total_eur, region, payment_provider, locale, order_items(quantity, price_eur, products(name_en, name_ru, name_de))')
+      .eq('id', orderId)
+      .single()
+
+    if (order) {
+      const locale = (order.locale as string | null) ?? 'ru'
+      const items = ((order.order_items ?? []) as {
+        quantity: number
+        price_eur: number
+        products: { name_en?: string; name_ru?: string; name_de?: string } | null
+      }[]).map((i) => ({
+        name: i.products?.name_ru ?? i.products?.name_en ?? i.products?.name_de ?? 'Item',
+        quantity: i.quantity,
+        priceEur: i.price_eur,
+      }))
+
+      await Promise.all([
+        sendOrderConfirmation({
+          to: order.email as string,
+          orderNumber: order.id as string,
+          items,
+          totalEur: order.total_eur as number,
+          locale,
+        }),
+        notifyAdminNewOrder({
+          orderNumber: order.id as string,
+          totalEur: order.total_eur as number,
+          region: order.region as string,
+          provider: order.payment_provider as string,
+          customerEmail: order.email as string,
+        }),
+      ])
     }
   }
 

@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabaseServer'
 import { rateLimit, getClientIp } from '@/lib/rateLimit'
 import { isValidEmail, sanitizeString } from '@/lib/validation'
+import { notifyAdminContactRequest } from '@/lib/email'
 
 export async function POST(request: Request) {
   const ip = getClientIp(request)
-  const { allowed, retryAfter } = rateLimit(`contact:${ip}`, 5, 15 * 60 * 1000)
+  const { allowed, retryAfter } = await rateLimit(`contact:${ip}`, 5, 15 * 60 * 1000)
   if (!allowed) {
     return NextResponse.json(
       { error: 'Too many requests' },
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
       console.error('[contact]', error)
       return NextResponse.json({ error: 'Failed to save message' }, { status: 500 })
     }
+
+    await notifyAdminContactRequest({ name, email, message })
 
     return NextResponse.json({ ok: true })
   } catch (err) {

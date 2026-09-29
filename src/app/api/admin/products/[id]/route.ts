@@ -74,6 +74,34 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   if (!isValidUUID(id)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
 
   const supabase = createAdminClient()
+
+  const { data: product } = await supabase
+    .from('products')
+    .select('images')
+    .eq('id', id)
+    .single()
+
+  if (product?.images?.length) {
+    const paths = (product.images as string[]).map((url) => {
+      try {
+        const u = new URL(url)
+        const parts = u.pathname.split('/products-images/')
+        return parts[1] ?? ''
+      } catch {
+        return ''
+      }
+    }).filter(Boolean)
+
+    if (paths.length) {
+      const { error: storageErr } = await supabase.storage
+        .from('products-images')
+        .remove(paths)
+      if (storageErr) {
+        console.error('[admin products DELETE] storage cleanup failed', storageErr)
+      }
+    }
+  }
+
   const { error } = await supabase.from('products').delete().eq('id', id)
 
   if (error) {

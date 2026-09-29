@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { ShoppingBag, Plus, Minus, Check } from 'lucide-react'
+import { toast } from 'sonner'
 import { useCartStore } from '@/store/cartStore'
 import type { Product } from '@/types'
 
@@ -49,7 +50,7 @@ export function AddToCartButton({ product, label, inCartLabel = 'In Cart' }: Add
   return (
     <motion.button
       whileTap={{ scale: 0.98 }}
-      onClick={() => addItem(product, product.price_eur)}
+      onClick={() => { addItem(product, product.price_eur); toast.success(label) }}
       className="group flex w-full items-center justify-center gap-3 bg-gold/10 border border-gold/40 px-6 py-4 text-xs uppercase tracking-[0.2em] text-gold/80 transition-all duration-300 hover:bg-gold hover:text-emerald-dark hover:border-gold"
     >
       <ShoppingBag size={16} className="transition-transform group-hover:scale-110" />

@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
+import sharp from 'sharp'
 import { createClient, createAdminClient } from '@/lib/supabaseServer'
 
-const MAX_SIZE = 8 * 1024 * 1024
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+const MAX_SIZE = 10 * 1024 * 1024
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif']
+const MAX_DIMENSION = 2000
+const WEBP_QUALITY = 85
 
 async function requireAdmin() {
   const supabase = await createClient()
@@ -28,17 +31,29 @@ export async function POST(request: Request) {
   }
 
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: 'File too large (max 8MB)' }, { status: 400 })
+    return NextResponse.json({ error: 'File too large (max 10MB)' }, { status: 400 })
   }
 
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-  const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+  const buffer = Buffer.from(await file.arrayBuffer())
+
+  let processedBuffer: Buffer
+  try {
+    processedBuffer = await sharp(buffer)
+      .resize(MAX_DIMENSION, MAX_DIMENSION, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: WEBP_QUALITY })
+      .toBuffer()
+  } catch (err) {
+    console.error('[upload] sharp processing failed', err)
+    return NextResponse.json({ error: 'Image processing failed' }, { status: 400 })
+  }
+
+  const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`
 
   const supabase = createAdminClient()
   const { data, error } = await supabase.storage
-    .from('product-images')
-    .upload(filename, file, {
-      contentType: file.type,
+    .from('products-images')
+    .upload(filename, processedBuffer, {
+      contentType: 'image/webp',
       upsert: false,
     })
 
@@ -47,7 +62,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
   }
 
-  const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(data.path)
+  const { data: urlData } = supabase.storage.from('products-images').getPublicUrl(data.path)
 
   return NextResponse.json({ url: urlData.publicUrl }, { status: 201 })
 }

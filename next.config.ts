@@ -1,7 +1,7 @@
-import type { NextConfig } from 'next';
-import createNextIntlPlugin from 'next-intl/plugin';
+import type { NextConfig } from 'next'
+import createNextIntlPlugin from 'next-intl/plugin'
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/config.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/config.ts')
 
 const securityHeaders = [
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
@@ -14,18 +14,19 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://yookassa.ru",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://yookassa.ru https://browser.sentry-cdn.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://*.supabase.co",
-      "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.yookassa.ru",
+      "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.yookassa.ru https://*.sentry.io https://o*.ingest.sentry.io",
       "frame-src https://js.stripe.com https://hooks.stripe.com https://yookassa.ru",
+      "worker-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join('; '),
   },
-];
+]
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -60,8 +61,8 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
-    ];
+    ]
   },
-};
+}
 
-export default withNextIntl(nextConfig);
+export default withNextIntl(nextConfig)

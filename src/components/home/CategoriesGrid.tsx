@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Category } from '@/types'
@@ -60,10 +61,12 @@ export function CategoriesGrid({ categories, locale, title }: CategoriesGridProp
                   className="group relative flex aspect-square items-end overflow-hidden"
                 >
                   {cat.image_url ? (
-                    <img
+                    <Image
                       src={cat.image_url}
                       alt={name}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
                     <div

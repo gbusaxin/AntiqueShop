@@ -13,7 +13,7 @@ export async function POST(
   }
 
   const ip = getClientIp(request)
-  const { allowed } = rateLimit(`view:${slug}:${ip}`, 1, 24 * 60 * 60 * 1000)
+  const { allowed } = await rateLimit(`view:${slug}:${ip}`, 1, 24 * 60 * 60 * 1000)
   if (!allowed) {
     return NextResponse.json({ ok: false })
   }

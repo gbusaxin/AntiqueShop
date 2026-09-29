@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -315,9 +316,11 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               <div key={item.product.id} className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   {item.product.images?.[0] && (
-                    <img
+                    <Image
                       src={item.product.images[0]}
                       alt=""
+                      width={32}
+                      height={40}
                       className="h-10 w-8 object-cover opacity-80"
                     />
                   )}

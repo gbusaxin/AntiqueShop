@@ -40,6 +40,7 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
             className="absolute inset-0"
           >
             <Zoom>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={allImages[selected]}
                 alt={`${alt} — view ${selected + 1}`}

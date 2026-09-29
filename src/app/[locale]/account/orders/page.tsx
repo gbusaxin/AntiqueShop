@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabaseServer'
 import { formatPrice } from '@/lib/getPriceForRegion'
@@ -114,9 +115,11 @@ export default async function AccountOrdersPage({
                     {order.items.slice(0, 3).map((item) => (
                       <div key={item.id} className="flex items-center gap-2">
                         {item.product?.images?.[0] && (
-                          <img
+                          <Image
                             src={item.product.images[0]}
                             alt=""
+                            width={40}
+                            height={48}
                             className="h-12 w-10 object-cover opacity-80"
                           />
                         )}

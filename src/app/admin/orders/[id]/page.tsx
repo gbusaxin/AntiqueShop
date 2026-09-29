@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabaseServer'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ChevronLeft } from 'lucide-react'
 import { OrderStatusForm } from '@/components/admin/OrderStatusForm'
 import type { OrderStatus } from '@/types'
@@ -79,7 +80,7 @@ export default async function AdminOrderDetail({
                   return (
                     <div key={item.id} className="flex items-center gap-4">
                       {image ? (
-                        <img src={image} alt={name} className="h-16 w-16 object-cover" />
+                        <Image src={image} alt={name} width={64} height={64} className="h-16 w-16 object-cover" />
                       ) : (
                         <div className="h-16 w-16 bg-[#c9a84c]/10" />
                       )}
