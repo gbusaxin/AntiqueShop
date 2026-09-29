@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { useCartStore } from '@/store/cartStore'
@@ -22,7 +22,10 @@ export function Navbar({ locale, user }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+
+  useEffect(() => { setMounted(true) }, [])
 
   const navLinks = [
     { href: '/', label: t('home') },
@@ -71,11 +74,11 @@ export function Navbar({ locale, user }: NavbarProps) {
           </div>
 
           <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className="text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {mounted && resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
           <Link
@@ -97,7 +100,7 @@ export function Navbar({ locale, user }: NavbarProps) {
               href="/auth/login"
               className="hidden border border-[var(--accent)] px-3 py-1.5 text-[11px] uppercase tracking-wider text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-white md:block"
             >
-              Sign In
+              {t('login')}
             </Link>
           )}
 
@@ -137,7 +140,7 @@ export function Navbar({ locale, user }: NavbarProps) {
                   onClick={() => setOpen(false)}
                   className="w-fit border border-[var(--accent)] px-3 py-1.5 text-[11px] uppercase tracking-wider text-[var(--accent)]"
                 >
-                  Sign In
+                  {t('login')}
                 </Link>
               )}
               <div className="flex items-center gap-3 pt-2">

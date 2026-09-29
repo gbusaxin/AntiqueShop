@@ -9,7 +9,9 @@
     "admin": "Administration",
     "login": "Log in",
     "logout": "Log out",
-    "register": "Register"
+    "register": "Register",
+    "myOrders": "My Orders",
+    "profile": "Profile"
   },
   "hero": {
     "title": "Rare Antique Objects of Exceptional Beauty",

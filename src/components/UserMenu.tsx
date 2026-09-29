@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import NextLink from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
@@ -17,6 +18,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const t = useTranslations('nav')
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -69,7 +71,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
               className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-[var(--accent)]/10 hover:text-[var(--accent)]"
             >
               <ShoppingBag size={13} />
-              My Orders
+              {t('myOrders')}
             </Link>
             <Link
               href="/account"
@@ -77,7 +79,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
               className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-[var(--accent)]/10 hover:text-[var(--accent)]"
             >
               <User size={13} />
-              Profile
+              {t('profile')}
             </Link>
             {user.isAdmin && (
               <NextLink
@@ -86,7 +88,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
                 className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-[var(--accent)]/10 hover:text-[var(--accent)]"
               >
                 <Settings size={13} />
-                Admin Panel
+                {t('admin')}
               </NextLink>
             )}
             <button
@@ -94,7 +96,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
               className="flex w-full items-center gap-2.5 border-t border-[var(--border)] px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-red-500/10 hover:text-red-400"
             >
               <LogOut size={13} />
-              Sign Out
+              {t('logout')}
             </button>
           </motion.div>
         )}

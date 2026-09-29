@@ -9,7 +9,9 @@
     "admin": "Verwaltung",
     "login": "Anmelden",
     "logout": "Abmelden",
-    "register": "Registrieren"
+    "register": "Registrieren",
+    "myOrders": "Meine Bestellungen",
+    "profile": "Profil"
   },
   "hero": {
     "title": "Seltene Antiquitäten von außergewöhnlicher Schönheit",
