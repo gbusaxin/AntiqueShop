@@ -72,8 +72,35 @@ export default async function HomePage({
   const products = (rawProducts ?? []) as Product[]
   const categories = (rawCategories ?? []) as Category[]
 
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Belle Époque',
+    url: BASE_URL,
+    logo: `${BASE_URL}/logo.png`,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+43-1-512-44-20',
+      contactType: 'customer service',
+      areaServed: ['AT', 'DE', 'RU', 'EU'],
+      availableLanguage: ['English', 'Russian', 'German'],
+    },
+    sameAs: [
+      'https://www.instagram.com/belleepoque.art',
+    ],
+  }
+
   return (
     <div className="bg-[#0a1f18] text-[#f4ead1]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationJsonLd)
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/&/g, '\\u0026'),
+        }}
+      />
       <HeroSection
         title={t('title')}
         subtitle={t('subtitle')}

@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing orderId' }, { status: 400 })
     }
 
-    const { error } = await supabase
+    const { data: updatedOrder, error } = await supabase
       .from('orders')
       .update({
         status: 'paid',
@@ -52,21 +52,17 @@ export async function POST(request: Request) {
       })
       .eq('id', orderId)
       .eq('status', 'new')
+      .select('id, email, total_eur, region, payment_provider, locale, order_items(quantity, price_eur, products(name_en, name_ru, name_de))')
+      .single()
 
-    if (error) {
+    if (error && error.code !== 'PGRST116') {
       console.error('[stripe webhook] failed to update order to paid', error)
       return NextResponse.json({ error: 'DB update failed' }, { status: 500 })
     }
 
-    const { data: order } = await supabase
-      .from('orders')
-      .select('id, email, total_eur, region, payment_provider, locale, order_items(quantity, price_eur, products(name_en, name_ru, name_de))')
-      .eq('id', orderId)
-      .single()
-
-    if (order) {
-      const locale = (order.locale as string | null) ?? 'en'
-      const items = ((order.order_items ?? []) as {
+    if (updatedOrder) {
+      const locale = (updatedOrder.locale as string | null) ?? 'en'
+      const items = ((updatedOrder.order_items ?? []) as {
         quantity: number
         price_eur: number
         products: { name_en?: string; name_ru?: string; name_de?: string } | null
@@ -78,18 +74,18 @@ export async function POST(request: Request) {
 
       await Promise.all([
         sendOrderConfirmation({
-          to: order.email as string,
-          orderNumber: order.id as string,
+          to: updatedOrder.email as string,
+          orderNumber: updatedOrder.id as string,
           items,
-          totalEur: order.total_eur as number,
+          totalEur: updatedOrder.total_eur as number,
           locale,
         }),
         notifyAdminNewOrder({
-          orderNumber: order.id as string,
-          totalEur: order.total_eur as number,
-          region: order.region as string,
-          provider: order.payment_provider as string,
-          customerEmail: order.email as string,
+          orderNumber: updatedOrder.id as string,
+          totalEur: updatedOrder.total_eur as number,
+          region: updatedOrder.region as string,
+          provider: updatedOrder.payment_provider as string,
+          customerEmail: updatedOrder.email as string,
         }),
       ])
     }

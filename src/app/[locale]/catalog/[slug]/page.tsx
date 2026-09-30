@@ -161,7 +161,12 @@ export default async function ProductPage({
     <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd)
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/&/g, '\\u0026'),
+        }}
       />
       <ViewTracker slug={slug} />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
