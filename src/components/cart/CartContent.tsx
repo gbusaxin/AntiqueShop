@@ -63,6 +63,7 @@ export function CartContent({ locale }: CartContentProps) {
             return (
               <motion.div
                 key={item.product.id}
+                data-testid="cart-item"
                 layout
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}

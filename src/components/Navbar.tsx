@@ -61,6 +61,7 @@ export function Navbar({ locale, user }: NavbarProps) {
             {LOCALES.map((l) => (
               <button
                 key={l}
+                data-testid={`locale-${l}`}
                 onClick={() => router.push(pathname, { locale: l })}
                 className={`text-[11px] uppercase tracking-wider transition-colors ${
                   l === locale
@@ -74,6 +75,7 @@ export function Navbar({ locale, user }: NavbarProps) {
           </div>
 
           <button
+            data-testid="theme-toggle"
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className="text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
             aria-label="Toggle theme"
@@ -83,6 +85,7 @@ export function Navbar({ locale, user }: NavbarProps) {
 
           <Link
             href="/cart"
+            data-testid="cart-link"
             className="relative text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
           >
             <ShoppingBag size={20} />

@@ -41,7 +41,7 @@ export function ProductGrid({ products, locale, total, loading }: ProductGridPro
       <p className="mb-6 text-[11px] uppercase tracking-[0.18em] text-gold/50">
         {total} item{total !== 1 ? 's' : ''} found
       </p>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div data-testid="products-grid" className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((product, i) => (
           <motion.div
             key={product.id}

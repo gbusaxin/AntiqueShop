@@ -258,7 +258,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               transition={{ duration: 0.3 }}
               className="flex flex-col gap-6"
             >
-              <div>
+              <div data-testid="payment-section">
                 <p className="mb-4 text-[10px] uppercase tracking-[0.15em] text-gold/60">Payment Method</p>
                 {derivedRegion === 'CIS' && (
                   <p className="mb-3 text-[10px] text-gold/40">
@@ -297,6 +297,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                 </button>
                 <button
                   type="submit"
+                  data-testid="checkout-submit"
                   disabled={submitting}
                   className="flex-1 border border-gold bg-gold/10 py-4 text-xs uppercase tracking-[0.2em] text-gold-rich transition-all hover:bg-gold hover:text-emerald-dark disabled:opacity-50"
                 >

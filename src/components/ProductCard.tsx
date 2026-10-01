@@ -32,6 +32,7 @@ export function ProductCard({ product, locale }: ProductCardProps) {
   return (
     <Link
       href={`/catalog/${product.slug}`}
+      data-testid="product-card"
       className="group relative flex flex-col overflow-hidden border border-gold/15 bg-white/5 transition-all duration-300 hover:border-gold/40 hover:shadow-[0_8px_32px_rgba(184,134,11,0.12)]"
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-emerald-dark/30">
