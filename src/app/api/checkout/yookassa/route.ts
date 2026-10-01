@@ -180,7 +180,11 @@ export async function POST(request: Request) {
       })
     )
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    if (!baseUrl) {
+      console.error('[yookassa checkout] NEXT_PUBLIC_BASE_URL is not set')
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
     const idempotenceKey = randomUUID()
 
     const ykMethodMap: Record<string, string> = {

@@ -8,7 +8,7 @@ export type ProfileRole = 'customer' | 'admin'
 
 export type ProductCondition = 'excellent' | 'very_good' | 'good' | 'fair'
 
-export type OrderStatus = 'new' | 'paid' | 'shipped' | 'completed' | 'cancelled'
+export type OrderStatus = 'new' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded'
 
 export interface Profile {
   id: string

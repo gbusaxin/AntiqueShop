@@ -3,7 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabaseServer'
 import { isValidUUID } from '@/lib/validation'
 import type { OrderStatus } from '@/types'
 
-const VALID_STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled']
+const VALID_STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
 
 async function requireAdmin() {
   const supabase = await createClient()

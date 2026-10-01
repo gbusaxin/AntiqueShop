@@ -12,6 +12,7 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   shipped: 'text-amber-400',
   completed: 'text-green-400',
   cancelled: 'text-red-400',
+  refunded: 'text-purple-400',
 }
 
 export default async function AdminOrderDetail({

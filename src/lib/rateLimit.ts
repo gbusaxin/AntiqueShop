@@ -118,7 +118,14 @@ export async function rateLimit(
 }
 
 export function getClientIp(request: Request): string {
+  const vercelIp = request.headers.get('x-vercel-forwarded-for')
+  if (vercelIp) return vercelIp.split(',')[0].trim()
+
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp.trim()
+
   const xff = request.headers.get('x-forwarded-for')
   if (xff) return xff.split(',')[0].trim()
-  return request.headers.get('x-real-ip') ?? 'unknown'
+
+  return 'unknown'
 }

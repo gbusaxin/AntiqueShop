@@ -9,6 +9,7 @@ const STATUS_BADGE: Record<OrderStatus, string> = {
   shipped: 'bg-amber-400/10 text-amber-400',
   completed: 'bg-green-400/10 text-green-400',
   cancelled: 'bg-red-400/10 text-red-400',
+  refunded: 'bg-purple-400/10 text-purple-400',
 }
 
 function StatCard({
