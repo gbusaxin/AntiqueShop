@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/home/HeroSection'
 import { FeaturedCarousel } from '@/components/home/FeaturedCarousel'
 import { CategoriesGrid } from '@/components/home/CategoriesGrid'
 import { AboutTeaser } from '@/components/home/AboutTeaser'
+import { JsonLd } from '@/components/JsonLd'
 import type { Product, Category, Locale } from '@/types'
 import type { Metadata } from 'next'
 
@@ -72,35 +73,50 @@ export default async function HomePage({
   const products = (rawProducts ?? []) as Product[]
   const categories = (rawCategories ?? []) as Category[]
 
-  const organizationJsonLd = {
+  const organizationJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Belle Époque',
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
+    description: LOCALE_DESCS[locale] ?? LOCALE_DESCS['en'],
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+43-1-512-44-20',
+      email: 'info@belleepoque.art',
       contactType: 'customer service',
       areaServed: ['AT', 'DE', 'RU', 'EU'],
       availableLanguage: ['English', 'Russian', 'German'],
     },
-    sameAs: [
-      'https://www.instagram.com/belleepoque.art',
-    ],
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Kärntner Ring 14',
+      addressLocality: 'Vienna',
+      postalCode: '1010',
+      addressCountry: 'AT',
+    },
+    sameAs: ['https://www.instagram.com/belleepoque.art'],
+  }
+
+  const websiteJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Belle Époque',
+    url: BASE_URL,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${BASE_URL}/${locale}/catalog?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   }
 
   return (
     <div className="bg-[#0a1f18] text-[#f4ead1]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationJsonLd)
-            .replace(/</g, '\\u003c')
-            .replace(/>/g, '\\u003e')
-            .replace(/&/g, '\\u0026'),
-        }}
-      />
+      <JsonLd data={organizationJsonLd} />
+      <JsonLd data={websiteJsonLd} />
       <HeroSection
         title={t('title')}
         subtitle={t('subtitle')}

@@ -31,6 +31,18 @@ export async function POST(request: Request) {
 
   const supabase = createAdminClient()
 
+  const { error: insertError } = await supabase
+    .from('webhook_events')
+    .insert({ id: event.id, provider: 'stripe' })
+
+  if (insertError) {
+    if (insertError.code === '23505') {
+      return NextResponse.json({ received: true, duplicate: true })
+    }
+    console.error('[stripe webhook] failed to record event', insertError)
+    return NextResponse.json({ error: 'DB error' }, { status: 500 })
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const orderId = session.metadata?.orderId
@@ -125,7 +137,7 @@ export async function POST(request: Request) {
       const piId = typeof pi === 'string' ? pi : pi.id
       await supabase
         .from('orders')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .update({ status: 'refunded', updated_at: new Date().toISOString() })
         .eq('payment_intent_id', piId)
         .in('status', ['paid', 'shipped'])
     }

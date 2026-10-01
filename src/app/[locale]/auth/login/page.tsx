@@ -18,6 +18,7 @@ export async function generateMetadata({
   const title = TITLES[locale] ?? TITLES.en
   return {
     title,
+    robots: { index: false, follow: false },
     alternates: {
       canonical: `${BASE_URL}/${locale}/auth/login`,
       languages: {

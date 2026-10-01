@@ -54,6 +54,20 @@ export async function POST(request: Request) {
 
   const supabase = createAdminClient()
 
+  const eventId = `yookassa:${event.object.id}:${event.type}`
+
+  const { error: insertError } = await supabase
+    .from('webhook_events')
+    .insert({ id: eventId, provider: 'yookassa' })
+
+  if (insertError) {
+    if (insertError.code === '23505') {
+      return NextResponse.json({ received: true, duplicate: true })
+    }
+    console.error('[yookassa webhook] failed to record event', insertError)
+    return NextResponse.json({ error: 'DB error' }, { status: 500 })
+  }
+
   if (event.type === 'payment.succeeded') {
     const payment = event.object
     const orderId = payment.metadata?.orderId

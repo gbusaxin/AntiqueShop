@@ -11,6 +11,7 @@ import { AddToCartButton } from '@/components/product/AddToCartButton'
 import { ViewTracker } from '@/components/product/ViewTracker'
 import { ProductCard } from '@/components/ProductCard'
 import { AnimatedSection } from '@/components/ui/AnimatedSection'
+import { JsonLd } from '@/components/JsonLd'
 import { cookies, headers } from 'next/headers'
 import type { Product, Locale, ProductCondition, Region } from '@/types'
 import type { Metadata } from 'next'
@@ -159,15 +160,7 @@ export default async function ProductPage({
 
   return (
     <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd)
-            .replace(/</g, '\\u003c')
-            .replace(/>/g, '\\u003e')
-            .replace(/&/g, '\\u0026'),
-        }}
-      />
+      <JsonLd data={jsonLd} />
       <ViewTracker slug={slug} />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <nav className="mb-8 flex items-center gap-2 text-[11px] tracking-wide text-gold/50">
