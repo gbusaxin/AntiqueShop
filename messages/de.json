@@ -131,7 +131,8 @@
       "paid": "Bezahlt",
       "shipped": "Versandt",
       "completed": "Abgeschlossen",
-      "cancelled": "Storniert"
+      "cancelled": "Storniert",
+      "refunded": "Erstattet"
     }
   },
   "about": {

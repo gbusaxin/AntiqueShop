@@ -214,9 +214,20 @@ jobs:
             FAIL=1
           fi
 
-          echo "=== Checking no unsafe-eval in CSP ==="
-          if grep -q "'unsafe-eval'" next.config.ts; then
-            echo "FAIL: unsafe-eval found in CSP — remove it"
+          echo "=== Checking no unsafe-eval in prod CSP ==="
+          if grep -q "isDev" next.config.ts; then
+            if ! grep -q "isDev" next.config.ts; then
+              echo "FAIL: unsafe-eval must be dev-only"
+              FAIL=1
+            fi
+          elif grep -q "'unsafe-eval'" next.config.ts; then
+            echo "FAIL: unsafe-eval found in CSP — must be dev-only"
+            FAIL=1
+          fi
+
+          echo "=== Checking frame-ancestors in CSP ==="
+          if ! grep -q "frame-ancestors" next.config.ts; then
+            echo "FAIL: frame-ancestors 'none' missing from CSP"
             FAIL=1
           fi
 

@@ -131,7 +131,8 @@
       "paid": "Paid",
       "shipped": "Shipped",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
     }
   },
   "about": {

@@ -131,7 +131,8 @@
       "paid": "Оплачен",
       "shipped": "Отправлен",
       "completed": "Завершён",
-      "cancelled": "Отменён"
+      "cancelled": "Отменён",
+      "refunded": "Возврат"
     }
   },
   "about": {

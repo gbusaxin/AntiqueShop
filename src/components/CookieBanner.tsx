@@ -20,16 +20,22 @@ export function CookieBanner() {
     setConsent(stored)
   }, [])
 
+  function dispatchConsentChange(consent: 'accepted' | 'declined') {
+    window.dispatchEvent(new CustomEvent('cookie-consent-change', { detail: { consent } }))
+  }
+
   function accept() {
     localStorage.setItem(COOKIE_KEY, 'accepted')
     document.cookie = `${COOKIE_KEY}=accepted; max-age=${60 * 60 * 24 * 365}; path=/; SameSite=Lax`
     setConsent('accepted')
+    dispatchConsentChange('accepted')
   }
 
   function decline() {
     localStorage.setItem(COOKIE_KEY, 'declined')
     document.cookie = `${COOKIE_KEY}=declined; max-age=${60 * 60 * 24 * 365}; path=/; SameSite=Lax`
     setConsent('declined')
+    dispatchConsentChange('declined')
   }
 
   if (!mounted || consent !== null) return null
