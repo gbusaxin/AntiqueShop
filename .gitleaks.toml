@@ -1,0 +1,91 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlisted patterns"
+regexes = [
+  '''NEXT_PUBLIC_SUPABASE_ANON_KEY''',
+  '''pk_test_''',
+  '''pk_live_''',
+  '''phc_''',
+]
+paths = [
+  '''.env.example''',
+  '''README.*''',
+  '''README-playwright\.md''',
+  '''\.github/.*''',
+  '''tests/.*''',
+]
+
+[[rules]]
+id = "stripe-secret-key"
+description = "Stripe Secret Key"
+regex = '''sk_(live|test)_[a-zA-Z0-9]{24,}'''
+tags = ["stripe", "key", "secret"]
+severity = "CRITICAL"
+[rules.allowlist]
+regexes = ['''sk_test_PLACEHOLDER|sk_test_EXAMPLE|sk_test_YOUR''']
+
+[[rules]]
+id = "supabase-service-role"
+description = "Supabase service_role JWT"
+regex = '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[a-zA-Z0-9_\-]{100,}'''
+tags = ["supabase", "jwt", "service-role"]
+severity = "CRITICAL"
+[rules.allowlist]
+regexes = ['''NEXT_PUBLIC_SUPABASE_ANON_KEY''']
+
+[[rules]]
+id = "yookassa-secret-key"
+description = "YooKassa Live Secret Key"
+regex = '''live_[A-Za-z0-9_\-]{20,}'''
+tags = ["yookassa", "key", "secret"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "yookassa-test-key"
+description = "YooKassa Test Secret Key (warn only)"
+regex = '''test_[A-Za-z0-9_\-]{20,}'''
+tags = ["yookassa", "key", "test"]
+severity = "WARNING"
+[rules.allowlist]
+paths = ['''.env.example''', '''tests/.*''']
+
+[[rules]]
+id = "resend-api-key"
+description = "Resend API Key"
+regex = '''re_[a-zA-Z0-9]{32,}'''
+tags = ["resend", "email", "api-key"]
+severity = "HIGH"
+
+[[rules]]
+id = "upstash-redis-token"
+description = "Upstash Redis REST Token"
+regex = '''AX[a-zA-Z0-9_\-]{40,}'''
+tags = ["upstash", "redis", "token"]
+severity = "HIGH"
+
+[[rules]]
+id = "posthog-project-key"
+description = "PostHog Project API Key (public but sensitive)"
+regex = '''phc_[a-zA-Z0-9]{40,}'''
+tags = ["posthog", "analytics"]
+severity = "LOW"
+[rules.allowlist]
+paths = ['''.env.example''']
+
+[[rules]]
+id = "sentry-dsn"
+description = "Sentry DSN (contains org info)"
+regex = '''https://[a-f0-9]{32}@o\d+\.ingest\.sentry\.io/\d+'''
+tags = ["sentry", "dsn"]
+severity = "MEDIUM"
+[rules.allowlist]
+paths = ['''.env.example''', '''sentry\..*\.config\.ts''']
+
+[[rules]]
+id = "private-key-block"
+description = "Generic PEM private key"
+regex = '''-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'''
+tags = ["pem", "private-key"]
+severity = "CRITICAL"

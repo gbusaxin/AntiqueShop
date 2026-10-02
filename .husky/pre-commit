@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+echo "🔒 Running pre-commit security checks..."
+
+# 1. Secret scanning on staged files
+if command -v gitleaks >/dev/null 2>&1; then
+  echo "→ Scanning for secrets (gitleaks)..."
+  gitleaks protect --staged --config=.gitleaks.toml --verbose
+  if [ $? -ne 0 ]; then
+    echo "❌ gitleaks: secrets detected in staged files. Commit blocked."
+    exit 1
+  fi
+  echo "✅ gitleaks: no secrets found"
+else
+  echo "⚠️  gitleaks not installed — skipping secret scan"
+  echo "   Install: brew install gitleaks"
+fi
+
+# 2. Lint-staged (ESLint + TypeScript on changed files)
+echo "→ Running lint-staged..."
+npx lint-staged
+
+if [ $? -ne 0 ]; then
+  echo "❌ lint-staged: linting or type check failed. Commit blocked."
+  exit 1
+fi
+
+echo "✅ All pre-commit checks passed"

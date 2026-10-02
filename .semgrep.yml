@@ -1,0 +1,183 @@
+rules:
+  - id: no-dangerous-set-inner-html
+    patterns:
+      - pattern: dangerouslySetInnerHTML={{ __html: $X }}
+      - pattern-not: dangerouslySetInnerHTML={{ __html: safeJsonLd($X) }}
+    message: >
+      dangerouslySetInnerHTML without sanitization detected at $X.
+      Use safeJsonLd() for JSON-LD or DOMPurify.sanitize() for HTML.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-79
+      owasp: A03:2021
+
+  - id: no-eval
+    patterns:
+      - pattern: eval($X)
+    message: eval() is dangerous and allows code injection.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-95
+      owasp: A03:2021
+
+  - id: no-inner-html
+    patterns:
+      - pattern: $X.innerHTML = $Y
+    message: Direct innerHTML assignment enables XSS. Use textContent or a sanitizer.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-79
+
+  - id: no-document-write
+    patterns:
+      - pattern: document.write($X)
+    message: document.write() enables XSS via DOM injection.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-79
+
+  - id: no-child-process-exec
+    patterns:
+      - pattern: require('child_process').exec($CMD, ...)
+      - pattern: |
+          const { exec } = require('child_process')
+          ...
+          exec($CMD, ...)
+    message: child_process.exec() with dynamic input allows command injection.
+    languages: [javascript, typescript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-78
+      owasp: A03:2021
+
+  - id: no-secret-in-next-public
+    patterns:
+      - pattern: |
+          process.env.NEXT_PUBLIC_$KEY
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: ".*(SECRET|KEY|TOKEN|PASSWORD|PRIVATE|CREDENTIAL).*"
+    message: >
+      Sensitive key name found in NEXT_PUBLIC_ env var ($KEY).
+      NEXT_PUBLIC_ variables are exposed to the browser bundle.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-312
+      owasp: A02:2021
+
+  - id: no-hardcoded-stripe-secret
+    patterns:
+      - pattern: |
+          "$SK"
+      - metavariable-regex:
+          metavariable: $SK
+          regex: "sk_(live|test)_[a-zA-Z0-9]{24,}"
+    message: Hardcoded Stripe secret key found. Move to environment variables.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-798
+      owasp: A02:2021
+
+  - id: no-hardcoded-supabase-service-role
+    patterns:
+      - pattern: |
+          "$KEY"
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\\.[a-zA-Z0-9_-]{100,}"
+    message: >
+      Possible hardcoded Supabase JWT (service_role or anon key) detected.
+      Move to environment variables.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-798
+
+  - id: no-hardcoded-yookassa-secret
+    patterns:
+      - pattern: |
+          "$KEY"
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: "live_[A-Za-z0-9]{20,}|test_[A-Za-z0-9]{20,}"
+    message: Possible hardcoded YooKassa key detected. Move to environment variables.
+    languages: [typescript, javascript]
+    severity: WARNING
+    metadata:
+      cwe: CWE-798
+
+  - id: sql-concat-injection
+    patterns:
+      - pattern: |
+          $DB.query("..." + $USER_INPUT)
+      - pattern: |
+          $DB.query(`...${$USER_INPUT}`)
+    message: >
+      String concatenation in SQL query may allow injection.
+      Use parameterized queries.
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      cwe: CWE-89
+      owasp: A03:2021
+
+  - id: insecure-random
+    patterns:
+      - pattern: Math.random()
+    message: >
+      Math.random() is not cryptographically secure.
+      Use crypto.randomUUID() or crypto.getRandomValues() for security-sensitive contexts.
+    languages: [typescript, javascript]
+    severity: WARNING
+    metadata:
+      cwe: CWE-338
+
+  - id: no-console-log-sensitive
+    patterns:
+      - pattern: console.log(..., $X, ...)
+      - metavariable-regex:
+          metavariable: $X
+          regex: ".*(password|secret|token|key|auth|credential).*"
+        metavariable-comparison:
+          metavariable: $X
+          comparison: "True"
+    message: Possible sensitive data in console.log. Remove before production.
+    languages: [typescript, javascript]
+    severity: WARNING
+    metadata:
+      cwe: CWE-532
+
+  - id: fetch-ssrf-user-input
+    patterns:
+      - pattern: fetch($URL, ...)
+      - pattern-not: fetch("https://...", ...)
+      - pattern-not: fetch(`https://...`, ...)
+    message: >
+      fetch() called with a dynamic URL. Ensure URL is validated against an allowlist
+      to prevent SSRF attacks.
+    languages: [typescript, javascript]
+    severity: WARNING
+    metadata:
+      cwe: CWE-918
+      owasp: A10:2021
+
+  - id: next-response-redirect-open-redirect
+    patterns:
+      - pattern: NextResponse.redirect($URL)
+      - pattern-not: NextResponse.redirect(new URL($PATH, $ORIGIN))
+      - pattern-not: NextResponse.redirect("https://...")
+      - pattern-not: NextResponse.redirect(`https://...`)
+    message: >
+      Dynamic redirect without URL validation may allow open redirect.
+      Use new URL(path, request.url) to ensure same-origin redirects.
+    languages: [typescript, javascript]
+    severity: WARNING
+    metadata:
+      cwe: CWE-601
+      owasp: A01:2021
