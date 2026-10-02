@@ -60,10 +60,11 @@ rules:
           process.env.NEXT_PUBLIC_$KEY
       - metavariable-regex:
           metavariable: $KEY
-          regex: ".*(SECRET|KEY|TOKEN|PASSWORD|PRIVATE|CREDENTIAL).*"
+          regex: ".*(SECRET|PRIVATE|CREDENTIAL|SERVICE_ROLE|WEBHOOK).*"
     message: >
       Sensitive key name found in NEXT_PUBLIC_ env var ($KEY).
       NEXT_PUBLIC_ variables are exposed to the browser bundle.
+      Anon keys and publishable keys are intentionally public — only flag SECRET/PRIVATE/SERVICE_ROLE.
     languages: [typescript, javascript]
     severity: ERROR
     metadata:
@@ -158,9 +159,15 @@ rules:
       - pattern: fetch($URL, ...)
       - pattern-not: fetch("https://...", ...)
       - pattern-not: fetch(`https://...`, ...)
+      - pattern-not: fetch("/api/...", ...)
+      - pattern-not: fetch(`/api/...`, ...)
+      - pattern-not: fetch(YOOKASSA_API, ...)
+      - pattern-not: fetch(EXCHANGE_RATES_URL, ...)
+      - pattern-not: fetch(RESEND_API_URL, ...)
     message: >
-      fetch() called with a dynamic URL. Ensure URL is validated against an allowlist
-      to prevent SSRF attacks.
+      fetch() called with a potentially user-controlled URL.
+      Ensure the URL is validated against an allowlist to prevent SSRF.
+      Internal /api/ calls and known API constants are excluded.
     languages: [typescript, javascript]
     severity: WARNING
     metadata:

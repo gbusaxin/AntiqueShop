@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Image processing failed' }, { status: 400 })
   }
 
-  const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`
+  const filename = `products/${crypto.randomUUID()}.webp`
 
   const supabase = createAdminClient()
   const { data, error } = await supabase.storage
