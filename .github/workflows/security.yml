@@ -158,10 +158,68 @@ jobs:
           NEXT_PUBLIC_POSTHOG_KEY: placeholder
           NEXT_PUBLIC_POSTHOG_HOST: https://eu.i.posthog.com
 
+  config-check:
+    name: Security Config Assertions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assert next.config.ts security settings
+        run: |
+          FAIL=0
+
+          echo "=== Checking poweredByHeader: false ==="
+          if ! grep -q "poweredByHeader: false" next.config.ts; then
+            echo "FAIL: poweredByHeader must be false"
+            FAIL=1
+          fi
+
+          echo "=== Checking productionBrowserSourceMaps: false ==="
+          if ! grep -q "productionBrowserSourceMaps: false" next.config.ts; then
+            echo "FAIL: productionBrowserSourceMaps must be false"
+            FAIL=1
+          fi
+
+          echo "=== Checking X-Frame-Options: DENY ==="
+          if ! grep -q "value: 'DENY'" next.config.ts; then
+            echo "FAIL: X-Frame-Options must be DENY"
+            FAIL=1
+          fi
+
+          echo "=== Checking no unsafe-eval in CSP ==="
+          if grep -q "'unsafe-eval'" next.config.ts; then
+            echo "FAIL: unsafe-eval found in CSP — remove it"
+            FAIL=1
+          fi
+
+          echo "=== Checking HSTS present ==="
+          if ! grep -q "Strict-Transport-Security" next.config.ts; then
+            echo "FAIL: HSTS header missing"
+            FAIL=1
+          fi
+
+          echo "=== Checking PostHog consent gate ==="
+          if ! grep -q "hasCookieConsent\|cookie_consent" src/components/providers/PostHogProvider.tsx; then
+            echo "FAIL: PostHog must check cookie consent before init()"
+            FAIL=1
+          fi
+
+          echo "=== Checking middleware header stripping (CVE-2025-29927) ==="
+          if ! grep -q "x-middleware-subrequest" middleware.ts; then
+            echo "FAIL: middleware must strip internal Next.js headers"
+            FAIL=1
+          fi
+
+          if [ "$FAIL" = "1" ]; then
+            exit 1
+          fi
+          echo "All config assertions passed ✓"
+
   gate:
     name: Security Gate — PASS
     runs-on: ubuntu-latest
-    needs: [audit, secrets, grep-secrets, sast, lint, build]
+    needs: [audit, secrets, grep-secrets, sast, lint, build, config-check]
     if: always()
     steps:
       - name: Check all jobs passed
