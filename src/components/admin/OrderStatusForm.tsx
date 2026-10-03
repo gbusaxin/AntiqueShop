@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { OrderStatus } from '@/types'
 
-const STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled']
+const STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
 
 export function OrderStatusForm({
   orderId,

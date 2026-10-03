@@ -54,7 +54,7 @@ CREATE TABLE products (
 CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'paid', 'shipped', 'completed', 'cancelled')),
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded')),
   region TEXT NOT NULL,
   payment_provider TEXT CHECK (payment_provider IN ('stripe', 'yookassa', 'cloudpayments')),
   payment_session_id TEXT,

@@ -9,10 +9,10 @@ const STATUS_BADGE: Record<OrderStatus, string> = {
   shipped: 'bg-amber-400/10 text-amber-400',
   completed: 'bg-green-400/10 text-green-400',
   cancelled: 'bg-red-400/10 text-red-400',
-  refunded: 'bg-purple-400/10 text-purple-400',
+  refunded: 'bg-red-400/10 text-red-400',
 }
 
-const STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled']
+const STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
 
 export default async function AdminOrders({
   searchParams,

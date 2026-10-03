@@ -18,6 +18,7 @@ const STATUS_STYLES: Record<string, string> = {
   shipped: 'text-amber-400 border-amber-400/30 bg-amber-400/5',
   completed: 'text-gold-rich border-gold/30 bg-gold/5',
   cancelled: 'text-red-400 border-red-400/30 bg-red-400/5',
+  refunded: 'text-red-400 border-red-400/30 bg-red-400/5',
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -26,6 +27,7 @@ const STATUS_LABELS: Record<string, string> = {
   shipped: 'Shipped',
   completed: 'Completed',
   cancelled: 'Cancelled',
+  refunded: 'Refunded',
 }
 
 export default async function AccountOrdersPage({

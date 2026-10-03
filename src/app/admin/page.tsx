@@ -9,7 +9,7 @@ const STATUS_BADGE: Record<OrderStatus, string> = {
   shipped: 'bg-amber-400/10 text-amber-400',
   completed: 'bg-green-400/10 text-green-400',
   cancelled: 'bg-red-400/10 text-red-400',
-  refunded: 'bg-purple-400/10 text-purple-400',
+  refunded: 'bg-red-400/10 text-red-400',
 }
 
 function StatCard({
@@ -95,24 +95,26 @@ export default async function AdminDashboard() {
   })
   const top5 = Object.values(categoryCount).sort((a, b) => b.count - a.count).slice(0, 5)
 
-  const providerCount: Record<string, number> = {}
+  const providerCounts = new Map<string, number>()
   ;(byProvider ?? []).forEach((o) => {
     const p = o.payment_provider ?? 'unknown'
-    providerCount[p] = (providerCount[p] ?? 0) + 1
+    providerCounts.set(p, (providerCounts.get(p) ?? 0) + 1)
   })
+  const providerCount = Object.fromEntries(providerCounts)
 
-  const regionCount: Record<string, number> = {}
+  const regionCounts = new Map<string, number>()
   ;(byRegion ?? []).forEach((o) => {
     const r = o.region ?? 'unknown'
-    regionCount[r] = (regionCount[r] ?? 0) + 1
+    regionCounts.set(r, (regionCounts.get(r) ?? 0) + 1)
   })
+  const regionCount = Object.fromEntries(regionCounts)
 
-  const revenueByDayMap: Record<string, number> = {}
+  const revenueByDayMap = new Map<string, number>()
   ;(recentPaidOrders ?? []).forEach((o) => {
     const day = o.created_at.slice(0, 10)
-    revenueByDayMap[day] = (revenueByDayMap[day] ?? 0) + (o.total_eur ?? 0)
+    revenueByDayMap.set(day, (revenueByDayMap.get(day) ?? 0) + (o.total_eur ?? 0))
   })
-  const revenueByDay = Object.entries(revenueByDayMap)
+  const revenueByDay = [...revenueByDayMap.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([date, revenue]) => ({
       date: date.slice(5),

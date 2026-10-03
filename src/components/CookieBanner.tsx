@@ -12,33 +12,44 @@ type ConsentState = 'accepted' | 'declined' | null
 export function CookieBanner() {
   const [consent, setConsent] = useState<ConsentState>(null)
   const [showDetails, setShowDetails] = useState(false)
+  const [showChoices, setShowChoices] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    const stored = localStorage.getItem(COOKIE_KEY) as ConsentState | null
-    setConsent(stored)
+    const stored = localStorage.getItem(COOKIE_KEY)
+    setConsent(stored === 'accepted' || stored === 'declined' ? stored : null)
+
+    function onStorageChange(e: StorageEvent) {
+      if (e.key !== COOKIE_KEY) return
+      setConsent(e.newValue === 'accepted' || e.newValue === 'declined' ? e.newValue : null)
+    }
+
+    window.addEventListener('storage', onStorageChange)
+    return () => window.removeEventListener('storage', onStorageChange)
   }, [])
 
-  function dispatchConsentChange(consent: 'accepted' | 'declined') {
-    window.dispatchEvent(new CustomEvent('cookie-consent-change', { detail: { consent } }))
+  function choose(consent: 'accepted' | 'declined') {
+    localStorage.setItem(COOKIE_KEY, consent)
+    document.cookie = `${COOKIE_KEY}=${consent}; max-age=${60 * 60 * 24 * 365}; path=/; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`
+    setConsent(consent)
+    setShowChoices(false)
+    window.dispatchEvent(new CustomEvent('cookie-consent-changed', { detail: { consent } }))
   }
 
-  function accept() {
-    localStorage.setItem(COOKIE_KEY, 'accepted')
-    document.cookie = `${COOKIE_KEY}=accepted; max-age=${60 * 60 * 24 * 365}; path=/; SameSite=Lax`
-    setConsent('accepted')
-    dispatchConsentChange('accepted')
-  }
+  if (!mounted) return null
 
-  function decline() {
-    localStorage.setItem(COOKIE_KEY, 'declined')
-    document.cookie = `${COOKIE_KEY}=declined; max-age=${60 * 60 * 24 * 365}; path=/; SameSite=Lax`
-    setConsent('declined')
-    dispatchConsentChange('declined')
+  if (consent !== null && !showChoices) {
+    return (
+      <button
+        type="button"
+        onClick={() => setShowChoices(true)}
+        className="fixed bottom-4 left-4 z-[100] border border-gold/25 bg-emerald-dark px-3 py-2 text-[11px] text-gold hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+      >
+        Cookie settings
+      </button>
+    )
   }
-
-  if (!mounted || consent !== null) return null
 
   return (
     <AnimatePresence>
@@ -118,19 +129,19 @@ export function CookieBanner() {
 
             <div className="flex shrink-0 items-center gap-3">
               <button
-                onClick={decline}
+                onClick={() => choose('declined')}
                 className="border border-gold/25 px-5 py-2 text-[11px] uppercase tracking-wider text-gold/60 transition-colors hover:border-gold/50 hover:text-gold"
               >
                 Decline
               </button>
               <button
-                onClick={accept}
+                onClick={() => choose('accepted')}
                 className="border border-gold bg-gold/10 px-5 py-2 text-[11px] uppercase tracking-wider text-gold transition-colors hover:bg-gold hover:text-emerald-dark"
               >
                 Accept all
               </button>
               <button
-                onClick={decline}
+                onClick={() => choose('declined')}
                 className="text-gold/30 transition-colors hover:text-gold/60"
                 aria-label="Close"
               >
