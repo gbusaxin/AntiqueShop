@@ -15,12 +15,12 @@ export default async function NewProductPage() {
       <div className="mb-8 flex items-center gap-4">
         <Link
           href="/admin/products"
-          className="flex items-center gap-1 text-[11px] text-[#c9a84c]/50 transition-colors hover:text-[#c9a84c]"
+          className="flex items-center gap-1 text-[11px] text-[var(--admin-accent-text)] transition-colors hover:text-[var(--admin-accent-text)]"
         >
           <ChevronLeft size={14} />
           Back
         </Link>
-        <h1 className="font-serif text-2xl text-[#c9a84c]">New Product</h1>
+        <h1 className="font-serif text-2xl text-[var(--fg)] sm:text-3xl">New Product</h1>
       </div>
       <ProductForm categories={categories ?? []} mode="create" />
     </div>

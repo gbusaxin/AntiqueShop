@@ -6,7 +6,7 @@ const DashboardCharts = dynamic(
   () => import('./DashboardCharts').then((m) => m.DashboardCharts),
   {
     ssr: false,
-    loading: () => <div className="h-64 animate-pulse rounded bg-[var(--border)]" />,
+    loading: () => <div className="admin-card h-64 animate-pulse" />,
   }
 )
 

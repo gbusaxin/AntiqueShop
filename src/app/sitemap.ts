@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabaseServer'
 
+export const dynamic = 'force-dynamic'
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
 const LOCALES = ['en', 'ru', 'de']
 

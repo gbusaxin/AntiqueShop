@@ -46,3 +46,170 @@ body {
 :focus:not(:focus-visible) {
   outline: none;
 }
+
+.admin-theme {
+  --bg: #F5F1EA;
+  --fg: #1A1A1A;
+  --fg-muted: #6B5F4F;
+  --accent: #8B6F47;
+  --accent-light: #765A37;
+  --border: #D9D2C5;
+  --admin-card: #FFFFFF;
+  --admin-sidebar: #1F1B17;
+  --admin-sidebar-fg: #E8E1D4;
+  --admin-sidebar-muted: #C6BBAA;
+  --admin-sidebar-border: #494138;
+  --admin-placeholder: #776B5D;
+  --admin-action: #765A37;
+  --admin-accent-text: #765A37;
+  color-scheme: light;
+  font-family: var(--font-inter), Inter, sans-serif;
+}
+
+.dark .admin-theme {
+  --bg: #14110F;
+  --fg: #EDEDED;
+  --fg-muted: #A89B87;
+  --accent: #A67C52;
+  --accent-light: #D2B38A;
+  --border: #2E2A25;
+  --admin-card: #1F1B17;
+  --admin-sidebar: #0D0B09;
+  --admin-sidebar-fg: #E8E1D4;
+  --admin-sidebar-muted: #C6BBAA;
+  --admin-sidebar-border: #39342E;
+  --admin-placeholder: #A89B87;
+  --admin-action: #765A37;
+  --admin-accent-text: #D2B38A;
+  color-scheme: dark;
+}
+
+.admin-theme :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.admin-theme aside :focus-visible {
+  outline-color: #D2B38A;
+  outline-offset: -2px;
+}
+
+.admin-theme .admin-card {
+  border: 1px solid var(--border);
+  background: var(--admin-card);
+}
+
+.admin-theme form.admin-card > section + section {
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+
+.admin-theme .admin-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--admin-accent-text);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.admin-theme .admin-section::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+}
+
+.admin-theme .admin-input {
+  min-height: 40px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--admin-card);
+  padding: .625rem .75rem;
+  color: var(--fg);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.admin-theme textarea.admin-input {
+  min-height: 100px;
+}
+
+.admin-theme .admin-input::placeholder {
+  color: var(--admin-placeholder);
+  font-style: italic;
+}
+
+.admin-theme .admin-input:focus,
+.admin-theme .admin-input:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.admin-theme .admin-primary {
+  border: 1px solid var(--admin-action);
+  border-radius: 2px;
+  background: var(--admin-action);
+  color: #FFFFFF;
+  padding: .625rem 1.5rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.admin-theme .admin-primary:hover:not(:disabled) {
+  background: #594329;
+  border-color: #594329;
+}
+
+.admin-theme .admin-secondary {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--admin-card);
+  color: var(--fg);
+  padding: .625rem 1.25rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: border-color .15s ease, color .15s ease;
+}
+
+.admin-theme .admin-secondary:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--admin-accent-text);
+}
+
+.admin-theme .admin-table {
+  background: var(--admin-card);
+}
+
+.admin-theme .admin-table thead {
+  background: var(--bg);
+}
+
+.admin-theme .admin-table th {
+  font-weight: 600;
+  letter-spacing: .12em;
+}
+
+.admin-theme .admin-table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 7%, var(--admin-card));
+}
+
+.admin-theme .admin-status-blue { color: #25558C; background: #E9F1F9; }
+.admin-theme .admin-status-green { color: #24634B; background: #E7F3EC; }
+.admin-theme .admin-status-amber { color: #785315; background: #FBF2DB; }
+.admin-theme .admin-status-red { color: #9B3131; background: #FAEBE7; }
+
+.dark .admin-theme .admin-status-blue { color: #A9CBF2; background: #24374A; }
+.dark .admin-theme .admin-status-green { color: #A3DAB9; background: #24392D; }
+.dark .admin-theme .admin-status-amber { color: #F3D18C; background: #483821; }
+.dark .admin-theme .admin-status-red { color: #F3B5A9; background: #462B27; }
+.admin-theme .admin-status-text, .dark .admin-theme .admin-status-text { background: transparent; }

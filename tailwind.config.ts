@@ -6,6 +6,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        admin: {
+          workspace: '#F5F1EA',
+          card: '#FFFFFF',
+          sidebar: '#1F1B17',
+          ink: '#1A1A1A',
+          muted: '#6B5F4F',
+          bronze: '#8B6F47',
+          border: '#D9D2C5',
+        },
         bronze: {
           DEFAULT: '#A67C52',
           light: '#C4975A',

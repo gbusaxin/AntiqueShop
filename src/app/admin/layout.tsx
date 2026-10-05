@@ -11,13 +11,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!user) redirect('/en/auth/login?next=/admin')
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
-  if (profile?.role !== 'admin') redirect('/en/auth/login?next=/admin')
+  if (profileError) throw new Error('Unable to verify admin access')
+  if (profile?.role !== 'admin') redirect('/en/account/orders')
 
   const adminClient = createAdminClient()
   const { count: unreadCount } = await adminClient
@@ -26,11 +27,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq('is_read', false)
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg)] text-[var(--fg)]">
+    <div className="admin-theme flex min-h-screen flex-col bg-[var(--bg)] text-[var(--fg)] md:flex-row">
       <AdminSidebar email={user.email ?? ''} />
-      <div className="ml-56 flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col md:ml-56">
         <AdminTopbar unreadCount={unreadCount ?? 0} />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
       <Toaster
         position="top-right"

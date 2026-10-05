@@ -4,12 +4,12 @@ import { ShoppingCart } from 'lucide-react'
 import type { OrderStatus } from '@/types'
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
-  new: 'bg-blue-400/10 text-blue-400',
-  paid: 'bg-emerald-400/10 text-emerald-400',
-  shipped: 'bg-amber-400/10 text-amber-400',
-  completed: 'bg-green-400/10 text-green-400',
-  cancelled: 'bg-red-400/10 text-red-400',
-  refunded: 'bg-red-400/10 text-red-400',
+  new: 'admin-status-blue',
+  paid: 'admin-status-green',
+  shipped: 'admin-status-amber',
+  completed: 'admin-status-green',
+  cancelled: 'admin-status-red',
+  refunded: 'admin-status-red',
 }
 
 const STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
@@ -59,7 +59,7 @@ export default async function AdminOrders({
           href="/admin/orders"
           className={`px-3 py-1.5 text-[10px] uppercase tracking-wider transition-colors ${
             !status && !region && !provider
-              ? 'border border-[var(--accent)] text-[var(--accent)]'
+              ? 'border border-[var(--accent)] text-[var(--admin-accent-text)]'
               : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
           }`}
         >
@@ -71,7 +71,7 @@ export default async function AdminOrders({
             href={buildUrl({ status: s })}
             className={`px-3 py-1.5 text-[10px] uppercase tracking-wider transition-colors ${
               status === s
-                ? 'border border-[var(--accent)] text-[var(--accent)]'
+                ? 'border border-[var(--accent)] text-[var(--admin-accent-text)]'
                 : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
             }`}
           >
@@ -88,7 +88,7 @@ export default async function AdminOrders({
                 href={buildUrl({ region: region === r ? undefined : r })}
                 className={`px-2 py-1 text-[10px] uppercase tracking-wider transition-colors ${
                   region === r
-                    ? 'bg-[var(--accent)]/10 text-[var(--accent)]'
+                    ? 'bg-[var(--accent)]/10 text-[var(--admin-accent-text)]'
                     : 'text-[var(--fg-muted)] hover:text-[var(--fg)]'
                 }`}
               >
@@ -107,7 +107,7 @@ export default async function AdminOrders({
                 href={buildUrl({ provider: provider === p ? undefined : p })}
                 className={`px-2 py-1 text-[10px] capitalize tracking-wider transition-colors ${
                   provider === p
-                    ? 'bg-[var(--accent)]/10 text-[var(--accent)]'
+                    ? 'bg-[var(--accent)]/10 text-[var(--admin-accent-text)]'
                     : 'text-[var(--fg-muted)] hover:text-[var(--fg)]'
                 }`}
               >
@@ -122,7 +122,7 @@ export default async function AdminOrders({
         </span>
       </div>
 
-      <div className="overflow-x-auto border border-[var(--border)]">
+      <div className="admin-table overflow-x-auto border border-[var(--border)]">
         <table className="w-full text-[12px]">
           <thead>
             <tr className="border-b border-[var(--border)] text-[10px] uppercase tracking-widest text-[var(--fg-muted)]">
@@ -143,7 +143,7 @@ export default async function AdminOrders({
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/orders/${order.id}`}
-                    className="font-mono text-[var(--accent)] hover:underline"
+                    className="font-mono text-[var(--admin-accent-text)] hover:underline"
                   >
                     #{order.id.slice(0, 8).toUpperCase()}
                   </Link>
@@ -159,7 +159,7 @@ export default async function AdminOrders({
                 <td className="px-4 py-3 capitalize text-[var(--fg-muted)]">
                   {order.payment_provider ?? '—'}
                 </td>
-                <td className="px-4 py-3 text-[var(--accent)]">
+                <td className="px-4 py-3 text-[var(--admin-accent-text)]">
                   €{Number(order.total_eur).toFixed(2)}
                 </td>
                 <td className="px-4 py-3 text-[var(--fg-muted)]">
@@ -176,9 +176,9 @@ export default async function AdminOrders({
 
         {(orders ?? []).length === 0 && (
           <div className="py-20 text-center">
-            <ShoppingCart size={36} className="mx-auto mb-3 text-[var(--fg-muted)]/30" />
+            <ShoppingCart size={36} className="mx-auto mb-3 text-[var(--fg-muted)]" />
             <p className="text-[var(--fg-muted)]">No orders found</p>
-            <p className="mt-1 text-[12px] text-[var(--fg-muted)]/60">
+            <p className="mt-1 text-[12px] text-[var(--fg-muted)]">
               {status || region || provider
                 ? 'Try removing some filters.'
                 : 'Orders will appear here once customers start purchasing.'}

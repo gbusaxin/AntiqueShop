@@ -36,7 +36,7 @@ export function ContactRow({ contact }: { contact: Contact }) {
 
   return (
     <div
-      className={`border transition-colors ${contact.is_read ? 'border-[#c9a84c]/10' : 'border-[#c9a84c]/30 bg-[#c9a84c]/5'}`}
+      className={`admin-card transition-colors ${contact.is_read ? '' : 'border-l-2 !border-l-[var(--accent)]'}`}
     >
       <button
         type="button"
@@ -46,17 +46,17 @@ export function ContactRow({ contact }: { contact: Contact }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             {!contact.is_read && (
-              <span className="inline-block h-2 w-2 rounded-full bg-[#c9a84c]" />
+              <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)]" />
             )}
-            <span className="text-sm text-[#f4ead1]/80">{contact.name}</span>
-            <span className="text-xs text-[#f4ead1]/40">{contact.email}</span>
+            <span className="text-sm text-[var(--fg)]">{contact.name}</span>
+            <span className="text-xs text-[var(--fg-muted)]">{contact.email}</span>
             {contact.locale && (
-              <span className="text-[10px] uppercase text-[#c9a84c]/40">{contact.locale}</span>
+              <span className="text-[10px] uppercase text-[var(--admin-accent-text)]">{contact.locale}</span>
             )}
           </div>
-          <p className="mt-1 truncate text-xs text-[#f4ead1]/40">{contact.message}</p>
+          <p className="mt-1 truncate text-xs text-[var(--fg-muted)]">{contact.message}</p>
         </div>
-        <span className="shrink-0 text-[10px] text-[#f4ead1]/30">
+        <span className="shrink-0 text-[10px] text-[var(--fg-muted)]">
           {new Date(contact.created_at).toLocaleDateString('en-GB', {
             day: '2-digit',
             month: 'short',
@@ -66,18 +66,18 @@ export function ContactRow({ contact }: { contact: Contact }) {
       </button>
 
       {expanded && (
-        <div className="border-t border-[#c9a84c]/15 px-5 pb-5 pt-4">
+        <div className="border-t border-[var(--border)] px-5 pb-5 pt-4">
           <div className="grid grid-cols-2 gap-4 text-xs md:grid-cols-4">
             {contact.phone && (
               <div>
-                <p className="text-[10px] uppercase text-[#c9a84c]/40">Phone</p>
-                <p className="text-[#f4ead1]/70">{contact.phone}</p>
+                <p className="text-[10px] uppercase text-[var(--admin-accent-text)]">Phone</p>
+                <p className="text-[var(--fg)]">{contact.phone}</p>
               </div>
             )}
           </div>
           <div className="mt-4">
-            <p className="mb-1 text-[10px] uppercase text-[#c9a84c]/40">Message</p>
-            <p className="whitespace-pre-wrap text-xs leading-relaxed text-[#f4ead1]/70">
+            <p className="mb-1 text-[10px] uppercase text-[var(--admin-accent-text)]">Message</p>
+            <p className="whitespace-pre-wrap text-xs leading-relaxed text-[var(--fg)]">
               {contact.message}
             </p>
           </div>
@@ -86,7 +86,7 @@ export function ContactRow({ contact }: { contact: Contact }) {
               type="button"
               onClick={markRead}
               disabled={marking}
-              className="mt-4 border border-[#c9a84c]/30 px-4 py-1.5 text-[10px] uppercase tracking-wider text-[#c9a84c]/60 transition-colors hover:border-[#c9a84c] hover:text-[#c9a84c] disabled:opacity-50"
+              className="mt-4 border border-[var(--border)] px-4 py-1.5 text-[10px] uppercase tracking-wider text-[var(--admin-accent-text)] transition-colors hover:border-[var(--accent)] hover:text-[var(--admin-accent-text)] disabled:opacity-50"
             >
               {marking ? 'Marking…' : 'Mark as Read'}
             </button>

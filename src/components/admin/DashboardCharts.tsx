@@ -13,9 +13,9 @@ import {
   Legend,
 } from 'recharts'
 
-const GOLD = '#c9a84c'
-const EMERALD = '#0d6c4e'
-const BURGUNDY = '#6b1e1e'
+const GOLD = '#8B6F47'
+const EMERALD = '#357156'
+const BURGUNDY = '#9B5C50'
 
 const PIE_COLORS = [GOLD, EMERALD, BURGUNDY, '#4a7c59', '#8b4513']
 
@@ -48,10 +48,10 @@ interface Props {
 
 function customTooltipStyle() {
   return {
-    backgroundColor: '#0a1714',
-    border: '1px solid rgba(201, 168, 76, 0.25)',
-    borderRadius: 0,
-    color: '#f4ead1',
+    backgroundColor: 'var(--admin-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 2,
+    color: 'var(--fg)',
     fontSize: 11,
   }
 }
@@ -70,26 +70,26 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       {revenueByDay.length > 0 && (
-        <div className="col-span-full border border-[#c9a84c]/20 p-6">
-          <p className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/60">
+        <div className="admin-card col-span-full p-6">
+          <p className="admin-section mb-4">
             Revenue — last 30 days (EUR)
           </p>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={revenueByDay} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <XAxis
                 dataKey="date"
-                tick={{ fill: 'rgba(244,234,209,0.4)', fontSize: 10 }}
+                tick={{ fill: 'var(--fg-muted)', fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: 'rgba(244,234,209,0.4)', fontSize: 10 }}
+                tick={{ fill: 'var(--fg-muted)', fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip
                 contentStyle={customTooltipStyle()}
-                cursor={{ fill: 'rgba(201,168,76,0.05)' }}
+                cursor={{ fill: 'var(--bg)' }}
                 formatter={(v: number) => [`€${v.toFixed(0)}`, 'Revenue']}
               />
               <Bar dataKey="revenue" fill={GOLD} radius={[2, 2, 0, 0]} maxBarSize={28} />
@@ -99,8 +99,8 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
       )}
 
       {top5.length > 0 && (
-        <div className="border border-[#c9a84c]/20 p-6">
-          <p className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/60">
+        <div className="admin-card p-6">
+          <p className="admin-section mb-4">
             Top Categories
           </p>
           <ResponsiveContainer width="100%" height={200}>
@@ -111,7 +111,7 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
             >
               <XAxis
                 type="number"
-                tick={{ fill: 'rgba(244,234,209,0.4)', fontSize: 10 }}
+                tick={{ fill: 'var(--fg-muted)', fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -119,13 +119,13 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
                 type="category"
                 dataKey="name"
                 width={80}
-                tick={{ fill: 'rgba(244,234,209,0.6)', fontSize: 10 }}
+                tick={{ fill: 'var(--fg-muted)', fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip
                 contentStyle={customTooltipStyle()}
-                cursor={{ fill: 'rgba(201,168,76,0.05)' }}
+                cursor={{ fill: 'var(--bg)' }}
               />
               <Bar dataKey="count" fill={EMERALD} radius={[0, 2, 2, 0]} maxBarSize={18} />
             </BarChart>
@@ -134,8 +134,8 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
       )}
 
       {pieProviderData.length > 0 && (
-        <div className="border border-[#c9a84c]/20 p-6">
-          <p className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/60">
+        <div className="admin-card p-6">
+          <p className="admin-section mb-4">
             Orders by Payment Provider
           </p>
           <ResponsiveContainer width="100%" height={200}>
@@ -156,7 +156,7 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
               <Tooltip contentStyle={customTooltipStyle()} />
               <Legend
                 formatter={(value) => (
-                  <span style={{ color: 'rgba(244,234,209,0.6)', fontSize: 11 }}>{value}</span>
+                  <span style={{ color: 'var(--fg-muted)', fontSize: 11 }}>{value}</span>
                 )}
               />
             </PieChart>
@@ -165,8 +165,8 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
       )}
 
       {pieRegionData.length > 0 && (
-        <div className="border border-[#c9a84c]/20 p-6">
-          <p className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/60">
+        <div className="admin-card p-6">
+          <p className="admin-section mb-4">
             Orders by Region
           </p>
           <ResponsiveContainer width="100%" height={200}>
@@ -187,7 +187,7 @@ export function DashboardCharts({ top5, providerCount, regionCount, revenueByDay
               <Tooltip contentStyle={customTooltipStyle()} />
               <Legend
                 formatter={(value) => (
-                  <span style={{ color: 'rgba(244,234,209,0.6)', fontSize: 11 }}>{value}</span>
+                  <span style={{ color: 'var(--fg-muted)', fontSize: 11 }}>{value}</span>
                 )}
               />
             </PieChart>

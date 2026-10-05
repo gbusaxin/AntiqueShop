@@ -46,24 +46,23 @@ export function ContentEditor({ item }: { item: ContentItem }) {
     }
   }
 
-  const textareaClass =
-    'w-full border border-[#c9a84c]/20 bg-transparent px-3 py-2 text-xs text-[#f4ead1] placeholder:text-[#f4ead1]/20 focus:border-[#c9a84c]/60 focus:outline-none resize-y'
+  const textareaClass = 'admin-input resize-y'
 
   return (
-    <div className="border border-[#c9a84c]/15">
+    <div className="admin-card">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-[#c9a84c]/5"
+        className="flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-[var(--accent)]/5"
       >
-        <span className="text-xs text-[#f4ead1]/70">{item.section}</span>
-        <span className="text-[10px] text-[#c9a84c]/40">{expanded ? '▲' : '▼'}</span>
+        <span className="text-xs text-[var(--fg)]">{item.section}</span>
+        <span className="text-[10px] text-[var(--admin-accent-text)]">{expanded ? '▲' : '▼'}</span>
       </button>
 
       {expanded && (
-        <div className="border-t border-[#c9a84c]/15 p-5">
-          {error && <p className="mb-3 text-[11px] text-red-400">{error}</p>}
-          {saved && <p className="mb-3 text-[11px] text-emerald-400">Saved!</p>}
+        <div className="border-t border-[var(--border)] p-5">
+          {error && <p className="mb-3 text-[11px] admin-status-red">{error}</p>}
+          {saved && <p className="mb-3 text-[11px] admin-status-green">Saved!</p>}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {[
               { label: 'RU', val: ru, set: setRu },
@@ -71,7 +70,7 @@ export function ContentEditor({ item }: { item: ContentItem }) {
               { label: 'DE', val: de, set: setDe },
             ].map(({ label, val, set }) => (
               <div key={label}>
-                <label className="mb-1 block text-[10px] uppercase tracking-widest text-[#c9a84c]/50">
+                <label className="mb-2 block text-[11px] font-medium uppercase tracking-wider text-[var(--fg-muted)]">
                   {label}
                 </label>
                 <textarea
@@ -88,7 +87,7 @@ export function ContentEditor({ item }: { item: ContentItem }) {
               type="button"
               onClick={save}
               disabled={saving}
-              className="border border-[#c9a84c] bg-[#c9a84c]/10 px-5 py-2 text-[11px] uppercase tracking-wider text-[#c9a84c] transition-colors hover:bg-[#c9a84c] hover:text-[#0d1f1a] disabled:opacity-50"
+              className="admin-primary disabled:opacity-50"
             >
               {saving ? 'Saving…' : 'Save'}
             </button>

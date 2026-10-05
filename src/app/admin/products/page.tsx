@@ -35,7 +35,7 @@ export default async function AdminProducts({
         <h1 className="font-serif text-2xl text-[var(--fg)]">Products</h1>
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-2 border border-[var(--accent)] px-4 py-2 text-[11px] uppercase tracking-wider text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-white"
+          className="admin-primary flex items-center gap-2"
         >
           <Plus size={13} />
           Add Product
@@ -48,11 +48,11 @@ export default async function AdminProducts({
             name="q"
             defaultValue={q}
             placeholder="Search products…"
-            className="border border-[var(--border)] bg-transparent px-3 py-1.5 text-[12px] text-[var(--fg)] placeholder:text-[var(--fg-muted)] focus:border-[var(--accent)] focus:outline-none"
+            className="admin-input min-w-0 sm:w-64"
           />
           <button
             type="submit"
-            className="border border-[var(--border)] px-3 py-1.5 text-[11px] uppercase tracking-wider text-[var(--fg-muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="admin-secondary"
           >
             Search
           </button>
@@ -68,7 +68,7 @@ export default async function AdminProducts({
               href={value ? `/admin/products?available=${value}` : '/admin/products'}
               className={`px-3 py-1.5 text-[10px] uppercase tracking-wider transition-colors ${
                 (available ?? '') === value
-                  ? 'border border-[var(--accent)] text-[var(--accent)]'
+                  ? 'border border-[var(--accent)] text-[var(--admin-accent-text)]'
                   : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
               }`}
             >

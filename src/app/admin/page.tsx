@@ -4,12 +4,12 @@ import Link from 'next/link'
 import type { OrderStatus } from '@/types'
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
-  new: 'bg-blue-400/10 text-blue-400',
-  paid: 'bg-emerald-400/10 text-emerald-400',
-  shipped: 'bg-amber-400/10 text-amber-400',
-  completed: 'bg-green-400/10 text-green-400',
-  cancelled: 'bg-red-400/10 text-red-400',
-  refunded: 'bg-red-400/10 text-red-400',
+  new: 'admin-status-blue',
+  paid: 'admin-status-green',
+  shipped: 'admin-status-amber',
+  completed: 'admin-status-green',
+  cancelled: 'admin-status-red',
+  refunded: 'admin-status-red',
 }
 
 function StatCard({
@@ -24,9 +24,9 @@ function StatCard({
   href?: string
 }) {
   const inner = (
-    <div className="border border-[var(--border)] bg-[var(--bg)] p-5 transition-colors hover:border-[var(--accent)]/40">
+    <div className="admin-card h-full p-5 transition-colors hover:!border-[var(--accent)]">
       <p className="text-[10px] uppercase tracking-widest text-[var(--fg-muted)]">{label}</p>
-      <p className="mt-2 font-serif text-3xl text-[var(--accent)]">{value}</p>
+      <p className="mt-2 font-serif text-3xl text-[var(--admin-accent-text)]">{value}</p>
       {sub && <p className="mt-1 text-[11px] text-[var(--fg-muted)]">{sub}</p>}
     </div>
   )
@@ -156,18 +156,18 @@ export default async function AdminDashboard() {
 
       <div className="mt-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[12px] uppercase tracking-widest text-[var(--fg-muted)]">
+          <h2 className="admin-section flex-1">
             Recent Orders
           </h2>
           <Link
             href="/admin/orders"
-            className="text-[11px] text-[var(--accent)] hover:underline"
+            className="text-[11px] text-[var(--admin-accent-text)] hover:underline"
           >
             View all →
           </Link>
         </div>
 
-        <div className="overflow-x-auto border border-[var(--border)]">
+        <div className="admin-table overflow-x-auto border border-[var(--border)]">
           <table className="w-full text-[12px]">
             <thead>
               <tr className="border-b border-[var(--border)] text-[10px] uppercase tracking-widest text-[var(--fg-muted)]">
@@ -187,7 +187,7 @@ export default async function AdminDashboard() {
                   <td className="px-4 py-3">
                     <Link
                       href={`/admin/orders/${order.id}`}
-                      className="font-mono text-[var(--accent)] hover:underline"
+                      className="font-mono text-[var(--admin-accent-text)] hover:underline"
                     >
                       #{order.id.slice(0, 8).toUpperCase()}
                     </Link>
@@ -200,7 +200,7 @@ export default async function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-[var(--fg-muted)]">{order.region ?? '—'}</td>
-                  <td className="px-4 py-3 text-[var(--accent)]">
+                  <td className="px-4 py-3 text-[var(--admin-accent-text)]">
                     €{Number(order.total_eur).toFixed(2)}
                   </td>
                   <td className="px-4 py-3 text-[var(--fg-muted)]">
@@ -217,7 +217,7 @@ export default async function AdminDashboard() {
           {(recentOrders ?? []).length === 0 && (
             <div className="py-16 text-center">
               <p className="text-[var(--fg-muted)]">No orders yet</p>
-              <p className="mt-1 text-[12px] text-[var(--fg-muted)]/60">
+              <p className="mt-1 text-[12px] text-[var(--fg-muted)]">
                 Orders will appear here once customers start purchasing.
               </p>
             </div>

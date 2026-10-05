@@ -4,15 +4,15 @@ import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Pencil, Package, Trash2, EyeOff, Eye, CheckSquare, Square } from 'lucide-react'
+import { Pencil, Package, Trash2, EyeOff, Eye, CheckSquare, MinusSquare, Square } from 'lucide-react'
 import { toast } from 'sonner'
 import type { ProductCondition } from '@/types'
 
 const CONDITION_BADGE: Record<ProductCondition, string> = {
-  excellent: 'bg-emerald-400/10 text-emerald-400',
-  very_good: 'bg-green-400/10 text-green-400',
-  good: 'bg-yellow-400/10 text-yellow-400',
-  fair: 'bg-orange-400/10 text-orange-400',
+  excellent: 'admin-status-green',
+  very_good: 'admin-status-green',
+  good: 'admin-status-amber',
+  fair: 'admin-status-amber',
 }
 
 interface Product {
@@ -87,7 +87,7 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
     <div>
       {selected.size > 0 && (
         <div className="mb-3 flex items-center gap-3 border border-[var(--accent)]/30 bg-[var(--accent)]/5 px-4 py-2.5">
-          <span className="text-[11px] text-[var(--accent)]">
+          <span className="text-[11px] text-[var(--admin-accent-text)]">
             {selected.size} selected
           </span>
           <div className="ml-auto flex items-center gap-2">
@@ -114,7 +114,7 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                 }
               }}
               disabled={isPending}
-              className="flex items-center gap-1.5 border border-red-400/30 px-3 py-1.5 text-[10px] uppercase tracking-wider text-red-400 transition-colors hover:bg-red-400/10 disabled:opacity-40"
+              className="flex items-center gap-1.5 border border-red-700 px-3 py-1.5 text-[10px] uppercase tracking-wider text-red-800 transition-colors hover:bg-red-500/10 disabled:opacity-40 dark:text-red-300"
             >
               <Trash2 size={11} />
               Delete
@@ -123,20 +123,20 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
         </div>
       )}
 
-      <div className="overflow-x-auto border border-[var(--border)]">
+      <div className="admin-table overflow-x-auto border border-[var(--border)]">
         <table className="w-full text-[12px]">
           <thead>
             <tr className="border-b border-[var(--border)] text-[10px] uppercase tracking-widest text-[var(--fg-muted)]">
               <th className="px-4 py-3 text-left">
                 <button
                   onClick={toggleAll}
-                  className="text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
+                  className="text-[var(--fg-muted)] transition-colors hover:text-[var(--admin-accent-text)]"
                   aria-label="Select all"
                 >
                   {allSelected ? (
-                    <CheckSquare size={14} className="text-[var(--accent)]" />
+                    <CheckSquare size={14} className="text-[var(--admin-accent-text)]" />
                   ) : someSelected ? (
-                    <CheckSquare size={14} className="opacity-50" />
+                    <MinusSquare size={14} className="text-[var(--admin-accent-text)]" />
                   ) : (
                     <Square size={14} />
                   )}
@@ -169,11 +169,11 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                   <td className="px-4 py-3">
                     <button
                       onClick={() => toggleOne(product.id)}
-                      className="text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
+                      className="text-[var(--fg-muted)] transition-colors hover:text-[var(--admin-accent-text)]"
                       aria-label={`Select ${name}`}
                     >
                       {isSelected ? (
-                        <CheckSquare size={14} className="text-[var(--accent)]" />
+                        <CheckSquare size={14} className="text-[var(--admin-accent-text)]" />
                       ) : (
                         <Square size={14} />
                       )}
@@ -198,7 +198,7 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                   <td className="px-4 py-3 text-[var(--fg-muted)]">
                     {product.categories?.name_en ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-[var(--accent)]">€{product.price_eur}</td>
+                  <td className="px-4 py-3 text-[var(--admin-accent-text)]">€{product.price_eur}</td>
                   <td className="px-4 py-3">
                     {product.condition ? (
                       <span
@@ -214,12 +214,12 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`text-[11px] font-medium ${
+                      className={`admin-status-text text-[11px] font-medium ${
                         filled === 3
-                          ? 'text-emerald-400'
+                          ? 'admin-status-green'
                           : filled >= 1
-                          ? 'text-yellow-400'
-                          : 'text-red-400'
+                          ? 'admin-status-amber'
+                          : 'admin-status-red'
                       }`}
                       title={`${filled} of 3 locales filled`}
                     >
@@ -228,8 +228,8 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`text-[10px] uppercase tracking-wider ${
-                        product.is_available ? 'text-emerald-400' : 'text-[var(--fg-muted)]'
+                      className={`admin-status-text text-[10px] uppercase tracking-wider ${
+                        product.is_available ? 'admin-status-green' : 'text-[var(--fg-muted)]'
                       }`}
                     >
                       {product.is_available ? 'Active' : 'Hidden'}
@@ -238,7 +238,7 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                   <td className="px-4 py-3">
                     <Link
                       href={`/admin/products/${product.id}`}
-                      className="flex items-center gap-1.5 text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
+                      className="flex items-center gap-1.5 text-[var(--fg-muted)] transition-colors hover:text-[var(--admin-accent-text)]"
                     >
                       <Pencil size={12} />
                       Edit
@@ -252,11 +252,11 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
 
         {products.length === 0 && (
           <div className="py-20 text-center">
-            <Package size={36} className="mx-auto mb-3 text-[var(--fg-muted)]/30" />
+            <Package size={36} className="mx-auto mb-3 text-[var(--fg-muted)]" />
             <p className="text-[var(--fg-muted)]">No products found</p>
             <Link
               href="/admin/products/new"
-              className="mt-4 inline-flex items-center gap-2 border border-[var(--accent)] px-4 py-2 text-[11px] uppercase tracking-wider text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-white"
+              className="admin-primary mt-4 inline-flex items-center gap-2"
             >
               Add your first product
             </Link>

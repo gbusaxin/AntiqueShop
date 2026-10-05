@@ -47,15 +47,17 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-[10px] uppercase tracking-widest text-[#c9a84c]/60">{label}</label>
-      {children}
-      {error && <p className="mt-1 text-[10px] text-red-400">{error}</p>}
+      <label className="block text-[11px] font-medium uppercase tracking-wider text-[var(--fg-muted)]">
+        <span className="mb-2 block">{label}</span>
+        {children}
+      </label>
+      {error && <p className="mt-1 text-[11px] text-red-700 dark:text-red-300">{error}</p>}
     </div>
   )
 }
 
 const inputCls =
-  'w-full border border-[#c9a84c]/20 bg-transparent px-3 py-2 text-xs text-[#f4ead1] placeholder:text-[#f4ead1]/20 focus:border-[#c9a84c]/60 focus:outline-none'
+  'admin-input'
 
 export function ProductForm({ categories, initialData, mode }: ProductFormProps) {
   const router = useRouter()
@@ -154,15 +156,15 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="admin-card space-y-8 p-5 sm:p-8">
       {error && (
-        <div className="border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-400">
+        <div className="border border-red-700/40 bg-red-500/10 px-4 py-3 text-xs text-red-800 dark:text-red-300">
           {error}
         </div>
       )}
 
       <section>
-        <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Names</h2>
+        <h2 className="admin-section mb-5">Names</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Field label="Name RU" error={errors.name_ru?.message}>
             <input {...register('name_ru')} className={inputCls} />
@@ -177,7 +179,7 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
       </section>
 
       <section>
-        <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Descriptions</h2>
+        <h2 className="admin-section mb-5">Descriptions</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {(['ru', 'en', 'de'] as const).map((lang) => (
             <Field key={lang} label={`Description ${lang.toUpperCase()}`}>
@@ -192,7 +194,7 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
       </section>
 
       <section>
-        <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Provenance</h2>
+        <h2 className="admin-section mb-5">Provenance</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {(['ru', 'en', 'de'] as const).map((lang) => (
             <Field key={lang} label={`Provenance ${lang.toUpperCase()}`}>
@@ -207,8 +209,8 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
       </section>
 
       <section>
-        <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Details</h2>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <h2 className="admin-section mb-5">Details</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Field label="Era">
             <input {...register('era')} className={inputCls} placeholder="Art Deco" />
           </Field>
@@ -244,8 +246,8 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
             <input {...register('price_eur')} type="number" step="0.01" className={inputCls} />
           </Field>
           <div className="flex items-end pb-1">
-            <label className="flex cursor-pointer items-center gap-2 text-xs text-[#f4ead1]/70">
-              <input {...register('is_available')} type="checkbox" className="accent-[#c9a84c]" />
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--fg)]">
+              <input {...register('is_available')} type="checkbox" className="h-4 w-4 accent-[#765A37]" />
               Available for sale
             </label>
           </div>
@@ -253,7 +255,7 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
       </section>
 
       <section>
-        <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Images</h2>
+        <h2 className="admin-section mb-5">Images</h2>
 
         {uploadedImages.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-3">
@@ -264,12 +266,12 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
                   alt=""
                   width={96}
                   height={96}
-                  className="h-24 w-24 object-cover border border-[#c9a84c]/20"
+                  className="h-24 w-24 border border-[var(--border)] object-cover"
                 />
                 <button
                   type="button"
                   onClick={() => removeImage(url)}
-                  className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-800 text-xs text-white transition-colors hover:bg-red-950"
                 >
                   ×
                 </button>
@@ -285,26 +287,26 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
             multiple
             accept="image/jpeg,image/png,image/webp,image/avif"
             onChange={handleFileUpload}
-            className="hidden"
+            className="sr-only peer"
             id="image-upload"
           />
           <label
             htmlFor="image-upload"
-            className={`inline-block cursor-pointer border border-dashed border-[#c9a84c]/30 px-5 py-3 text-[11px] uppercase tracking-wider text-[#c9a84c]/60 transition-colors hover:border-[#c9a84c]/60 hover:text-[#c9a84c] ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+            className={`inline-block cursor-pointer border-2 border-dashed border-[var(--accent)] px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--admin-accent-text)] transition-colors hover:bg-[var(--bg)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--accent)] ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
           >
             {uploading ? 'Uploading…' : '+ Upload Photos'}
           </label>
-          <p className="mt-1.5 text-[10px] text-[#f4ead1]/25">JPEG, PNG, WEBP, AVIF — max 8MB each</p>
+          <p className="mt-2 text-[11px] text-[var(--fg-muted)]">JPEG, PNG, WEBP, AVIF — max 8MB each</p>
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--border)] pt-6">
         {mode === 'edit' && (
           <button
             type="button"
             onClick={handleDelete}
             disabled={deleting}
-            className="border border-red-500/40 px-5 py-2 text-[11px] uppercase tracking-wider text-red-400 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+            className="border border-red-700 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-red-800 transition-colors hover:bg-red-500/10 disabled:opacity-50 dark:text-red-300"
           >
             {deleting ? 'Deleting…' : 'Delete Product'}
           </button>
@@ -313,14 +315,14 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
           <button
             type="button"
             onClick={() => router.push('/admin/products')}
-            className="border border-[#c9a84c]/20 px-5 py-2 text-[11px] uppercase tracking-wider text-[#f4ead1]/50 transition-colors hover:border-[#c9a84c]/40"
+            className="admin-secondary"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="border border-[#c9a84c] bg-[#c9a84c]/10 px-6 py-2 text-[11px] uppercase tracking-wider text-[#c9a84c] transition-colors hover:bg-[#c9a84c] hover:text-[#0d1f1a] disabled:opacity-50"
+            className="admin-primary disabled:opacity-50"
           >
             {saving ? 'Saving…' : mode === 'create' ? 'Create Product' : 'Save Changes'}
           </button>

@@ -26,30 +26,31 @@ export function AdminSidebar({ email }: { email: string }) {
   }
 
   return (
-    <aside className="fixed left-0 top-0 flex h-full w-56 flex-col border-r border-[var(--border)] bg-[var(--bg)]">
-      <div className="border-b border-[var(--border)] px-5 py-6">
+    <aside className="z-40 flex w-full flex-col border-b border-[var(--admin-sidebar-border)] bg-[var(--admin-sidebar)] text-[var(--admin-sidebar-fg)] md:fixed md:left-0 md:top-0 md:h-full md:w-56 md:border-b-0 md:border-r">
+      <div className="border-b border-[var(--admin-sidebar-border)] px-5 py-4 md:py-7">
         <Link
           href="/en"
-          className="font-serif text-base tracking-wider text-[var(--accent)] hover:text-[var(--accent-light)] transition-colors"
+          className="font-serif text-lg tracking-wide text-[var(--admin-sidebar-fg)] transition-colors hover:text-[#E5BD80]"
         >
           Belle Époque
         </Link>
-        <p className="mt-0.5 text-[9px] uppercase tracking-widest text-[var(--fg-muted)]">
+        <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.3em] text-[#D2B38A]">
           Admin Console
         </p>
       </div>
 
-      <nav className="flex-1 px-2 py-4">
+      <nav aria-label="Admin navigation" className="flex min-w-0 flex-1 gap-1 overflow-x-auto px-2 py-2 md:block md:overflow-visible md:py-5">
         {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact)
           return (
             <Link
               key={href}
               href={href}
-              className={`mb-0.5 flex items-center gap-3 rounded px-3 py-2.5 text-[12px] tracking-wide transition-colors ${
+              aria-current={active ? 'page' : undefined}
+              className={`flex shrink-0 items-center gap-3 border-l-2 px-3 py-2.5 text-[12px] tracking-wide transition-colors md:mb-1 ${
                 active
-                  ? 'bg-[var(--accent)]/10 text-[var(--accent)] font-medium'
-                  : 'text-[var(--fg-muted)] hover:bg-[var(--accent)]/5 hover:text-[var(--fg)]'
+                  ? 'border-[#D2B38A] bg-white/10 font-semibold text-[var(--admin-sidebar-fg)]'
+                  : 'border-transparent text-[var(--admin-sidebar-muted)] hover:bg-white/5 hover:text-[var(--admin-sidebar-fg)]'
               }`}
             >
               <Icon size={15} />
@@ -59,8 +60,8 @@ export function AdminSidebar({ email }: { email: string }) {
         })}
       </nav>
 
-      <div className="border-t border-[var(--border)] px-5 py-4">
-        <p className="truncate text-[10px] text-[var(--fg-muted)]">{email}</p>
+      <div className="border-t border-[var(--admin-sidebar-border)] px-5 py-2 md:py-5">
+        <p className="truncate text-[10px] text-[var(--admin-sidebar-muted)]">{email}</p>
       </div>
     </aside>
   )

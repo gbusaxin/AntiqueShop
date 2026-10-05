@@ -7,12 +7,12 @@ import { OrderStatusForm } from '@/components/admin/OrderStatusForm'
 import type { OrderStatus } from '@/types'
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  new: 'text-blue-400',
-  paid: 'text-emerald-400',
-  shipped: 'text-amber-400',
-  completed: 'text-green-400',
-  cancelled: 'text-red-400',
-  refunded: 'text-red-400',
+  new: 'admin-status-blue',
+  paid: 'admin-status-green',
+  shipped: 'admin-status-amber',
+  completed: 'admin-status-green',
+  cancelled: 'admin-status-red',
+  refunded: 'admin-status-red',
 }
 
 export default async function AdminOrderDetail({
@@ -46,12 +46,12 @@ export default async function AdminOrderDetail({
       <div className="mb-8 flex items-center gap-4">
         <Link
           href="/admin/orders"
-          className="flex items-center gap-1 text-[11px] text-[#c9a84c]/50 transition-colors hover:text-[#c9a84c]"
+          className="flex items-center gap-1 text-[11px] text-[var(--admin-accent-text)] transition-colors hover:text-[var(--admin-accent-text)]"
         >
           <ChevronLeft size={14} />
           Back
         </Link>
-        <h1 className="font-serif text-2xl text-[#c9a84c]">
+        <h1 className="font-serif text-2xl text-[var(--fg)] sm:text-3xl">
           Order #{id.slice(0, 8).toUpperCase()}
         </h1>
         <span className={`text-xs font-medium uppercase ${STATUS_COLORS[order.status as OrderStatus]}`}>
@@ -61,8 +61,8 @@ export default async function AdminOrderDetail({
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <div className="border border-[#c9a84c]/20 p-6">
-            <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Items</h2>
+          <div className="admin-card p-6">
+            <h2 className="admin-section mb-4">Items</h2>
             <div className="space-y-4">
               {(order.order_items ?? []).map(
                 (item: {
@@ -83,25 +83,25 @@ export default async function AdminOrderDetail({
                       {image ? (
                         <Image src={image} alt={name} width={64} height={64} className="h-16 w-16 object-cover" />
                       ) : (
-                        <div className="h-16 w-16 bg-[#c9a84c]/10" />
+                        <div className="h-16 w-16 bg-[var(--accent)]/10" />
                       )}
                       <div className="flex-1">
-                        <p className="text-sm text-[#f4ead1]/80">{name}</p>
-                        <p className="text-xs text-[#f4ead1]/40">qty: {item.quantity}</p>
+                        <p className="text-sm text-[var(--fg)]">{name}</p>
+                        <p className="text-xs text-[var(--fg-muted)]">qty: {item.quantity}</p>
                       </div>
-                      <p className="text-sm text-[#c9a84c]">€{Number(item.price_eur).toFixed(2)}</p>
+                      <p className="text-sm text-[var(--admin-accent-text)]">€{Number(item.price_eur).toFixed(2)}</p>
                     </div>
                   )
                 }
               )}
             </div>
-            <div className="mt-4 border-t border-[#c9a84c]/15 pt-4 text-right">
-              <p className="text-xs text-[#f4ead1]/40">Shipping: €{Number(order.shipping_cost_eur).toFixed(2)}</p>
-              <p className="mt-1 font-serif text-lg text-[#c9a84c]">
+            <div className="mt-4 border-t border-[var(--border)] pt-4 text-right">
+              <p className="text-xs text-[var(--fg-muted)]">Shipping: €{Number(order.shipping_cost_eur).toFixed(2)}</p>
+              <p className="mt-1 font-serif text-lg text-[var(--admin-accent-text)]">
                 Total: €{Number(order.total_eur).toFixed(2)}
               </p>
               {order.total_local && (
-                <p className="text-xs text-[#f4ead1]/40">
+                <p className="text-xs text-[var(--fg-muted)]">
                   ≈ {order.currency} {Number(order.total_local).toFixed(2)}
                 </p>
               )}
@@ -109,13 +109,13 @@ export default async function AdminOrderDetail({
           </div>
 
           {address && (
-            <div className="border border-[#c9a84c]/20 p-6">
-              <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Shipping Address</h2>
-              <div className="space-y-1 text-xs text-[#f4ead1]/70">
+            <div className="admin-card p-6">
+              <h2 className="admin-section mb-4">Shipping Address</h2>
+              <div className="space-y-1 text-xs text-[var(--fg)]">
                 {Object.entries(address).map(([k, v]) =>
                   v ? (
                     <p key={k}>
-                      <span className="text-[#f4ead1]/40 capitalize">{k.replace(/_/g, ' ')}:</span> {v}
+                      <span className="text-[var(--fg-muted)] capitalize">{k.replace(/_/g, ' ')}:</span> {v}
                     </p>
                   ) : null
                 )}
@@ -125,34 +125,34 @@ export default async function AdminOrderDetail({
         </div>
 
         <div className="space-y-4">
-          <div className="border border-[#c9a84c]/20 p-6">
-            <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Payment</h2>
+          <div className="admin-card p-6">
+            <h2 className="admin-section mb-4">Payment</h2>
             <div className="space-y-2 text-xs">
               <p>
-                <span className="text-[#f4ead1]/40">Provider:</span>{' '}
-                <span className="capitalize text-[#f4ead1]/70">{order.payment_provider ?? '—'}</span>
+                <span className="text-[var(--fg-muted)]">Provider:</span>{' '}
+                <span className="capitalize text-[var(--fg)]">{order.payment_provider ?? '—'}</span>
               </p>
               <p>
-                <span className="text-[#f4ead1]/40">Region:</span>{' '}
-                <span className="text-[#f4ead1]/70">{order.region}</span>
+                <span className="text-[var(--fg-muted)]">Region:</span>{' '}
+                <span className="text-[var(--fg)]">{order.region}</span>
               </p>
               <p>
-                <span className="text-[#f4ead1]/40">Session ID:</span>{' '}
-                <span className="break-all font-mono text-[10px] text-[#f4ead1]/40">
+                <span className="text-[var(--fg-muted)]">Session ID:</span>{' '}
+                <span className="break-all font-mono text-[10px] text-[var(--fg-muted)]">
                   {order.payment_session_id ?? '—'}
                 </span>
               </p>
               <p>
-                <span className="text-[#f4ead1]/40">Created:</span>{' '}
-                <span className="text-[#f4ead1]/70">
+                <span className="text-[var(--fg-muted)]">Created:</span>{' '}
+                <span className="text-[var(--fg)]">
                   {new Date(order.created_at).toLocaleString()}
                 </span>
               </p>
             </div>
           </div>
 
-          <div className="border border-[#c9a84c]/20 p-6">
-            <h2 className="mb-4 text-[10px] uppercase tracking-widest text-[#c9a84c]/50">Update Status</h2>
+          <div className="admin-card p-6">
+            <h2 className="admin-section mb-4">Update Status</h2>
             <OrderStatusForm orderId={id} currentStatus={order.status as OrderStatus} />
           </div>
         </div>

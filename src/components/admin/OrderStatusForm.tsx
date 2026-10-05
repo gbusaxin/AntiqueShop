@@ -43,14 +43,14 @@ export function OrderStatusForm({
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-[11px] text-red-400">{error}</p>}
+      {error && <p className="text-[11px] admin-status-red">{error}</p>}
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value as OrderStatus)}
-        className="w-full border border-[#c9a84c]/20 bg-transparent px-3 py-2 text-xs text-[#f4ead1] focus:border-[#c9a84c]/60 focus:outline-none"
+        className="admin-input"
       >
         {STATUSES.map((s) => (
-          <option key={s} value={s} className="bg-[#0d1f1a]">
+          <option key={s} value={s} className="bg-[var(--admin-card)] text-[var(--fg)]">
             {s.charAt(0).toUpperCase() + s.slice(1)}
           </option>
         ))}
@@ -58,7 +58,7 @@ export function OrderStatusForm({
       <button
         onClick={save}
         disabled={saving || status === currentStatus}
-        className="w-full border border-[#c9a84c] bg-[#c9a84c]/10 py-2 text-[11px] uppercase tracking-wider text-[#c9a84c] transition-colors hover:bg-[#c9a84c] hover:text-[#0d1f1a] disabled:opacity-40"
+        className="admin-primary w-full disabled:opacity-40"
       >
         {saving ? 'Saving…' : 'Update Status'}
       </button>

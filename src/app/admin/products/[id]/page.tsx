@@ -28,12 +28,12 @@ export default async function EditProductPage({
       <div className="mb-8 flex items-center gap-4">
         <Link
           href="/admin/products"
-          className="flex items-center gap-1 text-[11px] text-[#c9a84c]/50 transition-colors hover:text-[#c9a84c]"
+          className="flex items-center gap-1 text-[11px] text-[var(--admin-accent-text)] transition-colors hover:text-[var(--admin-accent-text)]"
         >
           <ChevronLeft size={14} />
           Back
         </Link>
-        <h1 className="font-serif text-2xl text-[#c9a84c]">
+        <h1 className="font-serif text-2xl text-[var(--fg)] sm:text-3xl">
           Edit: {product.name_en ?? product.name_ru ?? product.slug}
         </h1>
       </div>

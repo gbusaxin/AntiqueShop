@@ -29,7 +29,7 @@ export default async function AdminContent({
             href={`/admin/content?page=${p}`}
             className={`px-4 py-2 text-[11px] uppercase tracking-wider transition-colors ${
               activePage === p
-                ? 'border border-[var(--accent)] text-[var(--accent)]'
+                ? 'border border-[var(--accent)] text-[var(--admin-accent-text)]'
                 : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
             }`}
           >
@@ -44,10 +44,10 @@ export default async function AdminContent({
         ))}
 
         {(contents ?? []).length === 0 && (
-          <div className="py-20 text-center border border-[var(--border)]">
-            <FileText size={36} className="mx-auto mb-3 text-[var(--fg-muted)]/30" />
+          <div className="admin-card py-20 text-center">
+            <FileText size={36} className="mx-auto mb-3 text-[var(--fg-muted)]" />
             <p className="text-[var(--fg-muted)]">No content rows for /{activePage}</p>
-            <p className="mt-1 text-[12px] text-[var(--fg-muted)]/60">
+            <p className="mt-1 text-[12px] text-[var(--fg-muted)]">
               Add rows to the site_content table in Supabase with page = &quot;{activePage}&quot;.
             </p>
           </div>
