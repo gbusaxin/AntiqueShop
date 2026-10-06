@@ -57,6 +57,7 @@ export default async function HomePage({
   const { locale } = await params
   const t = await getTranslations('hero')
   const tCat = await getTranslations('categories')
+  const tHome = await getTranslations('home')
 
   const supabase = await createClient()
 
@@ -127,7 +128,7 @@ export default async function HomePage({
         <FeaturedCarousel
           products={products}
           locale={locale as Locale}
-          title="Featured Pieces"
+          title={tHome('featured')}
         />
       </div>
 
@@ -145,25 +146,24 @@ export default async function HomePage({
 
       <section className="border-t border-gold/10 bg-[#06150f] py-20">
         <div className="mx-auto max-w-2xl px-4 text-center">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/60">Stay Informed</p>
+          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/60">{tHome('newsletterEyebrow')}</p>
           <h2 className="mt-4 font-serif text-2xl text-gold-rich md:text-3xl">
-            New Acquisitions & Exhibitions
+            {tHome('newsletterTitle')}
           </h2>
           <p className="mx-auto mt-4 max-w-md text-xs leading-relaxed tracking-wide text-[#c8bfaa]/65">
-            Subscribe to receive curated updates on our latest arrivals, exclusive previews,
-            and upcoming events for collectors.
+            {tHome('newsletterDescription')}
           </p>
           <form className="mt-8 flex max-w-sm mx-auto gap-0">
             <input
               type="email"
-              placeholder="Your email address"
+              placeholder={tHome('newsletterPlaceholder')}
               className="flex-1 border border-gold/30 bg-transparent px-4 py-3 text-xs tracking-wide text-[#f4ead1] placeholder:text-[#f4ead1]/30 focus:border-gold/60 focus:outline-none"
             />
             <button
               type="submit"
               className="border border-l-0 border-gold/30 bg-gold/10 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-gold/80 transition-colors hover:bg-gold/20 hover:text-gold-rich"
             >
-              Subscribe
+              {tHome('newsletterSubmit')}
             </button>
           </form>
         </div>

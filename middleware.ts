@@ -1,5 +1,5 @@
 import createIntlMiddleware from 'next-intl/middleware'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { routing } from './src/i18n/routing'
 import { updateSupabaseSession } from './src/lib/supabase/middleware'
 
@@ -37,20 +37,6 @@ export default async function middleware(request: NextRequest) {
   const supabaseResponse = await updateSupabaseSession(safeRequest)
 
   const intlResponse = intlMiddleware(safeRequest)
-
-  if (intlResponse instanceof NextResponse && intlResponse.status !== 200) {
-    return intlResponse
-  }
-
-  if (intlResponse.headers.get('location')) {
-    const redirectResponse = NextResponse.redirect(
-      new URL(intlResponse.headers.get('location')!, request.url)
-    )
-    supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
-    })
-    return redirectResponse
-  }
 
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     intlResponse.cookies.set(cookie.name, cookie.value, cookie)

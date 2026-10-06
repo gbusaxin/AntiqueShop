@@ -1,4 +1,28 @@
 {
+  "home": {
+    "featured": "Ausgewählte Stücke",
+    "heritageEyebrow": "Unser Erbe",
+    "heritageTitle": "Jahrzehnte der Suche nach außergewöhnlichen Objekten",
+    "heritageFirst": "Belle Époque wurde 1987 im Herzen Wiens gegründet und widmet sich seit Jahrzehnten der Suche und Authentifizierung feinster Antiquitäten aus Europa und darüber hinaus. Jedes Stück unserer Sammlung wird wegen seiner historischen Bedeutung, seines künstlerischen Werts und seines hervorragenden Zustands ausgewählt.",
+    "heritageSecond": "Wir arbeiten direkt mit privaten Nachlässen, Auktionshäusern und Fachhändlern zusammen, um Ihnen Objekte mit nachgewiesener Herkunft anzubieten — Stücke, deren Geschichten so schön sind wie ihre Gestalt.",
+    "heritageLink": "Unsere Geschichte entdecken",
+    "heritageYears": "Jahre Erfahrung",
+    "newsletterEyebrow": "Bleiben Sie informiert",
+    "newsletterTitle": "Neuzugänge und Ausstellungen",
+    "newsletterDescription": "Abonnieren Sie Neuigkeiten zu unseren jüngsten Neuzugängen, exklusiven Vorbesichtigungen und bevorstehenden Veranstaltungen für Sammler.",
+    "newsletterPlaceholder": "Ihre E-Mail-Adresse",
+    "newsletterSubmit": "Abonnieren",
+    "footerDescription": "Seltene Antiquitäten von außergewöhnlicher Schönheit und belegter Herkunft, ausgewählt für anspruchsvolle Sammler.",
+    "footerCollection": "Kollektion",
+    "footerFullCatalog": "Gesamter Katalog",
+    "footerInformation": "Informationen",
+    "footerAbout": "Über das Geschäft",
+    "footerRights": "Alle Rechte vorbehalten.",
+    "footerRegion": "Region",
+    "carouselPrevious": "Zurück",
+    "carouselNext": "Weiter",
+    "carouselSlide": "Zu Folie {number} wechseln"
+  },
   "nav": {
     "home": "Startseite",
     "catalog": "Katalog",

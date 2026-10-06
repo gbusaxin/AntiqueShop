@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { CartProvider } from '@/components/providers/CartProvider'
 import { RegionProvider } from '@/components/providers/RegionProvider'
 import { Navbar } from '@/components/Navbar'
@@ -17,7 +17,8 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const messages = await getMessages()
+  setRequestLocale(locale)
+  const messages = await getMessages({ locale })
 
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()

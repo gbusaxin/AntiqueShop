@@ -1,4 +1,28 @@
 {
+  "home": {
+    "featured": "Featured Pieces",
+    "heritageEyebrow": "Our Heritage",
+    "heritageTitle": "A Century of Curating Exceptional Objects",
+    "heritageFirst": "Founded in 1987 in the heart of Vienna, Belle Époque has spent decades sourcing and authenticating the finest antique objects from across Europe and beyond. Each piece in our collection is selected for its historical significance, artistic merit, and exceptional condition.",
+    "heritageSecond": "We work directly with private estates, auction houses, and specialist dealers to bring you objects that carry genuine provenance — items with stories as beautiful as their form.",
+    "heritageLink": "Discover Our Story",
+    "heritageYears": "Years of Excellence",
+    "newsletterEyebrow": "Stay Informed",
+    "newsletterTitle": "New Acquisitions & Exhibitions",
+    "newsletterDescription": "Subscribe to receive curated updates on our latest arrivals, exclusive previews, and upcoming events for collectors.",
+    "newsletterPlaceholder": "Your email address",
+    "newsletterSubmit": "Subscribe",
+    "footerDescription": "Rare antique objects of exceptional beauty and provenance, curated for discerning collectors.",
+    "footerCollection": "Collection",
+    "footerFullCatalog": "Full Catalog",
+    "footerInformation": "Information",
+    "footerAbout": "About the Shop",
+    "footerRights": "All rights reserved.",
+    "footerRegion": "Region",
+    "carouselPrevious": "Previous",
+    "carouselNext": "Next",
+    "carouselSlide": "Go to slide {number}"
+  },
   "nav": {
     "home": "Home",
     "catalog": "Catalog",

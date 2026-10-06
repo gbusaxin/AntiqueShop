@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
+import { useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ProductCard } from '@/components/ProductCard'
 import type { Product } from '@/types'
@@ -14,6 +15,7 @@ interface FeaturedCarouselProps {
 }
 
 export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselProps) {
+  const t = useTranslations('home')
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: 'start',
@@ -56,14 +58,14 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
             <button
               onClick={scrollPrev}
               className="flex h-9 w-9 items-center justify-center border border-gold/30 text-gold/60 transition-colors hover:border-gold hover:text-gold-rich"
-              aria-label="Previous"
+              aria-label={t('carouselPrevious')}
             >
               <ChevronLeft size={16} />
             </button>
             <button
               onClick={scrollNext}
               className="flex h-9 w-9 items-center justify-center border border-gold/30 text-gold/60 transition-colors hover:border-gold hover:text-gold-rich"
-              aria-label="Next"
+              aria-label={t('carouselNext')}
             >
               <ChevronRight size={16} />
             </button>
@@ -96,7 +98,7 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
               className={`h-1 rounded-full transition-all duration-300 ${
                 i === selectedIndex ? 'w-6 bg-gold-rich' : 'w-2 bg-gold/30'
               }`}
-              aria-label={`Go to slide ${i + 1}`}
+              aria-label={t('carouselSlide', { number: i + 1 })}
             />
           ))}
         </div>

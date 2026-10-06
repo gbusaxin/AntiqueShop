@@ -1,9 +1,12 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
 export function AboutTeaser() {
+  const t = useTranslations('home')
+
   return (
     <section className="py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -15,27 +18,23 @@ export function AboutTeaser() {
             transition={{ duration: 0.75, ease: 'easeOut' }}
             className="flex flex-col gap-6"
           >
-            <p className="text-[11px] uppercase tracking-[0.3em] text-gold/60">Our Heritage</p>
+            <p className="text-[11px] uppercase tracking-[0.3em] text-gold/60">{t('heritageEyebrow')}</p>
             <h2 className="font-serif text-3xl leading-snug text-gold-rich md:text-4xl">
-              A Century of Curating Exceptional Objects
+              {t('heritageTitle')}
             </h2>
             <div className="h-px w-12 bg-gold/40" />
             <p className="text-sm leading-relaxed tracking-wide text-[#c8bfaa]/75">
-              Founded in 1987 in the heart of Vienna, Belle Époque has spent decades sourcing and
-              authenticating the finest antique objects from across Europe and beyond. Each piece
-              in our collection is selected for its historical significance, artistic merit, and
-              exceptional condition.
+              {t('heritageFirst')}
             </p>
             <p className="text-sm leading-relaxed tracking-wide text-[#c8bfaa]/75">
-              We work directly with private estates, auction houses, and specialist dealers to bring
-              you objects that carry genuine provenance — items with stories as beautiful as their form.
+              {t('heritageSecond')}
             </p>
             <div className="pt-2">
               <Link
                 href="/about"
                 className="border-b border-gold/40 pb-0.5 text-xs uppercase tracking-[0.2em] text-gold/80 transition-colors hover:border-gold hover:text-gold-rich"
               >
-                Discover Our Story
+                {t('heritageLink')}
               </Link>
             </div>
           </motion.div>
@@ -62,7 +61,7 @@ export function AboutTeaser() {
             </div>
             <div className="absolute -bottom-4 -right-4 border border-gold/20 bg-emerald-dark px-6 py-4">
               <p className="font-serif text-2xl text-gold-rich">35+</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-gold/60">Years of Excellence</p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-gold/60">{t('heritageYears')}</p>
             </div>
           </motion.div>
         </div>
