@@ -44,7 +44,7 @@ export function CookieBanner() {
       <button
         type="button"
         onClick={() => setShowChoices(true)}
-        className="fixed bottom-4 left-4 z-[100] border border-gold/25 bg-emerald-dark px-3 py-2 text-[11px] text-gold hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+        className="fixed bottom-4 left-4 z-[100] border border-input bg-background px-3 py-2 text-[11px] text-foreground hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         Cookie settings
       </button>
@@ -58,16 +58,16 @@ export function CookieBanner() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="fixed bottom-0 left-0 right-0 z-[100] border-t border-gold/20 bg-emerald-dark/98 backdrop-blur-md"
+        className="fixed bottom-0 left-0 right-0 z-[100] border-t border-input bg-background text-foreground"
       >
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1 pr-4">
-              <p className="text-xs leading-relaxed text-[#f4ead1]/70">
+              <p className="text-xs leading-relaxed text-foreground">
                 We use cookies to improve your experience, analyze traffic, and personalize content.
                 By clicking &ldquo;Accept&rdquo;, you consent to our use of cookies in accordance
                 with{' '}
-                <Link href="/en/legal/privacy" className="underline decoration-gold/40 hover:text-gold">
+                <Link href="/en/legal/privacy" className="underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
                   our Privacy Policy
                 </Link>{' '}
                 (GDPR / 152-ФЗ).
@@ -100,18 +100,18 @@ export function CookieBanner() {
                           always: false,
                         },
                       ].map((cat) => (
-                        <div key={cat.name} className="rounded border border-gold/15 p-3">
+                        <div key={cat.name} className="rounded border border-input p-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-medium uppercase tracking-wider text-gold">
+                            <span className="text-[11px] font-medium uppercase tracking-wider text-primary">
                               {cat.name}
                             </span>
                             <span
-                              className={`text-[10px] ${cat.always ? 'text-gold/50' : 'text-[#f4ead1]/40'}`}
+                              className="text-[10px] text-muted-foreground"
                             >
                               {cat.always ? 'Always on' : 'Optional'}
                             </span>
                           </div>
-                          <p className="mt-1 text-[11px] text-[#f4ead1]/50">{cat.desc}</p>
+                          <p className="mt-1 text-[11px] text-muted-foreground">{cat.desc}</p>
                         </div>
                       ))}
                     </div>
@@ -121,7 +121,7 @@ export function CookieBanner() {
 
               <button
                 onClick={() => setShowDetails((v) => !v)}
-                className="mt-2 text-[11px] text-gold/50 underline decoration-gold/30 hover:text-gold/80"
+                className="mt-2 text-[11px] text-foreground underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {showDetails ? 'Hide details' : 'Cookie details'}
               </button>
@@ -130,19 +130,19 @@ export function CookieBanner() {
             <div className="flex shrink-0 items-center gap-3">
               <button
                 onClick={() => choose('declined')}
-                className="border border-gold/25 px-5 py-2 text-[11px] uppercase tracking-wider text-gold/60 transition-colors hover:border-gold/50 hover:text-gold"
+                className="border border-primary/40 px-5 py-2 text-[11px] uppercase tracking-wider text-primary transition-colors hover:border-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 Decline
               </button>
               <button
                 onClick={() => choose('accepted')}
-                className="border border-gold bg-gold/10 px-5 py-2 text-[11px] uppercase tracking-wider text-gold transition-colors hover:bg-gold hover:text-emerald-dark"
+                className="border border-primary bg-primary px-5 py-2 text-[11px] uppercase tracking-wider text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 Accept all
               </button>
               <button
                 onClick={() => choose('declined')}
-                className="text-gold/30 transition-colors hover:text-gold/60"
+                className="text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 aria-label="Close"
               >
                 <X size={16} />

@@ -18,7 +18,7 @@ export default async function EditProductPage({
       .select('*')
       .eq('id', id)
       .single(),
-    supabase.from('categories').select('id, slug, name_ru, name_en, name_de, description_ru, description_en, description_de, image_url, sort_order, created_at').order('sort_order'),
+    supabase.from('categories').select('id, slug, name_ru, name_en, name_de, description_ru, description_en, description_de, image_url, sort_order, is_active, created_at, updated_at').order('sort_order'),
   ])
 
   if (!product) notFound()

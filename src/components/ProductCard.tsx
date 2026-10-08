@@ -12,14 +12,14 @@ interface ProductCardProps {
 
 const CONDITION_COLORS: Record<string, string> = {
   excellent: 'text-emerald-400 border-emerald-400/40',
-  very_good: 'text-emerald-300 border-emerald-300/40',
+  poor: 'text-orange-300 border-orange-300/40',
   good: 'text-amber-400 border-amber-400/40',
   fair: 'text-orange-400 border-orange-400/40',
 }
 
 const CONDITION_LABELS: Record<string, string> = {
   excellent: 'Excellent',
-  very_good: 'Very Good',
+  poor: 'Poor',
   good: 'Good',
   fair: 'Fair',
 }

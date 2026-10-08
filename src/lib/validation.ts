@@ -28,7 +28,7 @@ export function sanitizeString(value: unknown, maxLen: number): string | null {
   return trimmed.length > 0 ? trimmed.slice(0, maxLen) : null
 }
 
-export const VALID_CONDITIONS = ['excellent', 'very_good', 'good', 'fair'] as const
+export const VALID_CONDITIONS = ['excellent', 'good', 'fair', 'poor'] as const
 export type ValidCondition = (typeof VALID_CONDITIONS)[number]
 
 export function isValidCondition(value: unknown): value is ValidCondition {

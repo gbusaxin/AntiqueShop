@@ -6,7 +6,7 @@ export type PaymentProvider = 'stripe' | 'yookassa' | 'cloudpayments'
 
 export type ProfileRole = 'customer' | 'admin'
 
-export type ProductCondition = 'excellent' | 'very_good' | 'good' | 'fair'
+export type ProductCondition = 'excellent' | 'good' | 'fair' | 'poor'
 
 export type OrderStatus = 'new' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded'
 
@@ -31,7 +31,9 @@ export interface Category {
   description_de: string | null
   image_url: string | null
   sort_order: number
+  is_active: boolean
   created_at: string
+  updated_at: string
 }
 
 export interface PriceOverride {
@@ -47,6 +49,7 @@ export interface ProductSnapshot {
 export interface Product {
   id: string
   slug: string
+  sku: string
   category_id: string | null
   name_ru: string | null
   name_en: string | null
@@ -58,12 +61,15 @@ export interface Product {
   provenance_en: string | null
   provenance_de: string | null
   era: string | null
-  material: string | null
+  material: string
+  size: string
   country_of_origin: string | null
   condition: ProductCondition | null
   year_circa: string | null
   price_eur: number
   price_override: PriceOverride | null
+  price_override_amount: number | null
+  price_override_currency: string | null
   images: string[]
   is_available: boolean
   views_count: number
@@ -125,13 +131,16 @@ export interface CartItem {
 
 export interface SiteContent {
   id: string
-  page: string
-  section: string
+  page_key: 'about' | 'contacts' | 'legal_offer' | 'legal_privacy'
+  title_ru: string | null
+  title_en: string | null
+  title_de: string | null
   content_ru: string | null
   content_en: string | null
   content_de: string | null
   metadata: Record<string, unknown> | null
   updated_at: string
+  updated_by: string | null
 }
 
 export interface ContactRequest {

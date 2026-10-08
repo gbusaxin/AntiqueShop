@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   Package,
+  FolderTree,
   ShoppingCart,
   FileText,
   MessageSquare,
@@ -13,6 +14,7 @@ import {
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/products', label: 'Products', icon: Package, exact: false },
+  { href: '/admin/categories', label: 'Categories', icon: FolderTree, exact: false },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, exact: false },
   { href: '/admin/content', label: 'Content', icon: FileText, exact: false },
   { href: '/admin/contacts', label: 'Contacts', icon: MessageSquare, exact: false },

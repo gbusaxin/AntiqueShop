@@ -10,9 +10,9 @@ const ERAS = ['Art Deco', 'Art Nouveau', 'Victorian', 'Baroque', '18th century',
 const MATERIALS = ['Porcelain', 'Crystal', 'Silver', 'Bronze', 'Copper', 'Glass', 'Wood', 'Ivory']
 const CONDITIONS: { value: string; label: string }[] = [
   { value: 'excellent', label: 'Excellent' },
-  { value: 'very_good', label: 'Very Good' },
   { value: 'good', label: 'Good' },
   { value: 'fair', label: 'Fair' },
+  { value: 'poor', label: 'Poor' },
 ]
 
 function FilterGroup({

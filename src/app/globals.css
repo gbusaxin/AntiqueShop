@@ -9,6 +9,10 @@
   --accent: #A67C52;
   --accent-light: #C4975A;
   --border: #E5E2DC;
+  --input: #D9D2C5;
+  --primary: #8B6F47;
+  --primary-rgb: 139 111 71;
+  --primary-foreground: #FFFFFF;
   color-scheme: light;
 }
 
@@ -19,6 +23,10 @@
   --accent: #A67C52;
   --accent-light: #C4975A;
   --border: #2A2A2A;
+  --input: #796B5B;
+  --primary: #A67C52;
+  --primary-rgb: 166 124 82;
+  --primary-foreground: #14110F;
   color-scheme: dark;
 }
 

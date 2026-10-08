@@ -72,12 +72,13 @@
     "addToCart": "In den Warenkorb",
     "condition": {
       "excellent": "Ausgezeichnet",
-      "very_good": "Sehr gut",
+      "poor": "Schlecht",
       "good": "Gut",
       "fair": "Angemessen"
     },
     "era": "Epoche",
     "material": "Material",
+    "size": "Größe",
     "country": "Land",
     "year": "Jahr",
     "provenance": "Provenienz",

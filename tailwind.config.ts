@@ -6,6 +6,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        background: 'var(--bg)',
+        foreground: 'var(--fg)',
+        muted: { foreground: 'var(--fg-muted)' },
+        border: 'var(--border)',
+        input: 'var(--input)',
+        ring: 'var(--accent)',
+        primary: { DEFAULT: 'rgb(var(--primary-rgb) / <alpha-value>)', foreground: 'var(--primary-foreground)' },
         admin: {
           workspace: '#F5F1EA',
           card: '#FFFFFF',

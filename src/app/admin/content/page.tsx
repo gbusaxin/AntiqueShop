@@ -1,58 +1,50 @@
 import { createAdminClient } from '@/lib/supabaseServer'
 import { ContentEditor } from '@/components/admin/ContentEditor'
-import { FileText } from 'lucide-react'
-
-const PAGES = ['about', 'contacts', 'legal/offer', 'legal/privacy']
+import { CONTENT_PAGES, type ContentItem } from '@/components/admin/MarkdownEditor'
 
 export default async function AdminContent({
   searchParams,
 }: {
   searchParams: Promise<{ page?: string }>
 }) {
-  const { page: activePage = 'about' } = await searchParams
+  const { page } = await searchParams
+  const activePage = CONTENT_PAGES.find((item) => item.key === page || item.path === page) ?? CONTENT_PAGES[0]
   const supabase = createAdminClient()
-
-  const { data: contents } = await supabase
+  const { data, error } = await supabase
     .from('site_content')
-    .select('*')
-    .eq('page', activePage)
-    .order('section')
+    .select('id, page_key, title_ru, title_en, title_de, content_ru, content_en, content_de, metadata, updated_at, updated_by')
+    .in('page_key', CONTENT_PAGES.map((item) => item.key))
+  const contents = (data ?? []) as ContentItem[]
+  const item = contents.find((item) => item.page_key === activePage.key) ?? {
+    id: null,
+    page_key: activePage.key,
+    metadata: {},
+  }
 
   return (
     <div>
       <h1 className="mb-6 font-serif text-2xl text-[var(--fg)]">Site Content</h1>
-
       <div className="mb-6 flex flex-wrap gap-2">
-        {PAGES.map((p) => (
+        {CONTENT_PAGES.map((page) => (
           <a
-            key={p}
-            href={`/admin/content?page=${p}`}
+            key={page.key}
+            href={`/admin/content?page=${page.key}`}
+            aria-current={activePage.key === page.key ? 'page' : undefined}
             className={`px-4 py-2 text-[11px] uppercase tracking-wider transition-colors ${
-              activePage === p
+              activePage.key === page.key
                 ? 'border border-[var(--accent)] text-[var(--admin-accent-text)]'
                 : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
             }`}
           >
-            /{p}
+            {page.label}
           </a>
         ))}
       </div>
-
-      <div className="space-y-4">
-        {(contents ?? []).map((item) => (
-          <ContentEditor key={item.id} item={item} />
-        ))}
-
-        {(contents ?? []).length === 0 && (
-          <div className="admin-card py-20 text-center">
-            <FileText size={36} className="mx-auto mb-3 text-[var(--fg-muted)]" />
-            <p className="text-[var(--fg-muted)]">No content rows for /{activePage}</p>
-            <p className="mt-1 text-[12px] text-[var(--fg-muted)]">
-              Add rows to the site_content table in Supabase with page = &quot;{activePage}&quot;.
-            </p>
-          </div>
-        )}
-      </div>
+      {error ? (
+        <p role="alert" className="admin-status-red">Failed to load site content. Please reload before editing.</p>
+      ) : (
+        <ContentEditor key={item.page_key} item={item} />
+      )}
     </div>
   )
 }

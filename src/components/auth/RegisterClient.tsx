@@ -45,26 +45,26 @@ export function RegisterClient() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a1f18] px-4 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-4"
         >
-          <div className="flex h-16 w-16 items-center justify-center border border-gold/30">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="text-gold-rich">
+          <div className="flex h-16 w-16 items-center justify-center border border-input">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="text-foreground">
               <path d="M5 14L11 20L23 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <p className="font-serif text-xl text-gold-rich">Account Created</p>
-          <p className="text-xs text-[#c8bfaa]/60">Check your email to confirm your address.</p>
+          <p className="font-serif text-xl text-foreground">Account Created</p>
+          <p className="text-xs text-muted-foreground">Check your email to confirm your address.</p>
         </motion.div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a1f18] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -72,8 +72,8 @@ export function RegisterClient() {
         className="w-full max-w-sm"
       >
         <div className="mb-8 text-center">
-          <p className="font-serif text-2xl text-gold-rich tracking-wide">Belle Époque</p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-gold/50">Create Account</p>
+          <p className="font-serif text-2xl text-foreground tracking-wide">Belle Époque</p>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Create Account</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -85,14 +85,14 @@ export function RegisterClient() {
             ] as { key: keyof FormData; label: string; type: string; autocomplete: string }[]
           ).map(({ key, label, type, autocomplete }) => (
             <div key={key}>
-              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-gold/60">
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                 {label}
               </label>
               <input
                 type={type}
                 autoComplete={autocomplete}
                 {...register(key)}
-                className="w-full border border-gold/25 bg-transparent px-4 py-3 text-xs text-[#f4ead1] placeholder:text-[#f4ead1]/25 focus:border-gold/60 focus:outline-none"
+                className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               />
               {errors[key] && (
                 <p className="mt-1 text-[10px] text-red-400">{errors[key]?.message}</p>
@@ -105,14 +105,14 @@ export function RegisterClient() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 border border-gold/40 bg-gold/10 py-3.5 text-xs uppercase tracking-[0.2em] text-gold-rich transition-all hover:bg-gold hover:text-emerald-dark disabled:opacity-50"
+            className="mt-2 border border-primary bg-primary py-3.5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
           >
             {loading ? 'Creating…' : 'Create Account'}
           </button>
 
-          <p className="text-center text-[10px] text-gold/50">
+          <p className="text-center text-[10px] text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/auth/login" className="text-gold/70 hover:text-gold-rich transition-colors">
+            <Link href="/auth/login" className="text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
               Sign in
             </Link>
           </p>

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { ContactsClient } from '@/components/contacts/ContactsClient'
+import { getSiteContent } from '@/components/SiteContentPage'
+import { ContentText, contentPlaceholder, localizedContent } from '@/components/admin/MarkdownEditor'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
 
@@ -43,6 +45,16 @@ export async function generateMetadata({
   }
 }
 
-export default function ContactsPage() {
-  return <ContactsClient />
+export default async function ContactsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const item = await getSiteContent('contacts')
+  const defaultTitle = locale === 'ru' ? 'Контакты' : locale === 'de' ? 'Kontakt' : 'Contact Us'
+  return (
+    <ContactsClient
+      locale={locale}
+      title={localizedContent(item, locale, 'title') || defaultTitle}
+      content={<ContentText content={localizedContent(item, locale, 'content') || contentPlaceholder(locale)} />}
+      metadata={item?.metadata ?? {}}
+    />
+  )
 }

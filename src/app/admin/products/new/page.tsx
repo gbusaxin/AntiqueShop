@@ -7,7 +7,7 @@ export default async function NewProductPage() {
   const supabase = createAdminClient()
   const { data: categories } = await supabase
     .from('categories')
-    .select('id, slug, name_ru, name_en, name_de, description_ru, description_en, description_de, image_url, sort_order, created_at')
+    .select('id, slug, name_ru, name_en, name_de, description_ru, description_en, description_de, image_url, sort_order, is_active, created_at, updated_at')
     .order('sort_order')
 
   return (

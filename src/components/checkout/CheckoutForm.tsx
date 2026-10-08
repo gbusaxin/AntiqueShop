@@ -54,10 +54,10 @@ function InputField({
 }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-gold/60">{label}</label>
+      <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{label}</label>
       <input
         {...props}
-        className="w-full border border-gold/25 bg-transparent px-4 py-3 text-xs text-[#f4ead1] placeholder:text-[#f4ead1]/25 focus:border-gold/60 focus:outline-none"
+        className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       />
       <FieldError message={error} />
     </div>
@@ -155,18 +155,18 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               <div
                 className={`flex h-7 w-7 items-center justify-center border text-[11px] font-medium transition-colors ${
                   s === step
-                    ? 'border-gold bg-gold/10 text-gold-rich'
+                    ? 'border-primary bg-primary/10 text-foreground'
                     : s < step
-                    ? 'border-gold/60 bg-gold/5 text-gold/70'
-                    : 'border-gold/20 text-gold/30'
+                    ? 'border-primary/60 bg-primary/5 text-muted-foreground'
+                    : 'border-primary/20 text-muted-foreground'
                 }`}
               >
                 {s}
               </div>
-              <span className={`text-[10px] uppercase tracking-[0.15em] ${s === step ? 'text-gold/80' : 'text-gold/30'}`}>
+              <span className={`text-[10px] uppercase tracking-[0.15em] ${s === step ? 'text-foreground' : 'text-muted-foreground'}`}>
                 {s === 1 ? 'Shipping' : 'Payment'}
               </span>
-              {s < 2 && <div className="h-px w-8 bg-gold/15" />}
+              {s < 2 && <div className="h-px w-8 bg-primary/15" />}
             </div>
           ))}
         </div>
@@ -189,14 +189,14 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-gold/60">Country</label>
+                <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Country</label>
                 <select
                   {...register('country')}
-                  className="w-full border border-gold/25 bg-[#0a1f18] px-4 py-3 text-xs text-[#f4ead1] focus:border-gold/60 focus:outline-none"
+                  className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                   <option value="">Select country…</option>
                   {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code} className="bg-[#0a1f18]">{c.name}</option>
+                    <option key={c.code} value={c.code} className="bg-background">{c.name}</option>
                   ))}
                 </select>
                 <FieldError message={errors.country?.message} />
@@ -214,7 +214,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               </div>
 
               <div>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-gold/60">Delivery Method</p>
+                <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Delivery Method</p>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
                     { value: 'standard', label: 'Standard Delivery', price: '€35', time: '7–14 days' },
@@ -224,16 +224,16 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                       key={opt.value}
                       className={`flex cursor-pointer flex-col gap-1 border p-4 transition-colors ${
                         deliveryMethod === opt.value
-                          ? 'border-gold/60 bg-gold/5'
-                          : 'border-gold/20 hover:border-gold/35'
+                          ? 'border-primary/60 bg-primary/5'
+                          : 'border-primary/20 hover:border-primary/35'
                       }`}
                     >
                       <input type="radio" value={opt.value} {...register('deliveryMethod')} className="sr-only" />
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-[#f4ead1]">{opt.label}</span>
-                        <span className="font-serif text-sm text-gold-rich">{opt.price}</span>
+                        <span className="text-xs text-foreground">{opt.label}</span>
+                        <span className="font-serif text-sm text-foreground">{opt.price}</span>
                       </div>
-                      <span className="text-[10px] text-gold/50">{opt.time}</span>
+                      <span className="text-[10px] text-muted-foreground">{opt.time}</span>
                     </label>
                   ))}
                 </div>
@@ -242,7 +242,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               <button
                 type="button"
                 onClick={goToStep2}
-                className="mt-2 flex items-center justify-center border border-gold/40 bg-gold/10 py-4 text-xs uppercase tracking-[0.2em] text-gold-rich transition-colors hover:bg-gold/20"
+                className="mt-2 flex items-center justify-center border border-primary/40 bg-primary/10 py-4 text-xs uppercase tracking-[0.2em] text-foreground transition-colors hover:bg-primary/20"
               >
                 Continue to Payment →
               </button>
@@ -259,9 +259,9 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               className="flex flex-col gap-6"
             >
               <div data-testid="payment-section">
-                <p className="mb-4 text-[10px] uppercase tracking-[0.15em] text-gold/60">Payment Method</p>
+                <p className="mb-4 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Payment Method</p>
                 {derivedRegion === 'CIS' && (
-                  <p className="mb-3 text-[10px] text-gold/40">
+                  <p className="mb-3 text-[10px] text-muted-foreground">
                     Оплата через ЮKassa — доступна для России и СНГ
                   </p>
                 )}
@@ -269,7 +269,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                   {paymentMethods.map((method) => (
                     <label
                       key={method.id}
-                      className="flex cursor-pointer items-center gap-3 border border-gold/20 p-4 transition-colors hover:border-gold/40"
+                      className="flex cursor-pointer items-center gap-3 border border-primary/20 p-4 transition-colors hover:border-primary/40"
                     >
                       <input
                         type="radio"
@@ -277,10 +277,10 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                         {...register('paymentMethodId')}
                         className="sr-only"
                       />
-                      <div className="h-4 w-4 shrink-0 rounded-full border border-gold/40 flex items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-gold-rich opacity-0 peer-checked:opacity-100" />
+                      <div className="h-4 w-4 shrink-0 rounded-full border border-primary/40 flex items-center justify-center">
+                        <div className="h-2 w-2 rounded-full bg-primary opacity-0 peer-checked:opacity-100" />
                       </div>
-                      <span className="text-xs text-[#c8bfaa]/80">{method.label[locale]}</span>
+                      <span className="text-xs text-muted-foreground">{method.label[locale]}</span>
                     </label>
                   ))}
                 </div>
@@ -291,7 +291,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="border border-gold/20 px-6 py-4 text-xs uppercase tracking-[0.15em] text-gold/50 transition-colors hover:border-gold/40 hover:text-gold/80"
+                  className="border border-primary/20 px-6 py-4 text-xs uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 >
                   ← Back
                 </button>
@@ -299,7 +299,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                   type="submit"
                   data-testid="checkout-submit"
                   disabled={submitting}
-                  className="flex-1 border border-gold bg-gold/10 py-4 text-xs uppercase tracking-[0.2em] text-gold-rich transition-all hover:bg-gold hover:text-emerald-dark disabled:opacity-50"
+                  className="flex-1 border border-primary bg-primary py-4 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
                 >
                   {submitting ? 'Processing…' : 'Place Order'}
                 </button>
@@ -310,8 +310,8 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
       </div>
 
       <div className="lg:sticky lg:top-24 h-fit">
-        <div className="border border-gold/15 p-6">
-          <p className="mb-5 font-serif text-base text-gold-rich">Order Summary</p>
+        <div className="border border-primary/15 p-6">
+          <p className="mb-5 font-serif text-base text-foreground">Order Summary</p>
           <div className="space-y-3">
             {items.map((item) => (
               <div key={item.product.id} className="flex items-center justify-between gap-3">
@@ -326,30 +326,30 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                     />
                   )}
                   <div>
-                    <p className="text-[10px] text-[#c8bfaa]/70 line-clamp-1">
+                    <p className="text-[10px] text-muted-foreground line-clamp-1">
                       {item.product.name_en ?? item.product.name_ru ?? 'Item'}
                     </p>
-                    <p className="text-[10px] text-gold/50">×{item.quantity}</p>
+                    <p className="text-[10px] text-muted-foreground">×{item.quantity}</p>
                   </div>
                 </div>
-                <p className="shrink-0 text-xs text-[#f4ead1]">
+                <p className="shrink-0 text-xs text-foreground">
                   {formatPrice(item.priceEur * item.quantity, 'EUR', localeStr)}
                 </p>
               </div>
             ))}
           </div>
-          <div className="mt-5 space-y-2 border-t border-gold/10 pt-4 text-xs">
-            <div className="flex justify-between text-[#c8bfaa]/60">
+          <div className="mt-5 space-y-2 border-t border-primary/10 pt-4 text-xs">
+            <div className="flex justify-between text-muted-foreground">
               <span>Subtotal</span>
               <span>{formatPrice(totalEur, 'EUR', localeStr)}</span>
             </div>
-            <div className="flex justify-between text-[#c8bfaa]/60">
+            <div className="flex justify-between text-muted-foreground">
               <span>Shipping</span>
               <span>{formatPrice(shippingCost, 'EUR', localeStr)}</span>
             </div>
-            <div className="flex justify-between border-t border-gold/10 pt-2">
-              <span className="text-[10px] uppercase tracking-[0.15em] text-gold/70">Total</span>
-              <span className="font-serif text-base text-gold-rich">
+            <div className="flex justify-between border-t border-primary/10 pt-2">
+              <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Total</span>
+              <span className="font-serif text-base text-foreground">
                 {formatPrice(totalEur + shippingCost, 'EUR', localeStr)}
               </span>
             </div>

@@ -10,7 +10,7 @@ import type { ProductCondition } from '@/types'
 
 const CONDITION_BADGE: Record<ProductCondition, string> = {
   excellent: 'admin-status-green',
-  very_good: 'admin-status-green',
+  poor: 'admin-status-red',
   good: 'admin-status-amber',
   fair: 'admin-status-amber',
 }
@@ -18,6 +18,9 @@ const CONDITION_BADGE: Record<ProductCondition, string> = {
 interface Product {
   id: string
   slug: string
+  sku: string
+  material: string
+  size: string
   name_ru: string | null
   name_en: string | null
   name_de: string | null
@@ -144,6 +147,9 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
               </th>
               <th className="px-4 py-3 text-left">Image</th>
               <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3 text-left">SKU</th>
+              <th className="px-4 py-3 text-left">Material</th>
+              <th className="px-4 py-3 text-left">Size</th>
               <th className="px-4 py-3 text-left">Category</th>
               <th className="px-4 py-3 text-left">Price</th>
               <th className="px-4 py-3 text-left">Condition</th>
@@ -195,6 +201,9 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                     )}
                   </td>
                   <td className="px-4 py-3 text-[var(--fg)]">{name}</td>
+                  <td className="px-4 py-3 font-mono text-[var(--fg-muted)]">{product.sku}</td>
+                  <td className="px-4 py-3 text-[var(--fg-muted)]">{product.material}</td>
+                  <td className="px-4 py-3 text-[var(--fg-muted)]">{product.size}</td>
                   <td className="px-4 py-3 text-[var(--fg-muted)]">
                     {product.categories?.name_en ?? '—'}
                   </td>

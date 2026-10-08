@@ -72,12 +72,13 @@
     "addToCart": "Add to Cart",
     "condition": {
       "excellent": "Excellent",
-      "very_good": "Very Good",
+      "poor": "Poor",
       "good": "Good",
       "fair": "Fair"
     },
     "era": "Era",
     "material": "Material",
+    "size": "Size",
     "country": "Country",
     "year": "Year",
     "provenance": "Provenance",

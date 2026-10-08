@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -15,24 +15,12 @@ const schema = z.object({
 })
 type FormData = z.infer<typeof schema>
 
-const LOCATIONS = [
-  {
-    city: 'Vienna',
-    address: 'Kärntner Ring 14, 1010 Wien, Austria',
-    phone: '+43 1 512 44 20',
-    email: 'vienna@belleepoque.art',
-    hours: 'Mon–Fri 10:00–18:00, Sat 11:00–16:00',
-  },
-  {
-    city: 'Berlin',
-    address: 'Fasanenstraße 61, 10719 Berlin, Germany',
-    phone: '+49 30 881 62 44',
-    email: 'berlin@belleepoque.art',
-    hours: 'Mon–Fri 10:00–18:00',
-  },
-]
-
-export function ContactsClient() {
+export function ContactsClient({ title, content, metadata, locale }: {
+  title: string
+  content: ReactNode
+  metadata: Record<string, unknown>
+  locale: string
+}) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
@@ -45,7 +33,7 @@ export function ContactsClient() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, locale }),
       })
       if (res.ok) { setStatus('success'); reset() }
       else setStatus('error')
@@ -55,19 +43,13 @@ export function ContactsClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
-      <section
-        className="py-24"
-        style={{ background: 'linear-gradient(135deg, #033728 0%, #3d0f0f 100%)' }}
-      >
+    <div className="min-h-screen bg-background pt-20 text-foreground">
+      <section className="bg-primary/10 py-24">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">Get in Touch</p>
-          <h1 className="mt-4 font-serif text-4xl text-gold-rich">Contact Us</h1>
-          <div className="mx-auto mt-5 h-px w-12 bg-gold/40" />
-          <p className="mx-auto mt-6 max-w-md text-sm leading-relaxed text-[#c8bfaa]/70">
-            Our specialists are always happy to assist with inquiries about specific pieces,
-            provenance research, or private viewings.
-          </p>
+          <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">Get in Touch</p>
+          <h1 className="mt-4 font-serif text-4xl text-foreground">{title}</h1>
+          <div className="mx-auto mt-5 h-px w-12 bg-primary/40" />
+          <div className="mx-auto mt-6 max-w-3xl text-left text-muted-foreground">{content}</div>
         </div>
       </section>
 
@@ -80,29 +62,27 @@ export function ContactsClient() {
             transition={{ duration: 0.65 }}
             className="flex flex-col gap-8"
           >
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.25em] text-gold/50">Our Locations</p>
-              <h2 className="mt-3 font-serif text-2xl text-gold-rich">Visit a Gallery</h2>
+            <h2 className="font-serif text-2xl text-foreground">
+              {locale === 'ru' ? 'Контактная информация' : locale === 'de' ? 'Kontaktdaten' : 'Contact details'}
+            </h2>
+            <div className="flex flex-col gap-4 border border-primary/15 p-5">
+              {[
+                { icon: MapPin, key: 'address' },
+                { icon: Phone, key: 'phone' },
+                { icon: Mail, key: 'email' },
+                { icon: Clock, key: 'working_hours' },
+                { icon: MapPin, key: 'map_coordinates' },
+              ].map(({ icon: Icon, key }) => {
+                const text = metadata[key]
+                if (typeof text !== 'string' || !text.trim()) return null
+                return (
+                  <div key={key} className="flex items-start gap-3">
+                    <Icon size={12} className="mt-0.5 shrink-0 text-muted-foreground" />
+                    <span className="whitespace-pre-wrap break-words text-xs leading-relaxed text-muted-foreground">{text}</span>
+                  </div>
+                )
+              })}
             </div>
-
-            {LOCATIONS.map((loc) => (
-              <div key={loc.city} className="border border-gold/15 p-5">
-                <p className="mb-3 font-serif text-base text-gold-rich">{loc.city}</p>
-                <div className="flex flex-col gap-2.5">
-                  {[
-                    { icon: MapPin, text: loc.address },
-                    { icon: Phone, text: loc.phone },
-                    { icon: Mail, text: loc.email },
-                    { icon: Clock, text: loc.hours },
-                  ].map(({ icon: Icon, text }) => (
-                    <div key={text} className="flex items-start gap-3">
-                      <Icon size={12} className="mt-0.5 shrink-0 text-gold/50" />
-                      <span className="text-xs leading-relaxed text-[#c8bfaa]/70">{text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
           </motion.div>
 
           <motion.div
@@ -111,17 +91,17 @@ export function ContactsClient() {
             viewport={{ once: true }}
             transition={{ duration: 0.65 }}
           >
-            <p className="text-[11px] uppercase tracking-[0.25em] text-gold/50">Write to Us</p>
-            <h2 className="mt-3 mb-8 font-serif text-2xl text-gold-rich">Send a Message</h2>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Write to Us</p>
+            <h2 className="mt-3 mb-8 font-serif text-2xl text-foreground">Send a Message</h2>
 
             {status === 'success' ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="border border-gold/25 bg-gold/5 p-8 text-center"
+                className="border border-primary/25 bg-primary/5 p-8 text-center"
               >
-                <p className="font-serif text-lg text-gold-rich">Message Sent</p>
-                <p className="mt-2 text-xs text-[#c8bfaa]/60">
+                <p className="font-serif text-lg text-foreground">Message Sent</p>
+                <p className="mt-2 text-xs text-muted-foreground">
                   Thank you. We will respond within one business day.
                 </p>
               </motion.div>
@@ -133,11 +113,11 @@ export function ContactsClient() {
                   { key: 'phone', label: 'Phone (optional)', type: 'tel' },
                 ].map(({ key, label, type }) => (
                   <div key={key}>
-                    <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-gold/60">{label}</label>
+                    <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{label}</label>
                     <input
                       type={type}
                       {...register(key as keyof FormData)}
-                      className="w-full border border-gold/25 bg-transparent px-4 py-3 text-xs text-[#f4ead1] placeholder:text-[#f4ead1]/20 focus:border-gold/60 focus:outline-none"
+                      className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     />
                     {errors[key as keyof FormData] && (
                       <p className="mt-1 text-[10px] text-red-400">{errors[key as keyof FormData]?.message}</p>
@@ -146,11 +126,11 @@ export function ContactsClient() {
                 ))}
 
                 <div>
-                  <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-gold/60">Message</label>
+                  <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Message</label>
                   <textarea
                     rows={5}
                     {...register('message')}
-                    className="w-full resize-none border border-gold/25 bg-transparent px-4 py-3 text-xs text-[#f4ead1] placeholder:text-[#f4ead1]/20 focus:border-gold/60 focus:outline-none"
+                    className="w-full resize-none border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   />
                   {errors.message && (
                     <p className="mt-1 text-[10px] text-red-400">{errors.message.message}</p>
@@ -164,7 +144,7 @@ export function ContactsClient() {
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="border border-gold/40 bg-gold/10 py-3.5 text-xs uppercase tracking-[0.2em] text-gold-rich transition-all hover:bg-gold hover:text-emerald-dark disabled:opacity-50"
+                  className="border border-primary bg-primary py-3.5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
                 >
                   {status === 'loading' ? 'Sending…' : 'Send Message'}
                 </button>

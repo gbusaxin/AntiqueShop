@@ -18,14 +18,14 @@ import type { Metadata } from 'next'
 
 const CONDITION_STYLES: Record<ProductCondition, string> = {
   excellent: 'border-emerald-400/40 text-emerald-400 bg-emerald-400/5',
-  very_good: 'border-emerald-300/40 text-emerald-300 bg-emerald-300/5',
+  poor: 'border-orange-300/40 text-orange-300 bg-orange-300/5',
   good: 'border-amber-400/40 text-amber-400 bg-amber-400/5',
   fair: 'border-orange-400/40 text-orange-400 bg-orange-400/5',
 }
 
 const CONDITION_LABELS: Record<ProductCondition, string> = {
   excellent: 'Excellent',
-  very_good: 'Very Good',
+  poor: 'Poor',
   good: 'Good',
   fair: 'Fair',
 }
@@ -145,6 +145,8 @@ export default async function ProductPage({
     name,
     description: description ?? undefined,
     image: product.images ?? [],
+    sku: product.sku,
+    material: product.material,
     offers: {
       '@type': 'Offer',
       priceCurrency: priceInfo.currency,
@@ -183,7 +185,10 @@ export default async function ProductPage({
               </span>
             )}
 
-            <h1 className="font-serif text-3xl leading-snug text-[#f4ead1] md:text-4xl">{name}</h1>
+            <div>
+              <h1 className="font-serif text-3xl leading-snug text-[#f4ead1] md:text-4xl">{name}</h1>
+              <p className="mt-2 font-mono text-[11px] tracking-wide text-gold/60">SKU {product.sku}</p>
+            </div>
 
             {product.condition && (
               <div className="flex items-center gap-3">
@@ -214,6 +219,12 @@ export default async function ProductPage({
                 <div className="flex gap-4">
                   <span className="w-28 shrink-0 text-[10px] uppercase tracking-[0.15em] text-gold/50">{t('material')}</span>
                   <span className="tracking-wide text-[#c8bfaa]/80">{product.material}</span>
+                </div>
+              )}
+              {product.size && (
+                <div className="flex gap-4">
+                  <span className="w-28 shrink-0 text-[10px] uppercase tracking-[0.15em] text-gold/50">{t('size')}</span>
+                  <span className="tracking-wide text-[#c8bfaa]/80">{product.size}</span>
                 </div>
               )}
               {product.country_of_origin && (

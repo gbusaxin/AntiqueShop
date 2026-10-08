@@ -13,11 +13,12 @@ export default async function AdminProducts({
 
   let query = supabase
     .from('products')
-    .select('id, slug, name_ru, name_en, name_de, price_eur, condition, is_available, created_at, images, categories(name_en)')
+    .select('id, slug, sku, name_ru, name_en, name_de, material, size, price_eur, condition, is_available, created_at, images, categories(name_en)')
     .order('created_at', { ascending: false })
 
-  if (q) {
-    query = query.or(`name_en.ilike.%${q}%,name_ru.ilike.%${q}%`)
+  const safeQuery = q?.trim().replace(/[^\p{L}\p{N}\s-]/gu, '').slice(0, 80)
+  if (safeQuery) {
+    query = query.or(`name_en.ilike.%${safeQuery}%,name_ru.ilike.%${safeQuery}%,sku.ilike.%${safeQuery}%`)
   }
   if (available === 'true') query = query.eq('is_available', true)
   if (available === 'false') query = query.eq('is_available', false)
@@ -47,7 +48,7 @@ export default async function AdminProducts({
           <input
             name="q"
             defaultValue={q}
-            placeholder="Search products…"
+            placeholder="Search name or SKU…"
             className="admin-input min-w-0 sm:w-64"
           />
           <button
