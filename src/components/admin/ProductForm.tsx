@@ -30,7 +30,7 @@ const schema = z.object({
   year_circa: z.string().optional(),
   price_eur: z.coerce.number({ invalid_type_error: 'Это поле обязательно' }).positive('Цена должна быть больше нуля'),
   category_id: z.string().uuid('Это поле обязательно'),
-  sku: z.string().regex(/^\d{7}$/, 'SKU должен содержать ровно 7 цифр').optional(),
+  sku: z.union([z.string().regex(/^\d{7}$/, 'SKU должен содержать ровно 7 цифр'), z.literal('')]).optional(),
   is_available: z.boolean(),
 })
 
@@ -81,9 +81,13 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [categoryOptions, setCategoryOptions] = useState(categories)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
+  const formSchema = schema.refine((values) => mode === 'create' || /^\d{7}$/.test(values.sku ?? ''), {
+    path: ['sku'],
+    message: 'SKU должен содержать ровно 7 цифр',
+  })
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(formSchema),
     mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: {
@@ -246,7 +250,11 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
           <Field label="Country of Origin"><input {...register('country_of_origin')} className={inputCls} placeholder="France" /></Field>
           <Field label="Year / Circa"><input {...register('year_circa')} className={inputCls} placeholder="1920s" /></Field>
           <Field label="SKU" error={errors.sku?.message}>
-            <input {...register('sku')} readOnly={mode === 'create'} disabled={mode === 'create'} className={`${inputCls} font-mono ${errors.sku ? invalidCls : ''}`} placeholder={mode === 'create' ? 'Будет сгенерирован автоматически' : '1234567'} aria-invalid={!!errors.sku} />
+            {mode === 'create' ? (
+              <input disabled value="" className={`${inputCls} font-mono`} placeholder="Будет сгенерирован автоматически" />
+            ) : (
+              <input {...register('sku')} inputMode="numeric" maxLength={7} className={`${inputCls} font-mono ${errors.sku ? invalidCls : ''}`} placeholder="1234567" aria-invalid={!!errors.sku} />
+            )}
           </Field>
           <div className="flex items-end pb-1">
             <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--fg)]">

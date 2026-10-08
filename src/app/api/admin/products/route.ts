@@ -22,6 +22,7 @@ const productSchema = z.object({
   year_circa: z.string().max(20).optional().nullable(),
   price_eur: z.coerce.number().positive().max(10_000_000),
   category_id: z.string().uuid(),
+  sku: z.union([z.string().trim().regex(/^\d{7}$/), z.literal('')]).optional(),
   is_available: z.boolean().default(true),
   images: z.array(z.string().url()).max(30).default([]),
 })
@@ -57,8 +58,8 @@ export async function POST(request: Request) {
   const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('id', input.category_id).single()
   if (categoryError || !category) return NextResponse.json({ error: 'Category not found' }, { status: 400 })
 
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const sku = String(randomInt(1_000_000, 10_000_000))
+  for (let attempt = 0; attempt < (input.sku ? 1 : 10); attempt++) {
+    const sku = input.sku || String(randomInt(1_000_000, 10_000_000))
     const { data, error } = await supabase.from('products').insert({
       sku,
       slug: `${generateSlug(input.name_en || input.name_ru)}-${sku}`,
@@ -84,7 +85,10 @@ export async function POST(request: Request) {
     }).select('id, sku').single()
 
     if (!error && data) return NextResponse.json(data, { status: 201 })
-    if (error?.code === '23505' && /sku|slug/.test(error.message)) continue
+    if (error?.code === '23505' && /sku|slug/.test(error.message)) {
+      if (input.sku) return NextResponse.json({ error: 'SKU уже используется' }, { status: 409 })
+      continue
+    }
     console.error('[admin products POST]', error)
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
   }
