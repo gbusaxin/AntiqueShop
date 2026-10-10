@@ -5,9 +5,9 @@ const FALLBACK_RATES: Record<string, number> = {
 }
 
 export async function getExchangeRates(): Promise<Record<string, number>> {
-  const supabase = createAdminClient()
-
   try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return FALLBACK_RATES
+    const supabase = createAdminClient()
     const { data: cached } = await supabase
       .from('exchange_rates')
       .select('rates, expires_at')

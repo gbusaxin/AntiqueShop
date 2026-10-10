@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { createClient, createAdminClient } from '@/lib/supabaseServer'
 import { isValidUUID } from '@/lib/validation'
 import { CONTENT_PAGES } from '@/components/admin/MarkdownEditor'
+import { contactMetadataSchema } from '@/components/contacts/mapSettings'
 
 const schema = z.object({
   page_key: z.enum(['about', 'contacts', 'legal_offer', 'legal_privacy']).optional(),
@@ -13,13 +14,7 @@ const schema = z.object({
   content_ru: z.string().max(50000).nullable().optional(),
   content_en: z.string().max(50000).nullable().optional(),
   content_de: z.string().max(50000).nullable().optional(),
-  metadata: z.object({
-    address: z.string().max(2000).optional(),
-    phone: z.string().max(2000).optional(),
-    email: z.string().max(2000).optional(),
-    working_hours: z.string().max(2000).optional(),
-    map_coordinates: z.string().max(2000).optional(),
-  }).catchall(z.unknown()).optional(),
+  metadata: contactMetadataSchema.optional(),
 }).strict().refine((value) => Object.keys(value).some((key) => key !== 'page_key'), 'No fields to update')
 
 async function requireAdmin() {

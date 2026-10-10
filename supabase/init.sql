@@ -13,6 +13,11 @@ DROP POLICY IF EXISTS storage_write_admin ON storage.objects;
 DROP POLICY IF EXISTS storage_update_admin ON storage.objects;
 DROP POLICY IF EXISTS storage_delete_admin ON storage.objects;
 
+DROP POLICY IF EXISTS blog_storage_read ON storage.objects;
+DROP POLICY IF EXISTS blog_storage_insert ON storage.objects;
+DROP POLICY IF EXISTS blog_storage_update ON storage.objects;
+DROP POLICY IF EXISTS blog_storage_delete ON storage.objects;
+DROP TABLE IF EXISTS public.blog_posts CASCADE;
 DROP TABLE IF EXISTS public.webhook_events CASCADE;
 DROP TABLE IF EXISTS public.order_items CASCADE;
 DROP TABLE IF EXISTS public.orders CASCADE;
@@ -102,6 +107,33 @@ CREATE TABLE public.site_content (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
 );
+
+CREATE TABLE public.blog_posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT NOT NULL UNIQUE CHECK (length(slug) <= 160 AND slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  title_ru TEXT NOT NULL DEFAULT '' CHECK (length(title_ru) <= 300),
+  title_en TEXT NOT NULL DEFAULT '' CHECK (length(title_en) <= 300),
+  title_de TEXT NOT NULL DEFAULT '' CHECK (length(title_de) <= 300),
+  excerpt_ru TEXT NOT NULL DEFAULT '' CHECK (length(excerpt_ru) <= 1000),
+  excerpt_en TEXT NOT NULL DEFAULT '' CHECK (length(excerpt_en) <= 1000),
+  excerpt_de TEXT NOT NULL DEFAULT '' CHECK (length(excerpt_de) <= 1000),
+  content_ru TEXT NOT NULL DEFAULT '' CHECK (length(content_ru) <= 50000),
+  content_en TEXT NOT NULL DEFAULT '' CHECK (length(content_en) <= 50000),
+  content_de TEXT NOT NULL DEFAULT '' CHECK (length(content_de) <= 50000),
+  tags TEXT[] NOT NULL DEFAULT '{}' CHECK (cardinality(tags) <= 20 AND array_position(tags, NULL) IS NULL),
+  images JSONB NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(images) = 'array' AND jsonb_array_length(images) <= 10),
+  is_published BOOLEAN NOT NULL DEFAULT false,
+  published_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (NOT is_published OR (published_at IS NOT NULL AND (
+    (length(btrim(title_ru)) > 0 AND length(btrim(content_ru)) > 0) OR
+    (length(btrim(title_en)) > 0 AND length(btrim(content_en)) > 0) OR
+    (length(btrim(title_de)) > 0 AND length(btrim(content_de)) > 0)
+  )))
+);
+CREATE INDEX idx_blog_posts_published ON public.blog_posts(published_at DESC, id) WHERE is_published;
+CREATE INDEX idx_blog_posts_tags ON public.blog_posts USING gin(tags);
 
 CREATE TABLE public.contact_requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -232,6 +264,36 @@ CREATE TRIGGER site_content_update_updated_at BEFORE UPDATE ON public.site_conte
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER orders_update_updated_at BEFORE UPDATE ON public.orders
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE TRIGGER blog_posts_update_updated_at BEFORE UPDATE ON public.blog_posts
+FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY blog_posts_read ON public.blog_posts FOR SELECT TO anon, authenticated
+  USING ((is_published AND published_at <= now()) OR (SELECT public.is_admin()));
+CREATE POLICY blog_posts_admin_insert ON public.blog_posts FOR INSERT TO authenticated
+  WITH CHECK ((SELECT public.is_admin()));
+CREATE POLICY blog_posts_admin_update ON public.blog_posts FOR UPDATE TO authenticated
+  USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+CREATE POLICY blog_posts_admin_delete ON public.blog_posts FOR DELETE TO authenticated
+  USING ((SELECT public.is_admin()));
+REVOKE ALL ON public.blog_posts FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON public.blog_posts TO anon, authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.blog_posts TO authenticated;
+GRANT ALL ON public.blog_posts TO service_role;
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('blog-images', 'blog-images', true, 10485760, ARRAY['image/webp'])
+ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public,
+  file_size_limit = EXCLUDED.file_size_limit, allowed_mime_types = EXCLUDED.allowed_mime_types;
+CREATE POLICY blog_storage_read ON storage.objects FOR SELECT TO anon, authenticated
+  USING (bucket_id = 'blog-images');
+CREATE POLICY blog_storage_insert ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'blog-images' AND (SELECT public.is_admin()));
+CREATE POLICY blog_storage_update ON storage.objects FOR UPDATE TO authenticated
+  USING (bucket_id = 'blog-images' AND (SELECT public.is_admin()))
+  WITH CHECK (bucket_id = 'blog-images' AND (SELECT public.is_admin()));
+CREATE POLICY blog_storage_delete ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'blog-images' AND (SELECT public.is_admin()));
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;

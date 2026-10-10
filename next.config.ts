@@ -12,7 +12,7 @@ const cspDirectives = [
     : "script-src 'self' 'unsafe-inline' https://js.stripe.com https://yookassa.ru https://browser.sentry-cdn.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https://*.supabase.co",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.basemaps.cartocdn.com",
   "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.yookassa.ru https://*.sentry.io https://o*.ingest.sentry.io https://eu.i.posthog.com https://us.i.posthog.com https://app.posthog.com",
   "frame-src https://js.stripe.com https://hooks.stripe.com https://yookassa.ru",
   "frame-ancestors 'none'",

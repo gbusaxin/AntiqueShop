@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
 import { MapPin, Phone, Mail, Clock } from 'lucide-react'
+import { ContactsMap } from './ContactsMap'
+import { getContactMapSettings } from './mapSettings'
 
 const schema = z.object({
   name: z.string().min(2, 'Required').max(100, 'Too long'),
@@ -22,6 +24,7 @@ export function ContactsClient({ title, content, metadata, locale }: {
   locale: string
 }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const mapSettings = getContactMapSettings(metadata)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -71,7 +74,6 @@ export function ContactsClient({ title, content, metadata, locale }: {
                 { icon: Phone, key: 'phone' },
                 { icon: Mail, key: 'email' },
                 { icon: Clock, key: 'working_hours' },
-                { icon: MapPin, key: 'map_coordinates' },
               ].map(({ icon: Icon, key }) => {
                 const text = metadata[key]
                 if (typeof text !== 'string' || !text.trim()) return null
@@ -83,6 +85,7 @@ export function ContactsClient({ title, content, metadata, locale }: {
                 )
               })}
             </div>
+            {mapSettings && <ContactsMap settings={mapSettings} locale={locale} />}
           </motion.div>
 
           <motion.div

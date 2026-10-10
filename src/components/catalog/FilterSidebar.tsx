@@ -3,8 +3,8 @@
 import { useCallback, useState } from 'react'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import * as Checkbox from '@radix-ui/react-checkbox'
-import * as Slider from '@radix-ui/react-slider'
 import { Check, ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react'
+import type { Category } from '@/types'
 
 const ERAS = ['Art Deco', 'Art Nouveau', 'Victorian', 'Baroque', '18th century', 'Soviet', 'Other']
 const MATERIALS = ['Porcelain', 'Crystal', 'Silver', 'Bronze', 'Copper', 'Glass', 'Wood', 'Ivory']
@@ -70,6 +70,9 @@ interface FilterSidebarProps {
   priceMin: number
   priceMax: number
   condition: string
+  categories: Category[]
+  categorySlug: string
+  search: string
 }
 
 export function FilterSidebar({
@@ -78,11 +81,16 @@ export function FilterSidebar({
   priceMin,
   priceMax,
   condition,
+  categories,
+  categorySlug,
+  search,
 }: FilterSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [localPriceRange, setLocalPriceRange] = useState<[number, number]>([priceMin, priceMax])
+  const [priceFrom, setPriceFrom] = useState(priceMin ? String(priceMin) : '')
+  const [priceTo, setPriceTo] = useState(priceMax ? String(priceMax) : '')
+  const [searchInput, setSearchInput] = useState(search)
 
   const updateParam = useCallback(
     (key: string, value: string | string[] | null) => {
@@ -123,11 +131,15 @@ export function FilterSidebar({
     selectedMaterials.length > 0 ||
     !!condition ||
     priceMin > 0 ||
-    priceMax < 50000
+    priceMax > 0 ||
+    !!categorySlug ||
+    !!search
 
   const clearAll = () => {
     router.push(pathname)
-    setLocalPriceRange([0, 50000])
+    setPriceFrom('')
+    setPriceTo('')
+    setSearchInput('')
   }
 
   const FiltersContent = (
@@ -140,6 +152,20 @@ export function FilterSidebar({
           <X size={10} /> Clear all filters
         </button>
       )}
+
+      <FilterGroup label="Search">
+        <form onSubmit={(event) => { event.preventDefault(); updateParam('search', searchInput.trim() || null) }}>
+          <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="Search products" aria-label="Search products" className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
+          <button type="submit" className="mt-2 text-xs text-[#c8bfaa] hover:text-white">Search</button>
+        </form>
+      </FilterGroup>
+
+      <FilterGroup label="Category">
+        <select value={categorySlug} onChange={(event) => updateParam('category', event.target.value || null)} aria-label="Category" className="w-full border border-gold/30 bg-[#0a1f18] px-2 py-2 text-xs text-white">
+          <option value="">All categories</option>
+          {categories.map((category) => <option key={category.id} value={category.slug}>{category.name_ru || category.name_en}</option>)}
+        </select>
+      </FilterGroup>
 
       <FilterGroup label="Era">
         {ERAS.map((era) => (
@@ -164,30 +190,9 @@ export function FilterSidebar({
       </FilterGroup>
 
       <FilterGroup label="Price (EUR)">
-        <div className="px-1 pt-2 pb-4">
-          <Slider.Root
-            min={0}
-            max={50000}
-            step={500}
-            value={localPriceRange}
-            onValueChange={(v) => setLocalPriceRange(v as [number, number])}
-            onValueCommit={(v) => {
-              const [min, max] = v as [number, number]
-              updateParam('priceMin', min > 0 ? String(min) : null)
-              updateParam('priceMax', max < 50000 ? String(max) : null)
-            }}
-            className="relative flex h-4 w-full touch-none select-none items-center"
-          >
-            <Slider.Track className="relative h-px flex-1 bg-gold/20">
-              <Slider.Range className="absolute h-full bg-gold/60" />
-            </Slider.Track>
-            <Slider.Thumb className="block h-3 w-3 rounded-full border border-gold bg-emerald-dark shadow transition-colors focus:outline-none hover:bg-gold/20" />
-            <Slider.Thumb className="block h-3 w-3 rounded-full border border-gold bg-emerald-dark shadow transition-colors focus:outline-none hover:bg-gold/20" />
-          </Slider.Root>
-          <div className="mt-2 flex justify-between text-[10px] text-gold/50">
-            <span>€{localPriceRange[0].toLocaleString()}</span>
-            <span>€{localPriceRange[1].toLocaleString()}</span>
-          </div>
+        <div className="grid grid-cols-2 gap-2 pb-3">
+          <input type="number" min="0" aria-label="Minimum price" placeholder="Min" value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} onBlur={() => updateParam('price_min', priceFrom || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
+          <input type="number" min="0" aria-label="Maximum price" placeholder="Max" value={priceTo} onChange={(e) => setPriceTo(e.target.value)} onBlur={() => updateParam('price_max', priceTo || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
         </div>
       </FilterGroup>
 

@@ -27,6 +27,10 @@ export function Navbar({ locale, user }: NavbarProps) {
 
   useEffect(() => { setMounted(true) }, [])
 
+  const isActive = (href: string) => href === '/'
+    ? pathname === '/'
+    : pathname === href || pathname.startsWith(`${href}/`)
+
   const navLinks = [
     { href: '/', label: t('home') },
     { href: '/catalog', label: t('catalog') },
@@ -49,7 +53,8 @@ export function Navbar({ locale, user }: NavbarProps) {
             <Link
               key={href}
               href={href}
-              className="text-xs uppercase tracking-[0.18em] text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
+              aria-current={isActive(href) ? 'page' : undefined}
+              className={`border-b-2 pb-1 text-xs uppercase tracking-[0.18em] transition-colors hover:text-[var(--accent)] ${isActive(href) ? 'border-[#8B6F47] font-semibold text-[var(--accent)]' : 'border-transparent text-[var(--fg-muted)]'}`}
             >
               {label}
             </Link>
@@ -132,7 +137,8 @@ export function Navbar({ locale, user }: NavbarProps) {
                   key={href}
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="text-xs uppercase tracking-[0.18em] text-[var(--fg-muted)] hover:text-[var(--accent)] transition-colors"
+                  aria-current={isActive(href) ? 'page' : undefined}
+                  className={`text-xs uppercase tracking-[0.18em] transition-colors hover:text-[var(--accent)] ${isActive(href) ? 'border-l-2 border-[#8B6F47] pl-3 font-semibold text-[var(--accent)]' : 'text-[var(--fg-muted)]'}`}
                 >
                   {label}
                 </Link>

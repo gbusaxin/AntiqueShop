@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { ContactsMap } from '@/components/contacts/ContactsMap'
+import { contactMetadataSchema, getContactMapSettings } from '@/components/contacts/mapSettings'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { CONTENT_PAGES, ContentText, MarkdownEditor, type ContentItem } from './MarkdownEditor'
@@ -11,7 +13,11 @@ const CONTACT_FIELDS = [
   { key: 'phone', label: 'Phone' },
   { key: 'email', label: 'Email' },
   { key: 'working_hours', label: 'Working hours' },
-  { key: 'map_coordinates', label: 'Map coordinates (latitude, longitude)' },
+] as const
+const MAP_FIELDS = [
+  { key: 'latitude', label: 'Latitude', min: -90, max: 90, step: 'any' },
+  { key: 'longitude', label: 'Longitude', min: -180, max: 180, step: 'any' },
+  { key: 'zoom', label: 'Zoom', min: 1, max: 19, step: '1' },
 ] as const
 
 export function ContentEditor({ item }: { item: ContentItem }) {
@@ -26,6 +32,16 @@ export function ContentEditor({ item }: { item: ContentItem }) {
     content_de: item.content_de ?? '',
   }))
   const [metadata, setMetadata] = useState(item.metadata)
+  const [mapDraft, setMapDraft] = useState(() => {
+    const settings = getContactMapSettings(item.metadata)
+    return {
+      latitude: String(item.metadata.latitude ?? settings?.latitude ?? ''),
+      longitude: String(item.metadata.longitude ?? settings?.longitude ?? ''),
+      zoom: String(item.metadata.zoom ?? settings?.zoom ?? 14),
+    }
+  })
+  const [geocoding, setGeocoding] = useState(false)
+  const geocodePending = useRef(false)
   const [id, setId] = useState(item.id)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -33,15 +49,58 @@ export function ContentEditor({ item }: { item: ContentItem }) {
   const titleField = `title_${locale}` as const
   const contentField = `content_${locale}` as const
 
+  const mapMetadata = {
+    ...metadata,
+    map_coordinates: undefined,
+    latitude: mapDraft.latitude.trim() ? Number(mapDraft.latitude) : undefined,
+    longitude: mapDraft.longitude.trim() ? Number(mapDraft.longitude) : undefined,
+    zoom: mapDraft.zoom.trim() ? Number(mapDraft.zoom) : undefined,
+  }
+  const mapValidation = contactMetadataSchema.safeParse(mapMetadata)
+  const mapError = mapValidation.success ? null : mapValidation.error.issues[0].message
+  const mapSettings = mapValidation.success ? getContactMapSettings(mapValidation.data) : null
+
+  async function geocodeAddress() {
+    if (saving || geocodePending.current) return
+    geocodePending.current = true
+    setGeocoding(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/admin/geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: metadata.address }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed to locate address')
+      const settings = getContactMapSettings({ latitude: data.latitude, longitude: data.longitude })
+      if (!settings) throw new Error('Invalid coordinates returned')
+      setMapDraft((current) => ({ ...current, latitude: String(settings.latitude), longitude: String(settings.longitude) }))
+      toast.success('Location found. Save to publish it.')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Network error'
+      setError(message)
+      toast.error(message)
+    } finally {
+      geocodePending.current = false
+      setGeocoding(false)
+    }
+  }
+
   async function save() {
-    if (saving) return
+    if (saving || geocodePending.current) return
+    if (item.page_key === 'contacts' && mapError) {
+      setError(mapError)
+      toast.error(mapError)
+      return
+    }
     setSaving(true)
     setError(null)
     try {
       const res = await fetch(`/api/admin/content/${id ?? item.page_key}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page_key: item.page_key, ...draft, metadata }),
+        body: JSON.stringify({ page_key: item.page_key, ...draft, metadata: item.page_key === 'contacts' ? mapValidation.data : metadata }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Failed to save content')
@@ -110,7 +169,7 @@ export function ContentEditor({ item }: { item: ContentItem }) {
         </details>
       </div>
       {item.page_key === 'contacts' && (
-        <fieldset disabled={saving} className="mt-6 grid gap-4 sm:grid-cols-2">
+        <fieldset disabled={saving || geocoding} className="mt-6 grid gap-4 sm:grid-cols-2">
           <legend className="mb-3 text-sm text-[var(--fg)]">Contact details (all languages)</legend>
           {CONTACT_FIELDS.map(({ key, label }) => (
             <div key={key}>
@@ -124,10 +183,49 @@ export function ContentEditor({ item }: { item: ContentItem }) {
               />
             </div>
           ))}
+          <div className="sm:col-span-2">
+            <button
+              type="button"
+              onClick={geocodeAddress}
+              disabled={geocoding || typeof metadata.address !== 'string' || metadata.address.trim().length < 3}
+              className="admin-secondary disabled:opacity-50"
+            >
+              {geocoding ? 'Finding location…' : 'Find address on map'}
+            </button>
+            <p className="mt-2 text-xs text-[var(--fg-muted)]">Address lookup uses OpenStreetMap Nominatim. You can also enter coordinates manually.</p>
+          </div>
+          {MAP_FIELDS.map(({ key, label, min, max, step }) => (
+            <div key={key}>
+              <label htmlFor={`contacts-${key}`} className="mb-2 block text-xs text-[var(--fg-muted)]">{label}</label>
+              <input
+                id={`contacts-${key}`}
+                type="number"
+                value={mapDraft[key]}
+                onChange={(event) => setMapDraft((current) => ({ ...current, [key]: event.target.value }))}
+                min={min}
+                max={max}
+                step={step}
+                aria-invalid={Boolean(mapError)}
+                aria-describedby="contacts-map-help"
+                className="admin-input"
+              />
+            </div>
+          ))}
+          <div id="contacts-map-help" className="sm:col-span-2">
+            {mapError ? (
+              <p role="alert" className="text-xs admin-status-red">{mapError}</p>
+            ) : (
+              <p className="text-xs text-[var(--fg-muted)]">Latitude: -90 to 90. Longitude: -180 to 180. Zoom: 1–19. Leave both coordinates empty to hide the map.</p>
+            )}
+          </div>
+          <div className="sm:col-span-2">
+            <p className="mb-3 text-sm text-[var(--fg)]">Live map preview</p>
+            {mapSettings ? <ContactsMap settings={mapSettings} locale={locale} /> : <p className="text-xs text-[var(--fg-muted)]">Enter valid coordinates or look up an address to preview the map.</p>}
+          </div>
         </fieldset>
       )}
       <div className="mt-6 flex justify-end">
-        <button type="button" onClick={save} disabled={saving} className="admin-primary disabled:opacity-50">
+        <button type="button" onClick={save} disabled={saving || geocoding} className="admin-primary disabled:opacity-50">
           {saving ? 'Saving…' : 'Save'}
         </button>
       </div>

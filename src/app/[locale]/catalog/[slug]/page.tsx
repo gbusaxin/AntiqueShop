@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { createAdminClient } from '@/lib/supabaseServer'
+import { createClient } from '@/lib/supabaseServer'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice, getPriceForRegion } from '@/lib/getPriceForRegion'
 import { getExchangeRates } from '@/lib/exchangeRates'
@@ -33,13 +33,7 @@ const CONDITION_LABELS: Record<ProductCondition, string> = {
 export const dynamicParams = true
 
 export async function generateStaticParams() {
-  try {
-    const supabase = createAdminClient()
-    const { data } = await supabase.from('products').select('slug').eq('is_available', true)
-    return (data ?? []).map(({ slug }) => ({ slug }))
-  } catch {
-    return []
-  }
+  return []
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
@@ -51,12 +45,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params
   try {
-    const supabase = createAdminClient()
+    const supabase = await createClient()
     const { data } = await supabase
       .from('products')
       .select('name_en, name_ru, name_de, description_en, images, price_eur')
       .eq('slug', slug)
-      .single()
+      .eq('is_available', true)
+      .maybeSingle()
 
     if (!data) return { title: 'Product — Belle Époque' }
 
@@ -98,12 +93,13 @@ export default async function ProductPage({
   const { locale, slug } = await params
   const t = await getTranslations('product')
 
-  const supabase = createAdminClient()
+  const supabase = await createClient()
   const { data: raw } = await supabase
     .from('products')
     .select('*')
     .eq('slug', slug)
-    .single()
+    .eq('is_available', true)
+    .maybeSingle()
 
   if (!raw) notFound()
 

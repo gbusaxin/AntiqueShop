@@ -57,7 +57,7 @@ export function CategoriesGrid({ categories, locale, title }: CategoriesGridProp
                 transition={{ duration: 0.55, delay: (i % 4) * 0.1 }}
               >
                 <Link
-                  href={`/catalog?category=${cat.slug}`}
+                  href={`/catalog?category=${encodeURIComponent(cat.slug)}`}
                   className="group relative flex aspect-square items-end overflow-hidden"
                 >
                   {cat.image_url ? (
