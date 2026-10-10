@@ -38,7 +38,8 @@ export function isBlogImageUrl(value: string): boolean {
 
 export function validateBlog(values: BlogValues): string[] {
   const errors: string[] = []
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(values.slug) || values.slug.length > 160) {
+  if (!values.slug || values.slug.length > 160 || !/^[a-z0-9-]+$/.test(values.slug)
+    || values.slug.startsWith('-') || values.slug.endsWith('-') || values.slug.includes('--')) {
     errors.push('Slug must contain lowercase ASCII letters or numbers separated by single hyphens, up to 160 characters.')
   }
   for (const language of BLOG_LANGUAGES) {
