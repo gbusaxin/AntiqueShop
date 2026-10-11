@@ -10,10 +10,10 @@ import type { Region } from '@/types'
 
 const YOOKASSA_API = 'https://api.yookassa.ru/v3/payments'
 
-const SHIPPING_COSTS_RUB: Record<string, number> = {
-  standard: 3000,
-  express: 6500,
-}
+const SHIPPING_COSTS_RUB = new Map<string, number>([
+  ['standard', 3000],
+  ['express', 6500],
+])
 
 interface CheckoutItem {
   productId: string
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
 
     const rubRate: number = (exchangeRates.data?.rates as Record<string, number>)?.RUB ?? 95
 
-    const shippingCostRub = SHIPPING_COSTS_RUB[deliveryMethod] ?? 3000
+    const shippingCostRub = SHIPPING_COSTS_RUB.get(deliveryMethod) ?? 3000
     const shippingCostEur = shippingCostRub / rubRate
 
     const serverItemsTotal = items.reduce((sum, i) => {
@@ -187,14 +187,14 @@ export async function POST(request: Request) {
     }
     const idempotenceKey = randomUUID()
 
-    const ykMethodMap: Record<string, string> = {
-      bank_card: 'bank_card',
-      sbp: 'sbp',
-      yoo_money: 'yoo_money',
-      mir: 'bank_card',
-    }
+    const ykMethodMap = new Map<string, string>([
+      ['bank_card', 'bank_card'],
+      ['sbp', 'sbp'],
+      ['yoo_money', 'yoo_money'],
+      ['mir', 'bank_card'],
+    ])
 
-    const ykPaymentType = ykMethodMap[paymentMethodId] ?? 'bank_card'
+    const ykPaymentType = ykMethodMap.get(paymentMethodId) ?? 'bank_card'
 
     const ykResponse = await fetch(YOOKASSA_API, {
       method: 'POST',

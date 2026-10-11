@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware'
 import type { Region } from '@/types'
 import { REGION_CURRENCIES } from '@/lib/region'
 
+const regionCurrencies = new Map<string, string>(Object.entries(REGION_CURRENCIES))
+
 interface RegionState {
   region: Region
   currency: string
@@ -22,7 +24,7 @@ export const useRegionStore = create<RegionState>()(
       currency: REGION_CURRENCIES.EU,
       setRegion: (region) => {
         saveRegionCookie(region)
-        set({ region, currency: REGION_CURRENCIES[region] })
+        set({ region, currency: regionCurrencies.get(region) ?? REGION_CURRENCIES.EU })
       },
     }),
     { name: 'region-storage' }

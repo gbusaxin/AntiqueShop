@@ -28,8 +28,8 @@ export async function generateMetadata({
   const { locale } = await params
 
   return {
-    title: LOCALE_LABELS[locale] ?? LOCALE_LABELS['en'],
-    description: LOCALE_DESCS[locale] ?? LOCALE_DESCS['en'],
+    title: locale === 'ru' ? LOCALE_LABELS.ru : locale === 'de' ? LOCALE_LABELS.de : LOCALE_LABELS.en,
+    description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
     alternates: {
       canonical: `${BASE_URL}/${locale}`,
       languages: {
@@ -42,8 +42,8 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       url: `${BASE_URL}/${locale}`,
-      title: LOCALE_LABELS[locale] ?? LOCALE_LABELS['en'],
-      description: LOCALE_DESCS[locale] ?? LOCALE_DESCS['en'],
+      title: locale === 'ru' ? LOCALE_LABELS.ru : locale === 'de' ? LOCALE_LABELS.de : LOCALE_LABELS.en,
+      description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
       siteName: 'Belle Époque',
     },
   }
@@ -80,7 +80,7 @@ export default async function HomePage({
     name: 'Belle Époque',
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
-    description: LOCALE_DESCS[locale] ?? LOCALE_DESCS['en'],
+    description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+43-1-512-44-20',

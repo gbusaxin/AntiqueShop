@@ -72,13 +72,13 @@ export function ContentText({ content }: { content: string }) {
   const startsBlock = (line: string) => /^(#{1,6}\s|\s*```|>\s?|\s*[-*+]\s+|\s*\d+[.)]\s+|\s*(?:-{3,}|\*{3,}|_{3,})\s*$)/.test(line)
 
   while (index < lines.length) {
-    const line = lines[index]
+    const line = lines.at(index)!
     const key = index
     if (!line.trim()) { index++; continue }
     if (/^\s*```/.test(line)) {
       const code: string[] = []
       index++
-      while (index < lines.length && !/^\s*```/.test(lines[index])) code.push(lines[index++])
+      while (index < lines.length && !/^\s*```/.test(lines.at(index)!)) code.push(lines.at(index++)!)
       if (index < lines.length) index++
       blocks.push(<pre key={key} className="overflow-x-auto rounded bg-primary/10 p-4"><code>{code.join('\n')}</code></pre>)
       continue
@@ -101,7 +101,7 @@ export function ContentText({ content }: { content: string }) {
       const pattern = ordered ? /^\s*\d+[.)]\s+(.*)$/ : /^\s*[-*+]\s+(.*)$/
       const items: ReactNode[] = []
       while (index < lines.length) {
-        const item = pattern.exec(lines[index])
+        const item = pattern.exec(lines.at(index)!)
         if (!item) break
         items.push(<li key={index++}>{inlineMarkdown(item[1])}</li>)
       }
@@ -112,13 +112,13 @@ export function ContentText({ content }: { content: string }) {
     }
     if (/^>/.test(line)) {
       const quote: string[] = []
-      while (index < lines.length && /^>/.test(lines[index])) quote.push(lines[index++].replace(/^>\s?/, ''))
+      while (index < lines.length && /^>/.test(lines.at(index)!)) quote.push(lines.at(index++)!.replace(/^>\s?/, ''))
       blocks.push(<blockquote key={key} className="whitespace-pre-wrap border-l-2 border-primary/30 pl-4">{inlineMarkdown(quote.join('\n'))}</blockquote>)
       continue
     }
     const paragraph = [line]
     index++
-    while (index < lines.length && lines[index].trim() && !startsBlock(lines[index])) paragraph.push(lines[index++])
+    while (index < lines.length && lines.at(index)!.trim() && !startsBlock(lines.at(index)!)) paragraph.push(lines.at(index++)!)
     blocks.push(<p key={key} className="whitespace-pre-wrap">{inlineMarkdown(paragraph.join('\n'))}</p>)
   }
 

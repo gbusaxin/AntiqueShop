@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient, createAdminClient } from '@/lib/supabaseServer'
-import { isValidUUID, isHttpsUrl, sanitizeString } from '@/lib/validation'
+import { generateProductSlug, isValidUUID, isHttpsUrl, sanitizeString } from '@/lib/validation'
 
 async function requireAdmin() {
   const supabase = await createClient()
@@ -60,25 +60,48 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const update: Record<string, unknown> = {}
-  const optionalStrings = {
-    name_en: 500, name_de: 500, description_en: 5000, description_de: 5000,
-    provenance_ru: 2000, provenance_en: 2000, provenance_de: 2000,
-    era: 100, country_of_origin: 100, year_circa: 20,
-  } as const
-  for (const key of Object.keys(optionalStrings) as (keyof typeof optionalStrings)[]) {
-    if (input[key] !== undefined) update[key] = sanitizeString(input[key], optionalStrings[key])
-  }
-  for (const key of ['name_ru', 'description_ru', 'material', 'size'] as const) {
-    if (input[key] !== undefined) update[key] = input[key]
-  }
-  for (const key of ['condition', 'price_eur', 'category_id', 'sku', 'is_available', 'images'] as const) {
-    if (input[key] !== undefined) update[key] = input[key]
-  }
+  if (input.name_en !== undefined) update.name_en = sanitizeString(input.name_en, 500)
+  if (input.name_de !== undefined) update.name_de = sanitizeString(input.name_de, 500)
+  if (input.description_en !== undefined) update.description_en = sanitizeString(input.description_en, 5000)
+  if (input.description_de !== undefined) update.description_de = sanitizeString(input.description_de, 5000)
+  if (input.provenance_ru !== undefined) update.provenance_ru = sanitizeString(input.provenance_ru, 2000)
+  if (input.provenance_en !== undefined) update.provenance_en = sanitizeString(input.provenance_en, 2000)
+  if (input.provenance_de !== undefined) update.provenance_de = sanitizeString(input.provenance_de, 2000)
+  if (input.era !== undefined) update.era = sanitizeString(input.era, 100)
+  if (input.country_of_origin !== undefined) update.country_of_origin = sanitizeString(input.country_of_origin, 100)
+  if (input.year_circa !== undefined) update.year_circa = sanitizeString(input.year_circa, 20)
+  if (input.name_ru !== undefined) update.name_ru = input.name_ru
+  if (input.description_ru !== undefined) update.description_ru = input.description_ru
+  if (input.material !== undefined) update.material = input.material
+  if (input.size !== undefined) update.size = input.size
+  if (input.condition !== undefined) update.condition = input.condition
+  if (input.price_eur !== undefined) update.price_eur = input.price_eur
+  if (input.category_id !== undefined) update.category_id = input.category_id
+  if (input.sku !== undefined) update.sku = input.sku
+  if (input.is_available !== undefined) update.is_available = input.is_available
+  if (input.images !== undefined) update.images = input.images
 
   if (Object.keys(update).length === 0) return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+
+  const { data: current, error: lookupError } = await supabase
+    .from('products')
+    .select('name_ru, name_en, sku, slug')
+    .eq('id', id)
+    .maybeSingle()
+  if (lookupError) return NextResponse.json({ error: 'Failed to load product' }, { status: 500 })
+  if (!current) return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+
+  const slug = generateProductSlug(
+    input.name_en !== undefined ? input.name_en : current.name_en,
+    input.name_ru ?? current.name_ru,
+    input.sku ?? current.sku
+  )
+  if (slug !== current.slug) update.slug = slug
+
   const { error } = await supabase.from('products').update(update).eq('id', id)
 
   if (error) {
+    if (error.code === '23505') return NextResponse.json({ error: 'SKU or slug already exists' }, { status: 409 })
     console.error('[admin products PATCH]', error)
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
   }

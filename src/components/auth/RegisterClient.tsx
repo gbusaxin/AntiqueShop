@@ -83,22 +83,25 @@ export function RegisterClient() {
               { key: 'email', label: 'Email', type: 'email', autocomplete: 'email' },
               { key: 'password', label: 'Password', type: 'password', autocomplete: 'new-password' },
             ] as { key: keyof FormData; label: string; type: string; autocomplete: string }[]
-          ).map(({ key, label, type, autocomplete }) => (
-            <div key={key}>
-              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                {label}
-              </label>
-              <input
-                type={type}
-                autoComplete={autocomplete}
-                {...register(key)}
-                className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              />
-              {errors[key] && (
-                <p className="mt-1 text-[10px] text-red-400">{errors[key]?.message}</p>
-              )}
-            </div>
-          ))}
+          ).map(({ key, label, type, autocomplete }) => {
+            const fieldError = key === 'name' ? errors.name : key === 'email' ? errors.email : errors.password
+            return (
+              <div key={key}>
+                <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  autoComplete={autocomplete}
+                  {...register(key)}
+                  className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                />
+                {fieldError && (
+                  <p className="mt-1 text-[10px] text-red-400">{fieldError.message}</p>
+                )}
+              </div>
+            )
+          })}
 
           {serverError && <p className="text-[11px] text-red-400">{serverError}</p>}
 

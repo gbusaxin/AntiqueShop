@@ -22,6 +22,6 @@ export function getPaymentProvidersForRegion(region: Region): PaymentProvider[] 
 
 export function getPaymentMethodsForRegion(region: Region): PaymentMethod[] {
   return getPaymentProvidersForRegion(region).flatMap(
-    (provider) => PAYMENT_METHODS[provider] ?? []
+    (provider) => provider === 'stripe' ? PAYMENT_METHODS.stripe : provider === 'yookassa' ? PAYMENT_METHODS.yookassa : []
   )
 }

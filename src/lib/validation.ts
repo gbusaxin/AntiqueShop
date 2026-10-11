@@ -1,4 +1,15 @@
+import slugify from 'slugify'
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export function generateProductSlug(nameEn: string | null | undefined, nameRu: string, sku: string): string {
+  const name = nameEn?.trim() || nameRu
+  const transliterated = name.replace(/й/g, 'y').replace(/Й/g, 'Y')
+  const base = slugify(transliterated, { lower: true, strict: true, trim: true })
+    .slice(0, 80)
+    .replace(/-+$/, '') || 'item'
+  return `${base}-${sku}`
+}
 
 export function isValidUUID(value: unknown): value is string {
   return typeof value === 'string' && UUID_RE.test(value)

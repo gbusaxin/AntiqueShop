@@ -37,14 +37,14 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 type FieldName = keyof FormData
 
-const requiredFields: { name: FieldName; label: string }[] = [
-  { name: 'name_ru', label: 'Name RU' },
-  { name: 'description_ru', label: 'Description RU' },
-  { name: 'material', label: 'Material' },
-  { name: 'size', label: 'Size' },
-  { name: 'category_id', label: 'Category' },
-  { name: 'price_eur', label: 'Price EUR' },
-  { name: 'condition', label: 'Condition' },
+const requiredFields: { name: FieldName; label: string; getValue: (values: FormData) => FormData[FieldName] }[] = [
+  { name: 'name_ru', label: 'Name RU', getValue: (values) => values.name_ru },
+  { name: 'description_ru', label: 'Description RU', getValue: (values) => values.description_ru },
+  { name: 'material', label: 'Material', getValue: (values) => values.material },
+  { name: 'size', label: 'Size', getValue: (values) => values.size },
+  { name: 'category_id', label: 'Category', getValue: (values) => values.category_id },
+  { name: 'price_eur', label: 'Price EUR', getValue: (values) => values.price_eur },
+  { name: 'condition', label: 'Condition', getValue: (values) => values.condition },
 ]
 
 interface ProductFormProps {
@@ -114,8 +114,8 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
   })
 
   const values = watch()
-  const missing = requiredFields.filter(({ name }) => {
-    const value = values[name]
+  const missing = requiredFields.filter(({ name, getValue }) => {
+    const value = getValue(values)
     return value === '' || value === null || value === undefined || (name === 'price_eur' && (Number.isNaN(Number(value)) || Number(value) <= 0))
   })
   const hasErrors = Object.keys(errors).length > 0
@@ -207,9 +207,10 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {(['ru', 'en', 'de'] as const).map((language) => {
             const field = `description_${language}` as const
+            const fieldError = language === 'ru' ? errors.description_ru : language === 'en' ? errors.description_en : errors.description_de
             return (
-              <Field key={language} label={`Description ${language.toUpperCase()}`} required={language === 'ru'} error={errors[field]?.message}>
-                <textarea {...register(field)} rows={4} className={`${inputCls} resize-y ${errors[field] ? invalidCls : ''}`} aria-invalid={!!errors[field]} />
+              <Field key={language} label={`Description ${language.toUpperCase()}`} required={language === 'ru'} error={fieldError?.message}>
+                <textarea {...register(field)} rows={4} className={`${inputCls} resize-y ${fieldError ? invalidCls : ''}`} aria-invalid={!!fieldError} />
               </Field>
             )
           })}

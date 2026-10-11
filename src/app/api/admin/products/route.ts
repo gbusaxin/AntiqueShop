@@ -2,7 +2,7 @@ import { randomInt } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient, createAdminClient } from '@/lib/supabaseServer'
-import { isHttpsUrl, sanitizeString } from '@/lib/validation'
+import { generateProductSlug, isHttpsUrl, sanitizeString } from '@/lib/validation'
 
 const productSchema = z.object({
   name_ru: z.string().trim().min(1).max(500),
@@ -35,10 +35,6 @@ async function requireAdmin() {
   return profile?.role === 'admin'
 }
 
-function generateSlug(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9а-яё\s-]/gi, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80) || 'item'
-}
-
 export async function POST(request: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
@@ -62,7 +58,7 @@ export async function POST(request: Request) {
     const sku = input.sku || String(randomInt(1_000_000, 10_000_000))
     const { data, error } = await supabase.from('products').insert({
       sku,
-      slug: `${generateSlug(input.name_en || input.name_ru)}-${sku}`,
+      slug: generateProductSlug(input.name_en, input.name_ru, sku),
       name_ru: input.name_ru,
       name_en: sanitizeString(input.name_en, 500),
       name_de: sanitizeString(input.name_de, 500),

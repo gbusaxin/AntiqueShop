@@ -8,10 +8,10 @@ import { isPositiveInteger, isValidEmail } from '@/lib/validation'
 import { rateLimit, getClientIp } from '@/lib/rateLimit'
 import type { Region } from '@/types'
 
-const SHIPPING_COSTS_EUR: Record<string, number> = {
-  standard: 35,
-  express: 75,
-}
+const SHIPPING_COSTS_EUR = new Map<string, number>([
+  ['standard', 35],
+  ['express', 75],
+])
 
 interface CheckoutItem {
   productId: string
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const shippingCostEur = SHIPPING_COSTS_EUR[deliveryMethod] ?? 35
+    const shippingCostEur = SHIPPING_COSTS_EUR.get(deliveryMethod) ?? 35
 
     const serverItemsTotal = items.reduce((sum, i) => {
       const p = productMap.get(i.productId)!

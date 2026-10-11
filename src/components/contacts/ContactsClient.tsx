@@ -75,7 +75,7 @@ export function ContactsClient({ title, content, metadata, locale }: {
                 { icon: Mail, key: 'email' },
                 { icon: Clock, key: 'working_hours' },
               ].map(({ icon: Icon, key }) => {
-                const text = metadata[key]
+                const text = key === 'address' ? metadata.address : key === 'phone' ? metadata.phone : key === 'email' ? metadata.email : metadata.working_hours
                 if (typeof text !== 'string' || !text.trim()) return null
                 return (
                   <div key={key} className="flex items-start gap-3">

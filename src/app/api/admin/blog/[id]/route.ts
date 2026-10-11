@@ -18,7 +18,19 @@ export async function PATCH(request: Request, { params }: Context) {
   if (loadError) return blogError(loadError)
   if (!existing) return NextResponse.json({ error: 'Post not found' }, { status: 404 })
   const merged = blogSchema.safeParse({
-    ...Object.fromEntries(Object.keys(blogSchema.shape).map((key) => [key, existing[key]])),
+    slug: existing.slug,
+    title_ru: existing.title_ru,
+    title_en: existing.title_en,
+    title_de: existing.title_de,
+    excerpt_ru: existing.excerpt_ru,
+    excerpt_en: existing.excerpt_en,
+    excerpt_de: existing.excerpt_de,
+    content_ru: existing.content_ru,
+    content_en: existing.content_en,
+    content_de: existing.content_de,
+    tags: existing.tags,
+    images: existing.images,
+    is_published: existing.is_published,
     ...patch.data,
   })
   if (!merged.success) return NextResponse.json({ error: 'Invalid blog fields' }, { status: 400 })

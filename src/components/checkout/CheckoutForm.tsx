@@ -280,7 +280,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                       <div className="h-4 w-4 shrink-0 rounded-full border border-primary/40 flex items-center justify-center">
                         <div className="h-2 w-2 rounded-full bg-primary opacity-0 peer-checked:opacity-100" />
                       </div>
-                      <span className="text-xs text-muted-foreground">{method.label[locale]}</span>
+                      <span className="text-xs text-muted-foreground">{locale === 'ru' ? method.label.ru : locale === 'de' ? method.label.de : method.label.en}</span>
                     </label>
                   ))}
                 </div>

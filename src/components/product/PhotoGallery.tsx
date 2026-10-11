@@ -42,7 +42,7 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
             <Zoom>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={allImages[selected]}
+                src={allImages.at(selected) ?? allImages.at(0) ?? ''}
                 alt={`${alt} — view ${selected + 1}`}
                 className="h-full w-full object-cover"
                 width={800}

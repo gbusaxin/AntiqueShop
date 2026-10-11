@@ -24,8 +24,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: titles[locale] ?? titles.en,
-    description: descs[locale] ?? descs.en,
+    title: locale === 'ru' ? titles.ru : locale === 'de' ? titles.de : titles.en,
+    description: locale === 'ru' ? descs.ru : locale === 'de' ? descs.de : descs.en,
     alternates: {
       canonical: `${BASE_URL}/${locale}/contacts`,
       languages: {
@@ -38,8 +38,8 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       url: `${BASE_URL}/${locale}/contacts`,
-      title: titles[locale] ?? titles.en,
-      description: descs[locale] ?? descs.en,
+      title: locale === 'ru' ? titles.ru : locale === 'de' ? titles.de : titles.en,
+      description: locale === 'ru' ? descs.ru : locale === 'de' ? descs.de : descs.en,
       siteName: 'Belle Époque',
     },
   }

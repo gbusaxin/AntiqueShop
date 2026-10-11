@@ -11,7 +11,7 @@ const compat = new FlatCompat({ baseDirectory: __dirname })
 
 const nextConfig = compat.extends('next/core-web-vitals', 'next/typescript')
 
-export default [
+const config = [
   ...nextConfig,
 
   pluginSecurity.configs.recommended,
@@ -64,6 +64,7 @@ export default [
 
   {
     ignores: [
+      'next-env.d.ts',
       '.next/**',
       'node_modules/**',
       'out/**',
@@ -73,3 +74,5 @@ export default [
     ],
   },
 ]
+
+export default config

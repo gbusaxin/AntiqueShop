@@ -48,6 +48,8 @@ export function ContentEditor({ item }: { item: ContentItem }) {
   const page = CONTENT_PAGES.find((page) => page.key === item.page_key)!
   const titleField = `title_${locale}` as const
   const contentField = `content_${locale}` as const
+  const titleValue = locale === 'ru' ? draft.title_ru : locale === 'de' ? draft.title_de : draft.title_en
+  const contentValue = locale === 'ru' ? draft.content_ru : locale === 'de' ? draft.content_de : draft.content_en
 
   const mapMetadata = {
     ...metadata,
@@ -148,7 +150,7 @@ export function ContentEditor({ item }: { item: ContentItem }) {
           </label>
           <input
             id={`${item.page_key}-title-${locale}`}
-            value={draft[titleField]}
+            value={titleValue}
             onChange={(event) => setDraft({ ...draft, [titleField]: event.target.value })}
             maxLength={300}
             disabled={saving}
@@ -157,32 +159,35 @@ export function ContentEditor({ item }: { item: ContentItem }) {
         </div>
         <MarkdownEditor
           id={`${item.page_key}-body-${locale}`}
-          value={draft[contentField]}
+          value={contentValue}
           onChange={(value) => setDraft({ ...draft, [contentField]: value })}
           disabled={saving}
         />
         <details>
           <summary className="cursor-pointer text-xs text-[var(--fg-muted)]">Preview</summary>
           <div className="mt-3 border border-[var(--border)] p-4 text-[var(--fg)]">
-            <ContentText content={draft[contentField]} />
+            <ContentText content={contentValue} />
           </div>
         </details>
       </div>
       {item.page_key === 'contacts' && (
         <fieldset disabled={saving || geocoding} className="mt-6 grid gap-4 sm:grid-cols-2">
           <legend className="mb-3 text-sm text-[var(--fg)]">Contact details (all languages)</legend>
-          {CONTACT_FIELDS.map(({ key, label }) => (
-            <div key={key}>
-              <label htmlFor={`contacts-${key}`} className="mb-2 block text-xs text-[var(--fg-muted)]">{label}</label>
-              <input
-                id={`contacts-${key}`}
-                value={typeof metadata[key] === 'string' ? metadata[key] as string : ''}
-                onChange={(event) => setMetadata({ ...metadata, [key]: event.target.value })}
-                maxLength={2000}
-                className="admin-input"
-              />
-            </div>
-          ))}
+          {CONTACT_FIELDS.map(({ key, label }) => {
+            const value = key === 'address' ? metadata.address : key === 'phone' ? metadata.phone : key === 'email' ? metadata.email : metadata.working_hours
+            return (
+              <div key={key}>
+                <label htmlFor={`contacts-${key}`} className="mb-2 block text-xs text-[var(--fg-muted)]">{label}</label>
+                <input
+                  id={`contacts-${key}`}
+                  value={typeof value === 'string' ? value : ''}
+                  onChange={(event) => setMetadata({ ...metadata, [key]: event.target.value })}
+                  maxLength={2000}
+                  className="admin-input"
+                />
+              </div>
+            )
+          })}
           <div className="sm:col-span-2">
             <button
               type="button"
@@ -194,23 +199,26 @@ export function ContentEditor({ item }: { item: ContentItem }) {
             </button>
             <p className="mt-2 text-xs text-[var(--fg-muted)]">Address lookup uses OpenStreetMap Nominatim. You can also enter coordinates manually.</p>
           </div>
-          {MAP_FIELDS.map(({ key, label, min, max, step }) => (
-            <div key={key}>
-              <label htmlFor={`contacts-${key}`} className="mb-2 block text-xs text-[var(--fg-muted)]">{label}</label>
-              <input
-                id={`contacts-${key}`}
-                type="number"
-                value={mapDraft[key]}
-                onChange={(event) => setMapDraft((current) => ({ ...current, [key]: event.target.value }))}
-                min={min}
-                max={max}
-                step={step}
-                aria-invalid={Boolean(mapError)}
-                aria-describedby="contacts-map-help"
-                className="admin-input"
-              />
-            </div>
-          ))}
+          {MAP_FIELDS.map(({ key, label, min, max, step }) => {
+            const value = key === 'latitude' ? mapDraft.latitude : key === 'longitude' ? mapDraft.longitude : mapDraft.zoom
+            return (
+              <div key={key}>
+                <label htmlFor={`contacts-${key}`} className="mb-2 block text-xs text-[var(--fg-muted)]">{label}</label>
+                <input
+                  id={`contacts-${key}`}
+                  type="number"
+                  value={value}
+                  onChange={(event) => setMapDraft((current) => ({ ...current, [key]: event.target.value }))}
+                  min={min}
+                  max={max}
+                  step={step}
+                  aria-invalid={Boolean(mapError)}
+                  aria-describedby="contacts-map-help"
+                  className="admin-input"
+                />
+              </div>
+            )
+          })}
           <div id="contacts-map-help" className="sm:col-span-2">
             {mapError ? (
               <p role="alert" className="text-xs admin-status-red">{mapError}</p>

@@ -17,7 +17,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   return {
-    title: TITLES[locale] ?? TITLES.en,
+    title: locale === 'ru' ? TITLES.ru : locale === 'de' ? TITLES.de : TITLES.en,
     alternates: {
       canonical: `${BASE_URL}/${locale}/legal/privacy`,
       languages: {

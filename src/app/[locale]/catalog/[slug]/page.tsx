@@ -30,11 +30,7 @@ const CONDITION_LABELS: Record<ProductCondition, string> = {
   fair: 'Fair',
 }
 
-export const dynamicParams = true
-
-export async function generateStaticParams() {
-  return []
-}
+export const dynamic = 'force-dynamic'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
 
@@ -129,7 +125,7 @@ export default async function ProductPage({
 
   const exchangeRates = await getExchangeRates()
   const priceInfo = await getPriceForRegion(
-    product.price_eur,
+    product.price_eur ?? 0,
     product.price_override as { amount: number; currency: string } | null,
     region,
     exchangeRates
@@ -139,7 +135,7 @@ export default async function ProductPage({
     '@context': 'https://schema.org',
     '@type': 'Product',
     name,
-    description: description ?? undefined,
+    description: description ?? '',
     image: product.images ?? [],
     sku: product.sku,
     material: product.material,

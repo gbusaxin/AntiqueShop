@@ -1,6 +1,8 @@
 import type { Region } from '@/types'
 import { REGION_CURRENCIES } from './region'
 
+const regionCurrencies = new Map<string, string>(Object.entries(REGION_CURRENCIES))
+
 interface PriceOverride {
   amount: number
   currency: string
@@ -20,7 +22,7 @@ export async function getPriceForRegion(
   region: Region,
   exchangeRates: Record<string, number>
 ): Promise<PriceInfo> {
-  const targetCurrency = REGION_CURRENCIES[region]
+  const targetCurrency = regionCurrencies.get(region) ?? REGION_CURRENCIES.EU
 
   if (priceOverride && priceOverride.currency === targetCurrency) {
     return { amount: priceOverride.amount, currency: targetCurrency, isConverted: false }
@@ -30,7 +32,7 @@ export async function getPriceForRegion(
     return { amount: priceEur, currency: 'EUR', isConverted: false }
   }
 
-  const rate = exchangeRates[targetCurrency]
+  const rate = new Map(Object.entries(exchangeRates)).get(targetCurrency)
   if (!rate) {
     return { amount: priceEur, currency: 'EUR', isConverted: false }
   }

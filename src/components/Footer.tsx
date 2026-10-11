@@ -16,6 +16,12 @@ const REGIONS: { value: Region; label: string; flag: string }[] = [
 
 export function Footer() {
   const { region, setRegion } = useRegionStore()
+  const currency = region === 'EU' ? REGION_CURRENCIES.EU
+    : region === 'UK' ? REGION_CURRENCIES.UK
+    : region === 'US' ? REGION_CURRENCIES.US
+    : region === 'CIS' ? REGION_CURRENCIES.CIS
+    : region === 'OTHER' ? REGION_CURRENCIES.OTHER
+    : undefined
   const t = useTranslations('home')
   const tNav = useTranslations('nav')
   const tLegal = useTranslations('legal')
@@ -74,7 +80,7 @@ export function Footer() {
               </select>
               <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-gold/40">▼</span>
             </div>
-            <span className="text-[10px] text-gold/30">{REGION_CURRENCIES[region]}</span>
+            <span className="text-[10px] text-gold/30">{currency}</span>
           </div>
         </div>
       </div>
