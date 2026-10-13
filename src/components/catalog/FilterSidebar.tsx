@@ -1,19 +1,15 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useId, useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter, usePathname } from '@/i18n/navigation'
+import { getLocalizedField } from '@/lib/getLocalizedField'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import { Check, ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react'
-import type { Category } from '@/types'
+import type { Category, Locale } from '@/types'
 
-const ERAS = ['Art Deco', 'Art Nouveau', 'Victorian', 'Baroque', '18th century', 'Soviet', 'Other']
 const MATERIALS = ['Porcelain', 'Crystal', 'Silver', 'Bronze', 'Copper', 'Glass', 'Wood', 'Ivory']
-const CONDITIONS: { value: string; label: string }[] = [
-  { value: 'excellent', label: 'Excellent' },
-  { value: 'good', label: 'Good' },
-  { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Poor' },
-]
+const CONDITIONS = ['excellent', 'good', 'fair', 'poor'] as const
 
 function FilterGroup({
   label,
@@ -27,6 +23,7 @@ function FilterGroup({
     <div className="border-b border-gold/15 pb-4">
       <button
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         className="flex w-full items-center justify-between py-3 text-xs uppercase tracking-[0.18em] text-gold/70 hover:text-gold-rich transition-colors"
       >
         {label}
@@ -46,9 +43,11 @@ function CheckItem({
   checked: boolean
   onCheckedChange: (v: boolean) => void
 }) {
+  const id = useId()
   return (
     <div className="flex items-center gap-2.5 py-1.5">
       <Checkbox.Root
+        id={id}
         checked={checked}
         onCheckedChange={onCheckedChange}
         className="flex h-4 w-4 shrink-0 items-center justify-center border border-gold/30 bg-transparent transition-colors data-[state=checked]:border-gold data-[state=checked]:bg-gold/15"
@@ -57,7 +56,7 @@ function CheckItem({
           <Check size={10} className="text-gold-rich" />
         </Checkbox.Indicator>
       </Checkbox.Root>
-      <label className="cursor-pointer text-xs tracking-wide text-[#c8bfaa]/80 hover:text-[#f4ead1] transition-colors">
+      <label htmlFor={id} className="cursor-pointer text-xs tracking-wide text-[#c8bfaa]/80 hover:text-[#f4ead1] transition-colors">
         {label}
       </label>
     </div>
@@ -65,7 +64,6 @@ function CheckItem({
 }
 
 interface FilterSidebarProps {
-  selectedEras: string[]
   selectedMaterials: string[]
   priceMin: number
   priceMax: number
@@ -76,7 +74,6 @@ interface FilterSidebarProps {
 }
 
 export function FilterSidebar({
-  selectedEras,
   selectedMaterials,
   priceMin,
   priceMax,
@@ -85,6 +82,10 @@ export function FilterSidebar({
   categorySlug,
   search,
 }: FilterSidebarProps) {
+  const t = useTranslations('catalog')
+  const common = useTranslations('common')
+  const product = useTranslations('product')
+  const locale = useLocale() as Locale
   const router = useRouter()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -108,13 +109,6 @@ export function FilterSidebar({
     [router, pathname]
   )
 
-  const toggleEra = (era: string) => {
-    const next = selectedEras.includes(era)
-      ? selectedEras.filter((e) => e !== era)
-      : [...selectedEras, era]
-    updateParam('era', next.length ? next : null)
-  }
-
   const toggleMaterial = (mat: string) => {
     const next = selectedMaterials.includes(mat)
       ? selectedMaterials.filter((m) => m !== mat)
@@ -126,14 +120,10 @@ export function FilterSidebar({
     updateParam('condition', value === condition ? null : value)
   }
 
-  const hasFilters =
-    selectedEras.length > 0 ||
-    selectedMaterials.length > 0 ||
-    !!condition ||
-    priceMin > 0 ||
-    priceMax > 0 ||
-    !!categorySlug ||
-    !!search
+  const filterCount = selectedMaterials.length +
+    (condition ? 1 : 0) + (priceMin > 0 || priceMax > 0 ? 1 : 0) +
+    (categorySlug ? 1 : 0) + (search ? 1 : 0)
+  const hasFilters = filterCount > 0
 
   const clearAll = () => {
     router.push(pathname)
@@ -149,71 +139,61 @@ export function FilterSidebar({
           onClick={clearAll}
           className="mb-4 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-gold/60 hover:text-gold-rich transition-colors"
         >
-          <X size={10} /> Clear all filters
+          <X size={10} /> {t('clearAllFilters')}
         </button>
       )}
 
-      <FilterGroup label="Search">
+      <FilterGroup label={common('search')}>
         <form onSubmit={(event) => { event.preventDefault(); updateParam('search', searchInput.trim() || null) }}>
-          <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="Search products" aria-label="Search products" className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
-          <button type="submit" className="mt-2 text-xs text-[#c8bfaa] hover:text-white">Search</button>
+          <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder={t('searchPlaceholder')} aria-label={t('searchPlaceholder')} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
+          <button type="submit" className="mt-2 text-xs text-[#c8bfaa] hover:text-white">{common('search')}</button>
         </form>
       </FilterGroup>
 
-      <FilterGroup label="Category">
-        <select value={categorySlug} onChange={(event) => updateParam('category', event.target.value || null)} aria-label="Category" className="w-full border border-gold/30 bg-[#0a1f18] px-2 py-2 text-xs text-white">
-          <option value="">All categories</option>
-          {categories.map((category) => <option key={category.id} value={category.slug}>{category.name_ru || category.name_en}</option>)}
+      <FilterGroup label={t('filters.category')}>
+        <select value={categorySlug} onChange={(event) => updateParam('category', event.target.value || null)} aria-label={t('filters.category')} className="w-full border border-gold/30 bg-[#0a1f18] px-2 py-2 text-xs text-white">
+          <option value="">{t('allCategories')}</option>
+          {categories.map((category) => <option key={category.id} value={category.slug}>{getLocalizedField(category as unknown as Record<string, string | null | undefined>, 'name', locale)}</option>)}
         </select>
       </FilterGroup>
 
-      <FilterGroup label="Era">
-        {ERAS.map((era) => (
-          <CheckItem
-            key={era}
-            label={era}
-            checked={selectedEras.includes(era)}
-            onCheckedChange={() => toggleEra(era)}
-          />
-        ))}
-      </FilterGroup>
-
-      <FilterGroup label="Material">
+      <FilterGroup label={t('filters.material')}>
         {MATERIALS.map((mat) => (
           <CheckItem
             key={mat}
-            label={mat}
+            label={t(`materials.${mat}`)}
             checked={selectedMaterials.includes(mat)}
             onCheckedChange={() => toggleMaterial(mat)}
           />
         ))}
       </FilterGroup>
 
-      <FilterGroup label="Price (EUR)">
+      <FilterGroup label={t('priceCurrency', { currency: 'EUR' })}>
         <div className="grid grid-cols-2 gap-2 pb-3">
-          <input type="number" min="0" aria-label="Minimum price" placeholder="Min" value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} onBlur={() => updateParam('price_min', priceFrom || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
-          <input type="number" min="0" aria-label="Maximum price" placeholder="Max" value={priceTo} onChange={(e) => setPriceTo(e.target.value)} onBlur={() => updateParam('price_max', priceTo || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
+          <input type="number" min="0" aria-label={t('minimumPrice')} placeholder={t('min')} value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} onBlur={() => updateParam('price_min', priceFrom || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
+          <input type="number" min="0" aria-label={t('maximumPrice')} placeholder={t('max')} value={priceTo} onChange={(e) => setPriceTo(e.target.value)} onBlur={() => updateParam('price_max', priceTo || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
         </div>
       </FilterGroup>
 
-      <FilterGroup label="Condition">
+      <FilterGroup label={t('filters.condition')}>
         <div className="flex flex-col gap-0">
-          {CONDITIONS.map((c) => (
-            <div key={c.value} className="flex items-center gap-2.5 py-1.5">
+          {CONDITIONS.map((value) => (
+            <div key={value} className="flex items-center gap-2.5 py-1.5">
               <button
-                onClick={() => setCondition(c.value)}
+                onClick={() => setCondition(value)}
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
-                  condition === c.value
+                  condition === value
                     ? 'border-gold bg-gold/20'
                     : 'border-gold/30 hover:border-gold/60'
                 }`}
-                aria-label={c.label}
+                aria-label={product(`condition.${value}`)}
+                aria-pressed={condition === value}
               >
-                {condition === c.value && (
+                {condition === value && (
                   <div className="h-1.5 w-1.5 rounded-full bg-gold-rich" />
                 )}
               </button>
-              <span className="cursor-pointer text-xs tracking-wide text-[#c8bfaa]/80">{c.label}</span>
+              <span className="cursor-pointer text-xs tracking-wide text-[#c8bfaa]/80">{product(`condition.${value}`)}</span>
             </div>
           ))}
         </div>
@@ -225,14 +205,11 @@ export function FilterSidebar({
     <>
       <button
         onClick={() => setMobileOpen((v) => !v)}
+        aria-expanded={mobileOpen}
         className="flex items-center gap-2 border border-gold/30 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-gold/70 transition-colors hover:border-gold hover:text-gold-rich lg:hidden"
       >
         <SlidersHorizontal size={14} />
-        Filters {hasFilters && (
-          <span className="text-gold-rich">
-            ({selectedEras.length + selectedMaterials.length + (condition ? 1 : 0)})
-          </span>
-        )}
+        {hasFilters ? t('filterCount', { count: filterCount }) : t('filtersTitle')}
       </button>
 
       {mobileOpen && (

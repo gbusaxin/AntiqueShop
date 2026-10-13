@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,13 +9,19 @@ import { motion } from 'framer-motion'
 import { Link, useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase'
 
-const schema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(6, 'Min 6 characters'),
-})
-type FormData = z.infer<typeof schema>
-
 export function LoginClient() {
+  const t = useTranslations('auth.login')
+  const registerT = useTranslations('auth.register')
+  const validation = useTranslations('auth.validation')
+  const requiredString = z.string({
+    required_error: validation('required'),
+    invalid_type_error: validation('required'),
+  })
+  const schema = z.object({
+    email: requiredString.email(validation('invalidEmail')),
+    password: requiredString.min(6, validation('minCharacters', { count: 6 })),
+  })
+  type FormData = z.infer<typeof schema>
   const router = useRouter()
   const [serverError, setServerError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -32,7 +39,7 @@ export function LoginClient() {
       password: data.password,
     })
     if (error) {
-      setServerError('Invalid email or password')
+      setServerError(t('invalidCredentials'))
       setLoading(false)
       return
     }
@@ -49,16 +56,16 @@ export function LoginClient() {
       >
         <div className="mb-8 text-center">
           <p className="font-serif text-2xl text-foreground tracking-wide">Belle Époque</p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Sign In</p>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{t('title')}</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div>
-            <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Email</label>
+            <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('email')}</label>
             <input
               type="email"
               autoComplete="email"
-              placeholder="Email address"
+              placeholder={t('emailPlaceholder')}
               {...register('email')}
               className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             />
@@ -66,11 +73,11 @@ export function LoginClient() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Password</label>
+            <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('password')}</label>
             <input
               type="password"
               autoComplete="current-password"
-              placeholder="Password"
+              placeholder={t('password')}
               {...register('password')}
               className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             />
@@ -84,15 +91,15 @@ export function LoginClient() {
             disabled={loading}
             className="mt-2 border border-primary bg-primary py-3.5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? t('submitting') : t('submit')}
           </button>
 
           <div className="flex items-center justify-between text-[10px] text-muted-foreground">
             <Link href="/auth/register" className="hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
-              Create an account
+              {registerT('title')}
             </Link>
             <Link href="/auth/forgot-password" className="hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
-              Forgot password?
+              {t('forgotPassword')}
             </Link>
           </div>
         </form>

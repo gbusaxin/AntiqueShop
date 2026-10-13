@@ -55,9 +55,9 @@ export default async function HomePage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const t = await getTranslations('hero')
-  const tCat = await getTranslations('categories')
-  const tHome = await getTranslations('home')
+  const t = await getTranslations({ locale, namespace: 'hero' })
+  const tCat = await getTranslations({ locale, namespace: 'categories' })
+  const tHome = await getTranslations({ locale, namespace: 'home' })
 
   const supabase = await createClient()
 

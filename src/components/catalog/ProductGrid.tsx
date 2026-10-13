@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { ProductCard } from '@/components/ProductCard'
 import { SkeletonCard } from '@/components/ui/SkeletonCard'
@@ -14,6 +15,7 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ products, locale, total, loading }: ProductGridProps) {
+  const t = useTranslations('catalog')
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -31,7 +33,7 @@ export function ProductGrid({ products, locale, total, loading }: ProductGridPro
           <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="1" />
           <path d="M16 24h16M24 16v16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <p className="text-sm tracking-wide text-[#c8bfaa]/50">No items match your search</p>
+        <p className="text-sm tracking-wide text-[#c8bfaa]/50">{t('noResults')}</p>
       </div>
     )
   }
@@ -39,7 +41,7 @@ export function ProductGrid({ products, locale, total, loading }: ProductGridPro
   return (
     <div>
       <p className="mb-6 text-[11px] uppercase tracking-[0.18em] text-gold/50">
-        {total} item{total !== 1 ? 's' : ''} found
+        {t('itemCount', { count: total })}
       </p>
       <div data-testid="products-grid" className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((product, i) => (

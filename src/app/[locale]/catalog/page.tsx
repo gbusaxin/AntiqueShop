@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
+import { getLocalizedField } from '@/lib/getLocalizedField'
 import { createClient } from '@/lib/supabaseServer'
 import { FilterSidebar } from '@/components/catalog/FilterSidebar'
 import { ProductGrid } from '@/components/catalog/ProductGrid'
@@ -9,10 +10,12 @@ import type { Metadata } from 'next'
 
 export const revalidate = 300
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'catalog' })
   return {
-    title: 'Antique Catalog — Belle Époque',
-    description: 'Browse our curated collection of rare antique objects from across Europe.',
+    title: `${t('title')} — Belle Époque`,
+    description: t('description'),
   }
 }
 
@@ -32,16 +35,15 @@ export default async function CatalogPage({
 }) {
   const { locale } = await params
   const sp = await searchParams
-  const t = await getTranslations('catalog')
+  const t = await getTranslations({ locale, namespace: 'catalog' })
 
-  const eras = toArray(sp.era)
   const materials = toArray(sp.material)
   const condition = typeof sp.condition === 'string' ? sp.condition : ''
   const priceMin = Number(sp.price_min ?? sp.priceMin ?? 0)
   const priceMax = Number(sp.price_max ?? sp.priceMax ?? 0)
   const categorySlug = typeof sp.category === 'string' ? sp.category : ''
   const search = typeof sp.search === 'string' ? sp.search.trim().slice(0, 100) : ''
-  const sort = typeof sp.sort === 'string' ? sp.sort : 'newest'
+  const sort = sp.sort === 'price_asc' || sp.sort === 'price_desc' ? sp.sort : 'newest'
 
   const supabase = await createClient()
   const { data: categoryRows } = await supabase.from('categories').select('*').eq('is_active', true).order('sort_order')
@@ -67,7 +69,6 @@ export default async function CatalogPage({
     if (safeSearch) query = query.or(`name_ru.ilike.%${safeSearch}%,name_en.ilike.%${safeSearch}%,name_de.ilike.%${safeSearch}%,sku.ilike.%${safeSearch}%`)
   }
 
-  if (eras.length) query = query.in('era', eras)
   if (materials.length) query = query.in('material', materials)
   if (condition) query = query.eq('condition', condition)
 
@@ -77,9 +78,6 @@ export default async function CatalogPage({
       break
     case 'price_desc':
       query = query.order('price_eur', { ascending: false })
-      break
-    case 'era':
-      query = query.order('era', { ascending: true })
       break
     default:
       query = query.order('created_at', { ascending: false })
@@ -92,14 +90,13 @@ export default async function CatalogPage({
     <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-10">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">Our Collection</p>
+          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">{t('eyebrow')}</p>
           <h1 className="mt-2 font-serif text-3xl text-gold-rich md:text-4xl">{t('title')}</h1>
         </div>
 
         <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
           <aside className="w-full shrink-0 lg:w-56 xl:w-64">
             <FilterSidebar
-              selectedEras={eras}
               selectedMaterials={materials}
               priceMin={priceMin}
               priceMax={priceMax}
@@ -113,8 +110,8 @@ export default async function CatalogPage({
           <div className="flex-1">
             {categorySlug && (
               <div className="mb-4 flex items-center gap-3 text-sm text-[#f4ead1]">
-                <span>{categoryNotFound ? 'Категория не найдена' : `Категория: ${selectedCategory?.name_ru || selectedCategory?.name_en}`}</span>
-                <Link href={`/catalog${remainingParams.size ? `?${remainingParams.toString()}` : ''}`} className="text-[#A67C52] hover:underline" aria-label="Clear category filter">✕</Link>
+                <span>{categoryNotFound ? t('categoryNotFound') : t('selectedCategory', { name: getLocalizedField(selectedCategory as unknown as Record<string, string | null | undefined>, 'name', locale as Locale) })}</span>
+                <Link href={`/catalog${remainingParams.size ? `?${remainingParams.toString()}` : ''}`} className="text-[#A67C52] hover:underline" aria-label={t('clearCategoryFilter')}>✕</Link>
               </div>
             )}
             <div className="mb-6 flex items-center justify-end">

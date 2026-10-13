@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useTheme } from 'next-themes'
@@ -18,6 +18,7 @@ interface NavbarProps {
 
 export function Navbar({ locale, user }: NavbarProps) {
   const t = useTranslations('nav')
+  const activeLocale = useLocale()
   const totalItems = useCartStore((s) => s.totalItems)
   const pathname = usePathname()
   const router = useRouter()
@@ -67,9 +68,12 @@ export function Navbar({ locale, user }: NavbarProps) {
               <button
                 key={l}
                 data-testid={`locale-${l}`}
-                onClick={() => router.push(pathname, { locale: l })}
+                type="button"
+                aria-label={t('switchLanguage', { language: l.toUpperCase() })}
+                aria-pressed={l === activeLocale}
+                onClick={() => router.replace(pathname, { locale: l })}
                 className={`text-[11px] uppercase tracking-wider transition-colors ${
-                  l === locale
+                  l === activeLocale
                     ? 'text-[var(--accent)]'
                     : 'text-[var(--fg-muted)] hover:text-[var(--fg)]'
                 }`}
@@ -83,7 +87,7 @@ export function Navbar({ locale, user }: NavbarProps) {
             data-testid="theme-toggle"
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className="text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
-            aria-label="Toggle theme"
+            aria-label={t('toggleTheme')}
           >
             {mounted && resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
@@ -91,9 +95,10 @@ export function Navbar({ locale, user }: NavbarProps) {
           <Link
             href="/cart"
             data-testid="cart-link"
+            aria-label={t('cart')}
             className="relative text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
           >
-            <ShoppingBag size={20} />
+            <ShoppingBag size={20} aria-hidden="true" />
             {totalItems > 0 && (
               <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-white">
                 {totalItems > 9 ? '9+' : totalItems}
@@ -115,7 +120,7 @@ export function Navbar({ locale, user }: NavbarProps) {
           <button
             className="text-[var(--fg-muted)] hover:text-[var(--accent)] transition-colors md:hidden"
             onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
+            aria-label={t('toggleMenu')}
           >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -156,12 +161,15 @@ export function Navbar({ locale, user }: NavbarProps) {
                 {LOCALES.map((l) => (
                   <button
                     key={l}
+                    type="button"
+                    aria-label={t('switchLanguage', { language: l.toUpperCase() })}
+                    aria-pressed={l === activeLocale}
                     onClick={() => {
-                      router.push(pathname, { locale: l })
+                      router.replace(pathname, { locale: l })
                       setOpen(false)
                     }}
                     className={`text-[11px] uppercase tracking-wider ${
-                      l === locale ? 'text-[var(--accent)]' : 'text-[var(--fg-muted)]'
+                      l === activeLocale ? 'text-[var(--accent)]' : 'text-[var(--fg-muted)]'
                     }`}
                   >
                     {l}

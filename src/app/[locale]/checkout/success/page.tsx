@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { Link } from '@/i18n/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useSearchParams } from 'next/navigation'
 
 export default function CheckoutSuccessPage() {
+  const t = useTranslations('checkout.success')
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId') ?? searchParams.get('session_id')
   const clearCart = useCartStore((s) => s.clearCart)
@@ -17,6 +19,7 @@ export default function CheckoutSuccessPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a1f18] px-4 text-center text-[#f4ead1]">
+      <title>{`${t('title')} — Belle Époque`}</title>
       <motion.div
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -52,19 +55,19 @@ export default function CheckoutSuccessPage() {
         transition={{ duration: 0.6, delay: 0.5 }}
         className="flex flex-col items-center gap-4"
       >
-        <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">Order Confirmed</p>
-        <h1 className="font-serif text-3xl text-gold-rich md:text-4xl">Thank You!</h1>
+        <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">{t('title')}</p>
+        <h1 className="font-serif text-3xl text-gold-rich md:text-4xl">{t('heading')}</h1>
 
         {orderId && (
           <p className="text-xs tracking-wide text-gold/60">
-            Order #{orderId.slice(0, 8).toUpperCase()}
+            {t('orderReference', { orderId: orderId.slice(0, 8).toUpperCase() })}
           </p>
         )}
 
         <div className="mx-auto mt-2 h-px w-12 bg-gold/30" />
 
         <p className="max-w-sm text-xs leading-relaxed tracking-wide text-[#c8bfaa]/65">
-          Your order will be processed within 24 hours. We will contact you with shipping details and to confirm any provenance documentation.
+          {t('processingDescription')}
         </p>
 
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:gap-5">
@@ -72,13 +75,13 @@ export default function CheckoutSuccessPage() {
             href="/account/orders"
             className="border border-gold/30 px-8 py-3 text-xs uppercase tracking-[0.2em] text-gold/70 transition-colors hover:border-gold hover:text-gold-rich"
           >
-            View My Orders
+            {t('viewOrders')}
           </Link>
           <Link
             href="/catalog"
             className="border border-gold/15 px-8 py-3 text-xs uppercase tracking-[0.2em] text-gold/50 transition-colors hover:border-gold/30 hover:text-gold/70"
           >
-            Continue Shopping
+            {t('continueShopping')}
           </Link>
         </div>
       </motion.div>

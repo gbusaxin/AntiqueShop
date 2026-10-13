@@ -23,13 +23,6 @@ const CONDITION_STYLES: Record<ProductCondition, string> = {
   fair: 'border-orange-400/40 text-orange-400 bg-orange-400/5',
 }
 
-const CONDITION_LABELS: Record<ProductCondition, string> = {
-  excellent: 'Excellent',
-  poor: 'Poor',
-  good: 'Good',
-  fair: 'Fair',
-}
-
 export const dynamic = 'force-dynamic'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
@@ -40,19 +33,20 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
   const { locale, slug } = await params
+  const t = await getTranslations({ locale, namespace: 'product' })
   try {
     const supabase = await createClient()
     const { data } = await supabase
       .from('products')
-      .select('name_en, name_ru, name_de, description_en, images, price_eur')
+      .select('name_en, name_ru, name_de, description_en, description_ru, description_de, images, price_eur')
       .eq('slug', slug)
       .eq('is_available', true)
       .maybeSingle()
 
-    if (!data) return { title: 'Product — Belle Époque' }
+    if (!data) return { title: `${t('title')} — Belle Époque` }
 
     const name = getLocalizedField(data as Record<string, string | null | undefined>, 'name', locale as Locale)
-    const description = (data.description_en ?? '').slice(0, 160)
+    const description = getLocalizedField(data as Record<string, string | null | undefined>, 'description', locale as Locale).slice(0, 160)
     const ogImage = Array.isArray(data.images) && data.images[0] ? data.images[0] : undefined
 
     return {
@@ -77,7 +71,7 @@ export async function generateMetadata({
       },
     }
   } catch {
-    return { title: 'Product — Belle Époque' }
+    return { title: `${t('title')} — Belle Époque` }
   }
 }
 
@@ -87,7 +81,10 @@ export default async function ProductPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
-  const t = await getTranslations('product')
+  const t = await getTranslations({ locale, namespace: 'product' })
+  const nav = await getTranslations({ locale, namespace: 'nav' })
+  const currency = await getTranslations({ locale, namespace: 'currency' })
+  const catalog = await getTranslations({ locale, namespace: 'catalog' })
 
   const supabase = await createClient()
   const { data: raw } = await supabase
@@ -104,6 +101,7 @@ export default async function ProductPage({
   const name = getLocalizedField(productRecord, 'name', locale as Locale)
   const description = getLocalizedField(productRecord, 'description', locale as Locale)
   const provenance = getLocalizedField(productRecord, 'provenance', locale as Locale)
+  const material = catalog.has(`materials.${product.material}`) ? catalog(`materials.${product.material}`) : product.material
 
   const { data: relatedRaw } = await supabase
     .from('products')
@@ -157,10 +155,10 @@ export default async function ProductPage({
       <JsonLd data={jsonLd} />
       <ViewTracker slug={slug} />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <nav className="mb-8 flex items-center gap-2 text-[11px] tracking-wide text-gold/50">
-          <Link href="/" className="hover:text-gold/80 transition-colors">Home</Link>
+        <nav aria-label={t('breadcrumbs')} className="mb-8 flex items-center gap-2 text-[11px] tracking-wide text-gold/50">
+          <Link href="/" className="hover:text-gold/80 transition-colors">{nav('home')}</Link>
           <span>/</span>
-          <Link href="/catalog" className="hover:text-gold/80 transition-colors">Catalog</Link>
+          <Link href="/catalog" className="hover:text-gold/80 transition-colors">{nav('catalog')}</Link>
           <span>/</span>
           <span className="text-gold/70">{name}</span>
         </nav>
@@ -171,15 +169,9 @@ export default async function ProductPage({
           </div>
 
           <div className="flex flex-col gap-6">
-            {product.era && (
-              <span className="w-fit border border-gold/25 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-gold/70">
-                {product.era}
-              </span>
-            )}
-
             <div>
               <h1 className="font-serif text-3xl leading-snug text-[#f4ead1] md:text-4xl">{name}</h1>
-              <p className="mt-2 font-mono text-[11px] tracking-wide text-gold/60">SKU {product.sku}</p>
+              <p className="mt-2 font-mono text-[11px] tracking-wide text-gold/60">{t('sku', { sku: product.sku })}</p>
             </div>
 
             {product.condition && (
@@ -187,10 +179,10 @@ export default async function ProductPage({
                 <span
                   className={`border px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] ${CONDITION_STYLES[product.condition]}`}
                 >
-                  {CONDITION_LABELS[product.condition]}
+                  {t(`condition.${product.condition}`)}
                 </span>
                 {product.year_circa && (
-                  <span className="text-xs tracking-wide text-gold/50">c. {product.year_circa}</span>
+                  <span className="text-xs tracking-wide text-gold/50">{t('circa', { year: product.year_circa })}</span>
                 )}
               </div>
             )}
@@ -201,7 +193,7 @@ export default async function ProductPage({
               </p>
               {priceInfo.isConverted && priceInfo.originalEur && (
                 <p className="mt-1 text-[10px] text-gold/40 tracking-wide">
-                  ≈ {formatPrice(priceInfo.originalEur, 'EUR', localeStr)} · converted from EUR
+                  {formatPrice(priceInfo.originalEur, 'EUR', localeStr)} · {currency('converted')}
                 </p>
               )}
             </div>
@@ -210,7 +202,7 @@ export default async function ProductPage({
               {product.material && (
                 <div className="flex gap-4">
                   <span className="w-28 shrink-0 text-[10px] uppercase tracking-[0.15em] text-gold/50">{t('material')}</span>
-                  <span className="tracking-wide text-[#c8bfaa]/80">{product.material}</span>
+                  <span className="tracking-wide text-[#c8bfaa]/80">{material}</span>
                 </div>
               )}
               {product.size && (
@@ -246,7 +238,7 @@ export default async function ProductPage({
               <AddToCartButton
                 product={product}
                 label={t('addToCart')}
-                inCartLabel="In Cart"
+                inCartLabel={t('inCart')}
               />
             </div>
           </div>

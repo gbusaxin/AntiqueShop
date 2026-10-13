@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 
 export default function LocaleError({
   error,
@@ -11,6 +12,9 @@ export default function LocaleError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const t = useTranslations('errors')
+  const tCommon = useTranslations('common')
+
   useEffect(() => {
     console.error('[LocaleError]', error)
   }, [error])
@@ -23,22 +27,22 @@ export default function LocaleError({
         className="max-w-md text-center"
       >
         <p className="mb-4 font-serif text-7xl text-[var(--accent)]">500</p>
-        <h1 className="mb-4 font-serif text-2xl text-[var(--fg)]">Something went wrong</h1>
+        <h1 className="mb-4 font-serif text-2xl text-[var(--fg)]">{t('general')}</h1>
         <p className="mb-8 text-sm leading-relaxed text-[var(--fg-muted)]">
-          An unexpected error occurred. Please try again or return to the homepage.
+          {t('unexpectedDescription')}
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={reset}
             className="border border-[var(--accent)] px-8 py-3 text-xs uppercase tracking-[0.18em] text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--bg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
           >
-            Try Again
+            {tCommon('tryAgain')}
           </button>
           <Link
             href="/"
             className="px-8 py-3 text-xs uppercase tracking-[0.18em] text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
           >
-            Back to Home
+            {tCommon('backToHome')}
           </Link>
         </div>
       </motion.div>

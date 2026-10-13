@@ -35,7 +35,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     provenance_ru: z.string().max(2000).optional().nullable(),
     provenance_en: z.string().max(2000).optional().nullable(),
     provenance_de: z.string().max(2000).optional().nullable(),
-    era: z.string().max(100).optional().nullable(),
     material: z.string().trim().min(1).max(200),
     size: z.string().trim().min(1).max(200),
     country_of_origin: z.string().max(100).optional().nullable(),
@@ -67,7 +66,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (input.provenance_ru !== undefined) update.provenance_ru = sanitizeString(input.provenance_ru, 2000)
   if (input.provenance_en !== undefined) update.provenance_en = sanitizeString(input.provenance_en, 2000)
   if (input.provenance_de !== undefined) update.provenance_de = sanitizeString(input.provenance_de, 2000)
-  if (input.era !== undefined) update.era = sanitizeString(input.era, 100)
   if (input.country_of_origin !== undefined) update.country_of_origin = sanitizeString(input.country_of_origin, 100)
   if (input.year_circa !== undefined) update.year_circa = sanitizeString(input.year_circa, 20)
   if (input.name_ru !== undefined) update.name_ru = input.name_ru

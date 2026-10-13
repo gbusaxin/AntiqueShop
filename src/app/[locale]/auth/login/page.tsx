@@ -1,13 +1,8 @@
+import { getTranslations } from 'next-intl/server'
 import type { Metadata } from 'next'
 import { LoginClient } from '@/components/auth/LoginClient'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
-
-const TITLES: Record<string, string> = {
-  en: 'Sign In — Belle Époque',
-  ru: 'Войти — Belle Époque',
-  de: 'Anmelden — Belle Époque',
-}
 
 export async function generateMetadata({
   params,
@@ -15,9 +10,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
-  const title = locale === 'ru' ? TITLES.ru : locale === 'de' ? TITLES.de : TITLES.en
+  const t = await getTranslations({ locale, namespace: 'auth.login' })
   return {
-    title,
+    title: `${t('title')} — Belle Époque`,
     robots: { index: false, follow: false },
     alternates: {
       canonical: `${BASE_URL}/${locale}/auth/login`,

@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { useCartStore } from '@/store/cartStore'
@@ -18,6 +19,9 @@ interface CartContentProps {
 }
 
 export function CartContent({ locale }: CartContentProps) {
+  const t = useTranslations('cart')
+  const checkoutT = useTranslations('checkout')
+  const paymentT = useTranslations('payment')
   const { items, totalEur, removeItem, updateQuantity } = useCartStore()
   const { region } = useRegionStore()
   const providers = getPaymentProvidersForRegion(region)
@@ -35,16 +39,16 @@ export function CartContent({ locale }: CartContentProps) {
           <ShoppingBag size={56} className="text-gold/20" />
         </motion.div>
         <div className="text-center">
-          <p className="font-serif text-xl text-gold/50">Your cart is empty</p>
+          <p className="font-serif text-xl text-gold/50">{t('empty')}</p>
           <p className="mt-2 text-xs tracking-wide text-[#c8bfaa]/40">
-            Discover exceptional antique objects in our collection
+            {t('emptyDescription')}
           </p>
         </div>
         <Link
           href="/catalog"
           className="border border-gold/40 px-8 py-3 text-xs uppercase tracking-[0.2em] text-gold/70 transition-colors hover:border-gold hover:text-gold-rich"
         >
-          Continue Shopping
+          {t('continueShopping')}
         </Link>
       </div>
     )
@@ -90,9 +94,6 @@ export function CartContent({ locale }: CartContentProps) {
                 <div className="flex flex-1 flex-col gap-2">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      {item.product.era && (
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-gold/50">{item.product.era}</p>
-                      )}
                       <Link
                         href={`/catalog/${item.product.slug}`}
                         className="font-serif text-sm leading-snug text-[#f4ead1] hover:text-gold-rich transition-colors"
@@ -103,7 +104,7 @@ export function CartContent({ locale }: CartContentProps) {
                     <button
                       onClick={() => removeItem(item.product.id)}
                       className="shrink-0 text-gold/30 transition-colors hover:text-red-400"
-                      aria-label="Remove item"
+                      aria-label={t('remove')}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -112,6 +113,7 @@ export function CartContent({ locale }: CartContentProps) {
                   <div className="mt-auto flex items-center justify-between">
                     <div className="flex items-center border border-gold/20">
                       <button
+                        aria-label={t('decreaseQuantity')}
                         onClick={() =>
                           item.quantity === 1
                             ? removeItem(item.product.id)
@@ -123,6 +125,7 @@ export function CartContent({ locale }: CartContentProps) {
                       </button>
                       <span className="w-8 text-center text-xs text-[#f4ead1]">{item.quantity}</span>
                       <button
+                        aria-label={t('increaseQuantity')}
                         onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                         className="flex h-8 w-8 items-center justify-center text-gold/50 transition-colors hover:text-gold-rich"
                       >
@@ -144,31 +147,31 @@ export function CartContent({ locale }: CartContentProps) {
             href="/catalog"
             className="text-[10px] uppercase tracking-[0.18em] text-gold/50 hover:text-gold-rich transition-colors"
           >
-            ← Continue Shopping
+            ← {t('continueShopping')}
           </Link>
         </div>
       </div>
 
       <div className="lg:sticky lg:top-24 h-fit">
         <div className="border border-gold/15 p-6">
-          <p className="mb-6 font-serif text-lg text-gold-rich">Order Summary</p>
+          <p className="mb-6 font-serif text-lg text-gold-rich">{checkoutT('orderSummary')}</p>
 
           <div className="space-y-3 text-xs">
             <div className="flex justify-between tracking-wide">
-              <span className="text-[#c8bfaa]/70">Subtotal</span>
+              <span className="text-[#c8bfaa]/70">{t('subtotal')}</span>
               <span className="text-[#f4ead1]">{formatPrice(totalEur, 'EUR', localeStr)}</span>
             </div>
             <div className="flex justify-between tracking-wide">
-              <span className="text-[#c8bfaa]/70">Shipping</span>
-              <span className="text-[#c8bfaa]/50 text-[10px]">Calculated at checkout</span>
+              <span className="text-[#c8bfaa]/70">{t('shipping')}</span>
+              <span className="text-[#c8bfaa]/50 text-[10px]">{t('calculatedAtCheckout')}</span>
             </div>
             <div className="border-t border-gold/10 pt-3">
               <div className="flex justify-between">
-                <span className="uppercase tracking-[0.15em] text-gold/70">Total</span>
+                <span className="uppercase tracking-[0.15em] text-gold/70">{t('total')}</span>
                 <span className="font-serif text-lg text-gold-rich">{formatPrice(totalEur + SHIPPING_EST, 'EUR', localeStr)}</span>
               </div>
               <p className="mt-1 text-right text-[10px] text-gold/40">
-                incl. est. shipping €{SHIPPING_EST}
+                {t('estimatedShipping', { amount: formatPrice(SHIPPING_EST, 'EUR', localeStr) })}
               </p>
             </div>
           </div>
@@ -177,25 +180,25 @@ export function CartContent({ locale }: CartContentProps) {
             href="/checkout"
             className="mt-6 flex w-full items-center justify-center border border-gold bg-gold/10 py-4 text-xs uppercase tracking-[0.2em] text-gold-rich transition-all duration-300 hover:bg-gold hover:text-emerald-dark"
           >
-            Proceed to Checkout
+            {t('checkout')}
           </Link>
 
           <div className="mt-6 border-t border-gold/10 pt-4">
-            <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-gold/40">Accepted Payments</p>
+            <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-gold/40">{t('acceptedPayments')}</p>
             <div className="flex flex-wrap gap-2">
               {providers.includes('stripe') && (
                 <>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">Card</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">Apple Pay</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">Google Pay</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">SEPA</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('card')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('applePay')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('googlePay')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('sepa')}</span>
                 </>
               )}
               {providers.includes('yookassa') && (
                 <>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">МИР</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">СБП</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">ЮMoney</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('mir')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('sbp')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('yooMoney')}</span>
                 </>
               )}
             </div>

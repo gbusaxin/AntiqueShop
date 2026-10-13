@@ -35,7 +35,11 @@
     "logout": "Log out",
     "register": "Register",
     "myOrders": "My Orders",
-    "profile": "Profile"
+    "profile": "Profile",
+    "accountMenu": "Account menu",
+    "switchLanguage": "Switch language to {language}",
+    "toggleTheme": "Toggle theme",
+    "toggleMenu": "Toggle menu"
   },
   "hero": {
     "title": "Rare Antique Objects of Exceptional Beauty",
@@ -57,16 +61,46 @@
   "catalog": {
     "title": "Antique Catalog",
     "filters": {
-      "era": "Era",
       "material": "Material",
       "country": "Country",
       "price": "Price",
-      "condition": "Condition"
+      "condition": "Condition",
+      "category": "Category"
     },
     "sort": "Sort",
     "noResults": "No items match your search",
     "loadMore": "Load More",
-    "searchPlaceholder": "Search items"
+    "searchPlaceholder": "Search items",
+    "description": "Browse our curated collection of rare antique objects from across Europe.",
+    "eyebrow": "Our Collection",
+    "categoryNotFound": "Category not found",
+    "selectedCategory": "Category: {name}",
+    "clearCategoryFilter": "Clear category filter",
+    "itemCount": "{count, plural, one {# item found} other {# items found}}",
+    "sortOptions": {
+      "newest": "Newest First",
+      "priceAscending": "Price: Low to High",
+      "priceDescending": "Price: High to Low"
+    },
+    "clearAllFilters": "Clear all filters",
+    "allCategories": "All categories",
+    "priceCurrency": "Price ({currency})",
+    "minimumPrice": "Minimum price",
+    "maximumPrice": "Maximum price",
+    "min": "Min",
+    "max": "Max",
+    "filtersTitle": "Filters",
+    "filterCount": "Filters ({count, number})",
+    "materials": {
+      "Porcelain": "Porcelain",
+      "Crystal": "Crystal",
+      "Silver": "Silver",
+      "Bronze": "Bronze",
+      "Copper": "Copper",
+      "Glass": "Glass",
+      "Wood": "Wood",
+      "Ivory": "Ivory"
+    }
   },
   "product": {
     "addToCart": "Add to Cart",
@@ -76,7 +110,6 @@
       "good": "Good",
       "fair": "Fair"
     },
-    "era": "Era",
     "material": "Material",
     "size": "Size",
     "country": "Country",
@@ -84,7 +117,19 @@
     "provenance": "Provenance",
     "gallery": "Gallery",
     "shareButton": "Share",
-    "similarItems": "Similar Items"
+    "similarItems": "Similar Items",
+    "title": "Product",
+    "sku": "SKU {sku}",
+    "circa": "c. {year}",
+    "inCart": "In Cart",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "addedToCart": "Added to cart",
+    "breadcrumbs": "Breadcrumbs",
+    "galleryView": "{name} — view {number}",
+    "galleryThumbnail": "Show image {number}",
+    "galleryZoom": "Enlarge image",
+    "galleryCloseZoom": "Close enlarged image"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -95,7 +140,14 @@
     "checkout": "Proceed to Checkout",
     "remove": "Remove",
     "quantity": "Quantity",
-    "continueShopping": "Continue Shopping"
+    "continueShopping": "Continue Shopping",
+    "eyebrow": "Your Selection",
+    "emptyDescription": "Discover exceptional antique objects in our collection",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "calculatedAtCheckout": "Calculated at checkout",
+    "estimatedShipping": "incl. est. shipping {amount}",
+    "acceptedPayments": "Accepted Payments"
   },
   "checkout": {
     "title": "Checkout",
@@ -108,7 +160,9 @@
       "city": "City",
       "state": "State / Region",
       "postalCode": "Postal Code",
-      "country": "Country"
+      "country": "Country",
+      "addressLine1": "Address Line 1",
+      "addressLine2": "Address Line 2 (optional)"
     },
     "shippingMethod": "Shipping Method",
     "paymentMethod": "Payment Method",
@@ -118,7 +172,56 @@
       "title": "Order Confirmed",
       "orderNumber": "Order Number",
       "thankYou": "Thank you for your order. We will contact you to confirm the delivery details.",
-      "continueShopping": "Continue Shopping"
+      "continueShopping": "Continue Shopping",
+      "heading": "Thank You!",
+      "orderReference": "Order #{orderId}",
+      "processingDescription": "Your order will be processed within 24 hours. We will contact you with shipping details and to confirm any provenance documentation.",
+      "viewOrders": "View My Orders"
+    },
+    "eyebrow": "Secure Purchase",
+    "paymentStep": "Payment",
+    "selectCountry": "Select country…",
+    "continueToPayment": "Continue to Payment",
+    "processing": "Processing…",
+    "yookassaNotice": "Payment via YooKassa — available for Russia and the CIS",
+    "countries": {
+      "DE": "Germany",
+      "FR": "France",
+      "IT": "Italy",
+      "ES": "Spain",
+      "AT": "Austria",
+      "CH": "Switzerland",
+      "NL": "Netherlands",
+      "BE": "Belgium",
+      "PL": "Poland",
+      "GB": "United Kingdom",
+      "US": "United States",
+      "CA": "Canada",
+      "AU": "Australia",
+      "RU": "Russia",
+      "BY": "Belarus",
+      "KZ": "Kazakhstan",
+      "UA": "Ukraine",
+      "OTHER": "Other"
+    },
+    "delivery": {
+      "standard": "Standard Delivery",
+      "express": "Express Delivery",
+      "days": "{min}–{max} days"
+    },
+    "validation": {
+      "required": "Required",
+      "invalidEmail": "Invalid email",
+      "selectDeliveryMethod": "Select a delivery method",
+      "selectPaymentMethod": "Select a payment method"
+    },
+    "failed": {
+      "title": "Payment Failed",
+      "description": "Your payment could not be processed. No charges were made.",
+      "instructions": "Please check your payment details and try again, or contact your bank if the problem persists.",
+      "tryAgain": "Try Again",
+      "backToCart": "Back to Cart",
+      "needHelp": "Need help?"
     }
   },
   "auth": {
@@ -128,7 +231,10 @@
       "password": "Password",
       "submit": "Log In",
       "forgotPassword": "Forgot your password?",
-      "noAccount": "Don't have an account?"
+      "noAccount": "Don't have an account?",
+      "emailPlaceholder": "Email address",
+      "invalidCredentials": "Invalid email or password",
+      "submitting": "Signing in…"
     },
     "register": {
       "title": "Create an Account",
@@ -136,7 +242,16 @@
       "email": "Email",
       "password": "Password",
       "submit": "Create Account",
-      "hasAccount": "Already have an account?"
+      "hasAccount": "Already have an account?",
+      "error": "Registration failed. Please try again.",
+      "submitting": "Creating…",
+      "successTitle": "Account Created",
+      "successDescription": "Check your email to confirm your address."
+    },
+    "validation": {
+      "required": "Required",
+      "invalidEmail": "Invalid email",
+      "minCharacters": "Min {count} characters"
     }
   },
   "account": {
@@ -147,7 +262,10 @@
       "date": "Date",
       "status": "Status",
       "total": "Total",
-      "viewDetails": "View Details"
+      "viewDetails": "View Details",
+      "browseCatalog": "Browse Catalog",
+      "moreItems": "+{count} more",
+      "unknownStatus": "Unknown status"
     }
   },
   "orders": {
@@ -161,11 +279,12 @@
     }
   },
   "about": {
-    "title": "About Antiqua",
+    "title": "About Belle Époque",
     "mission": "We preserve the beauty of the past by offering authentic objects to modern collectors.",
     "team": "Our Team",
     "history": "Our History",
-    "contact": "Contact Us"
+    "contact": "Contact Us",
+    "description": "Curating exceptional antique objects since 1987. Our story, our values, our team."
   },
   "contacts": {
     "title": "Contact Us",
@@ -180,7 +299,24 @@
       "message": "Message",
       "submit": "Send Message",
       "success": "Thank you! Your message has been sent.",
-      "error": "We could not send your message. Please try again."
+      "error": "We could not send your message. Please try again.",
+      "eyebrow": "Write to Us",
+      "successTitle": "Message Sent",
+      "responseTime": "We will respond within one business day.",
+      "phoneOptional": "Phone (optional)",
+      "sending": "Sending…",
+      "validation": {
+        "nameMin": "Please enter at least {min} characters",
+        "maxLength": "Please enter no more than {max} characters",
+        "email": "Invalid email",
+        "messageMin": "Please write at least {min} characters"
+      }
+    },
+    "eyebrow": "Get in Touch",
+    "details": "Contact details",
+    "map": {
+      "label": "Location on the map",
+      "open": "Open in OpenStreetMap"
     }
   },
   "legal": {
@@ -233,7 +369,26 @@
     "message": "We use cookies to make your visit more enjoyable.",
     "accept": "Accept",
     "decline": "Decline",
-    "settings": "Settings"
+    "settings": "Settings",
+    "disclosure": "We use cookies to improve your experience, analyze traffic, and personalize content. By clicking “Accept”, you consent to our use of cookies in accordance with <privacy>our Privacy Policy</privacy> (GDPR / 152-ФЗ).",
+    "alwaysOn": "Always on",
+    "optional": "Optional",
+    "hideDetails": "Hide details",
+    "details": "Cookie details",
+    "categories": {
+      "essential": {
+        "name": "Essential",
+        "description": "Required for the site to function. Cannot be disabled."
+      },
+      "analytics": {
+        "name": "Analytics",
+        "description": "Help us understand how visitors interact with the site (PostHog)."
+      },
+      "preferences": {
+        "name": "Preferences",
+        "description": "Remember your language, region, and currency settings."
+      }
+    }
   },
   "region": {
     "title": "Region",
@@ -256,7 +411,9 @@
   "errors": {
     "general": "Something went wrong. Please try again.",
     "notFound": "Page not found",
-    "unauthorized": "Authorization required"
+    "unauthorized": "Authorization required",
+    "notFoundDescription": "The page you are looking for does not exist or has been moved.",
+    "unexpectedDescription": "An unexpected error occurred. Please try again or return to the homepage."
   },
   "common": {
     "loading": "Loading...",
@@ -267,6 +424,40 @@
     "next": "Next",
     "yes": "Yes",
     "no": "No",
-    "search": "Search"
+    "search": "Search",
+    "item": "Item",
+    "backToHome": "Back to Home",
+    "tryAgain": "Try Again"
+  },
+  "blog": {
+    "title": "Journal",
+    "description": "Stories, insights, and discoveries from the world of antiques.",
+    "eyebrow": "Our Journal",
+    "postCount": "{count, plural, one {# article} other {# articles}}",
+    "filterTag": "Filter by tag",
+    "tagPlaceholder": "Enter a tag",
+    "applyFilter": "Apply filter",
+    "clearFilter": "Clear filter",
+    "filteredBy": "Filtered by tag: {tag}",
+    "articles": "Articles",
+    "emptyTitle": "No articles yet",
+    "emptyDescription": "Our journal will feature stories and discoveries soon. Please check back later.",
+    "emptyFilteredTitle": "No articles match this tag",
+    "emptyFilteredDescription": "Try another tag or browse all articles.",
+    "allArticles": "All articles",
+    "pagination": "Article pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page, number} of {total, number}",
+    "backToBlog": "Back to journal",
+    "tags": "Tags",
+    "gallery": "Article gallery",
+    "imageAlt": "{title} — image {number, number}",
+    "imageNumber": "Image {number, number} of {total, number}",
+    "readArticle": "Read article",
+    "readArticleLabel": "Read article: {title}",
+    "errorTitle": "The journal could not be loaded",
+    "errorDescription": "Please try again in a moment.",
+    "retry": "Try again"
   }
 }

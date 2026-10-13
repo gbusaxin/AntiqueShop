@@ -22,7 +22,6 @@ const schema = z.object({
   provenance_ru: z.string().optional(),
   provenance_en: z.string().optional(),
   provenance_de: z.string().optional(),
-  era: z.string().optional(),
   material: requiredText,
   size: requiredText,
   country_of_origin: z.string().optional(),
@@ -100,7 +99,6 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
       provenance_ru: initialData?.provenance_ru ?? '',
       provenance_en: initialData?.provenance_en ?? '',
       provenance_de: initialData?.provenance_de ?? '',
-      era: initialData?.era ?? '',
       material: initialData?.material ?? '',
       size: initialData?.size ?? '',
       country_of_origin: initialData?.country_of_origin ?? '',
@@ -247,7 +245,6 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
               <option value="poor">Poor</option>
             </select>
           </Field>
-          <Field label="Era"><input {...register('era')} className={inputCls} placeholder="Art Deco" /></Field>
           <Field label="Country of Origin"><input {...register('country_of_origin')} className={inputCls} placeholder="France" /></Field>
           <Field label="Year / Circa"><input {...register('year_circa')} className={inputCls} placeholder="1920s" /></Field>
           <Field label="SKU" error={errors.sku?.message}>

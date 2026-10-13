@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,14 +9,20 @@ import { motion } from 'framer-motion'
 import { Link, useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase'
 
-const schema = z.object({
-  name: z.string().min(2, 'Min 2 characters'),
-  email: z.string().email('Invalid email'),
-  password: z.string().min(8, 'Min 8 characters'),
-})
-type FormData = z.infer<typeof schema>
-
 export function RegisterClient() {
+  const t = useTranslations('auth.register')
+  const loginT = useTranslations('auth.login')
+  const validation = useTranslations('auth.validation')
+  const requiredString = z.string({
+    required_error: validation('required'),
+    invalid_type_error: validation('required'),
+  })
+  const schema = z.object({
+    name: requiredString.min(2, validation('minCharacters', { count: 2 })),
+    email: requiredString.email(validation('invalidEmail')),
+    password: requiredString.min(8, validation('minCharacters', { count: 8 })),
+  })
+  type FormData = z.infer<typeof schema>
   const router = useRouter()
   const [serverError, setServerError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -35,7 +42,7 @@ export function RegisterClient() {
       options: { data: { full_name: data.name } },
     })
     if (error) {
-      setServerError('Registration failed. Please try again.')
+      setServerError(t('error'))
       setLoading(false)
       return
     }
@@ -56,8 +63,8 @@ export function RegisterClient() {
               <path d="M5 14L11 20L23 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <p className="font-serif text-xl text-foreground">Account Created</p>
-          <p className="text-xs text-muted-foreground">Check your email to confirm your address.</p>
+          <p className="font-serif text-xl text-foreground">{t('successTitle')}</p>
+          <p className="text-xs text-muted-foreground">{t('successDescription')}</p>
         </motion.div>
       </div>
     )
@@ -73,15 +80,15 @@ export function RegisterClient() {
       >
         <div className="mb-8 text-center">
           <p className="font-serif text-2xl text-foreground tracking-wide">Belle Époque</p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Create Account</p>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{t('title')}</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           {(
             [
-              { key: 'name', label: 'Full Name', type: 'text', autocomplete: 'name' },
-              { key: 'email', label: 'Email', type: 'email', autocomplete: 'email' },
-              { key: 'password', label: 'Password', type: 'password', autocomplete: 'new-password' },
+              { key: 'name', label: t('name'), type: 'text', autocomplete: 'name' },
+              { key: 'email', label: t('email'), type: 'email', autocomplete: 'email' },
+              { key: 'password', label: t('password'), type: 'password', autocomplete: 'new-password' },
             ] as { key: keyof FormData; label: string; type: string; autocomplete: string }[]
           ).map(({ key, label, type, autocomplete }) => {
             const fieldError = key === 'name' ? errors.name : key === 'email' ? errors.email : errors.password
@@ -110,13 +117,13 @@ export function RegisterClient() {
             disabled={loading}
             className="mt-2 border border-primary bg-primary py-3.5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
           >
-            {loading ? 'Creating…' : 'Create Account'}
+            {loading ? t('submitting') : t('submit')}
           </button>
 
           <p className="text-center text-[10px] text-muted-foreground">
-            Already have an account?{' '}
+            {t('hasAccount')}{' '}
             <Link href="/auth/login" className="text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
-              Sign in
+              {loginT('submit')}
             </Link>
           </p>
         </form>

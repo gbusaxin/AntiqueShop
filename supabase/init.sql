@@ -80,7 +80,6 @@ CREATE TABLE public.products (
   material TEXT NOT NULL CHECK (length(btrim(material)) > 0),
   size TEXT NOT NULL CHECK (length(btrim(size)) > 0),
   category_id UUID NOT NULL REFERENCES public.categories(id) ON DELETE RESTRICT,
-  era TEXT,
   country_of_origin TEXT,
   year_circa TEXT,
   condition TEXT NOT NULL CHECK (condition IN ('excellent', 'good', 'fair', 'poor')),

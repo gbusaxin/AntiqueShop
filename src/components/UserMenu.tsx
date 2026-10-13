@@ -38,14 +38,14 @@ export function UserMenu({ user, locale }: UserMenuProps) {
     router.refresh()
   }
 
-  const initial = user.email[0]?.toUpperCase() ?? 'U'
+  const initial = user.email[0]?.toUpperCase() ?? t('account').charAt(0).toUpperCase()
 
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
-        aria-label="Account menu"
+        aria-label={t('accountMenu')}
       >
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent)] text-[11px] font-bold text-white">
           {initial}

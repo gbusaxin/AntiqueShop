@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 
@@ -10,6 +11,8 @@ const COOKIE_KEY = 'cookie_consent'
 type ConsentState = 'accepted' | 'declined' | null
 
 export function CookieBanner() {
+  const t = useTranslations('cookie')
+  const tCommon = useTranslations('common')
   const [consent, setConsent] = useState<ConsentState>(null)
   const [showDetails, setShowDetails] = useState(false)
   const [showChoices, setShowChoices] = useState(false)
@@ -46,7 +49,7 @@ export function CookieBanner() {
         onClick={() => setShowChoices(true)}
         className="fixed bottom-4 left-4 z-[100] border border-input bg-background px-3 py-2 text-[11px] text-foreground hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
-        Cookie settings
+        {t('settings')}
       </button>
     )
   }
@@ -64,13 +67,13 @@ export function CookieBanner() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1 pr-4">
               <p className="text-xs leading-relaxed text-foreground">
-                We use cookies to improve your experience, analyze traffic, and personalize content.
-                By clicking &ldquo;Accept&rdquo;, you consent to our use of cookies in accordance
-                with{' '}
-                <Link href="/en/legal/privacy" className="underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-                  our Privacy Policy
-                </Link>{' '}
-                (GDPR / 152-ФЗ).
+                {t.rich('disclosure', {
+                  privacy: (chunks) => (
+                    <Link href="/legal/privacy" className="underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+                      {chunks}
+                    </Link>
+                  ),
+                })}
               </p>
 
               <AnimatePresence>
@@ -85,18 +88,18 @@ export function CookieBanner() {
                     <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                       {[
                         {
-                          name: 'Essential',
-                          desc: 'Required for the site to function. Cannot be disabled.',
+                          name: t('categories.essential.name'),
+                          desc: t('categories.essential.description'),
                           always: true,
                         },
                         {
-                          name: 'Analytics',
-                          desc: 'Help us understand how visitors interact with the site (PostHog).',
+                          name: t('categories.analytics.name'),
+                          desc: t('categories.analytics.description'),
                           always: false,
                         },
                         {
-                          name: 'Preferences',
-                          desc: 'Remember your language, region, and currency settings.',
+                          name: t('categories.preferences.name'),
+                          desc: t('categories.preferences.description'),
                           always: false,
                         },
                       ].map((cat) => (
@@ -108,7 +111,7 @@ export function CookieBanner() {
                             <span
                               className="text-[10px] text-muted-foreground"
                             >
-                              {cat.always ? 'Always on' : 'Optional'}
+                              {cat.always ? t('alwaysOn') : t('optional')}
                             </span>
                           </div>
                           <p className="mt-1 text-[11px] text-muted-foreground">{cat.desc}</p>
@@ -123,7 +126,7 @@ export function CookieBanner() {
                 onClick={() => setShowDetails((v) => !v)}
                 className="mt-2 text-[11px] text-foreground underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
-                {showDetails ? 'Hide details' : 'Cookie details'}
+                {showDetails ? t('hideDetails') : t('details')}
               </button>
             </div>
 
@@ -132,18 +135,18 @@ export function CookieBanner() {
                 onClick={() => choose('declined')}
                 className="border border-primary/40 px-5 py-2 text-[11px] uppercase tracking-wider text-primary transition-colors hover:border-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
-                Decline
+                {t('decline')}
               </button>
               <button
                 onClick={() => choose('accepted')}
                 className="border border-primary bg-primary px-5 py-2 text-[11px] uppercase tracking-wider text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
-                Accept all
+                {t('accept')}
               </button>
               <button
                 onClick={() => choose('declined')}
                 className="text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                aria-label="Close"
+                aria-label={tCommon('close')}
               >
                 <X size={16} />
               </button>

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice } from '@/lib/getPriceForRegion'
@@ -17,21 +18,16 @@ const CONDITION_COLORS: Record<string, string> = {
   fair: 'text-orange-400 border-orange-400/40',
 }
 
-const CONDITION_LABELS: Record<string, string> = {
-  excellent: 'Excellent',
-  poor: 'Poor',
-  good: 'Good',
-  fair: 'Fair',
-}
-
 export function ProductCard({ product, locale }: ProductCardProps) {
+  const t = useTranslations('product')
   const name = getLocalizedField(product as unknown as Record<string, string | null | undefined>, 'name', locale)
   const conditionClass = product.condition ? CONDITION_COLORS[product.condition] : 'text-gold/50 border-gold/20'
-  const conditionLabel = product.condition ? CONDITION_LABELS[product.condition] : ''
+  const conditionLabel = product.condition ? t(`condition.${product.condition}`) : ''
 
   return (
     <Link
       href={`/catalog/${product.slug}`}
+      locale={locale}
       data-testid="product-card"
       className="group relative flex flex-col overflow-hidden border border-gold/15 bg-white/5 transition-all duration-300 hover:border-gold/40 hover:shadow-[0_8px_32px_rgba(184,134,11,0.12)]"
     >
@@ -52,11 +48,6 @@ export function ProductCard({ product, locale }: ProductCardProps) {
               <path d="M8 36l8-8 6 6 8-10 10 12" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
             </svg>
           </div>
-        )}
-        {product.era && (
-          <span className="absolute left-3 top-3 bg-emerald-dark/80 px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] text-gold/80 backdrop-blur-sm">
-            {product.era}
-          </span>
         )}
       </div>
 

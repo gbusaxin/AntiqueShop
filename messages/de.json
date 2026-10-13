@@ -35,7 +35,11 @@
     "logout": "Abmelden",
     "register": "Registrieren",
     "myOrders": "Meine Bestellungen",
-    "profile": "Profil"
+    "profile": "Profil",
+    "accountMenu": "Kontomenü",
+    "switchLanguage": "Sprache zu {language} wechseln",
+    "toggleTheme": "Darstellung wechseln",
+    "toggleMenu": "Menü öffnen oder schließen"
   },
   "hero": {
     "title": "Seltene Antiquitäten von außergewöhnlicher Schönheit",
@@ -57,16 +61,46 @@
   "catalog": {
     "title": "Antiquitätenkatalog",
     "filters": {
-      "era": "Epoche",
       "material": "Material",
       "country": "Land",
       "price": "Preis",
-      "condition": "Zustand"
+      "condition": "Zustand",
+      "category": "Kategorie"
     },
     "sort": "Sortieren",
     "noResults": "Keine Artikel entsprechen Ihrer Suche",
     "loadMore": "Mehr laden",
-    "searchPlaceholder": "Artikel suchen"
+    "searchPlaceholder": "Artikel suchen",
+    "description": "Entdecken Sie unsere sorgfältig zusammengestellte Sammlung seltener Antiquitäten aus ganz Europa.",
+    "eyebrow": "Unsere Kollektion",
+    "categoryNotFound": "Kategorie nicht gefunden",
+    "selectedCategory": "Kategorie: {name}",
+    "clearCategoryFilter": "Kategoriefilter entfernen",
+    "itemCount": "{count, plural, =0 {Keine Artikel gefunden} one {# Artikel gefunden} other {# Artikel gefunden}}",
+    "sortOptions": {
+      "newest": "Neueste zuerst",
+      "priceAscending": "Preis: aufsteigend",
+      "priceDescending": "Preis: absteigend"
+    },
+    "clearAllFilters": "Alle Filter zurücksetzen",
+    "allCategories": "Alle Kategorien",
+    "priceCurrency": "Preis ({currency})",
+    "minimumPrice": "Mindestpreis",
+    "maximumPrice": "Höchstpreis",
+    "min": "Min.",
+    "max": "Max.",
+    "filtersTitle": "Filter",
+    "filterCount": "Filter ({count, number})",
+    "materials": {
+      "Porcelain": "Porzellan",
+      "Crystal": "Kristall",
+      "Silver": "Silber",
+      "Bronze": "Bronze",
+      "Copper": "Kupfer",
+      "Glass": "Glas",
+      "Wood": "Holz",
+      "Ivory": "Elfenbein"
+    }
   },
   "product": {
     "addToCart": "In den Warenkorb",
@@ -76,7 +110,6 @@
       "good": "Gut",
       "fair": "Angemessen"
     },
-    "era": "Epoche",
     "material": "Material",
     "size": "Größe",
     "country": "Land",
@@ -84,7 +117,19 @@
     "provenance": "Provenienz",
     "gallery": "Galerie",
     "shareButton": "Teilen",
-    "similarItems": "Ähnliche Artikel"
+    "similarItems": "Ähnliche Artikel",
+    "title": "Objekt",
+    "sku": "Art.-Nr. {sku}",
+    "circa": "um {year}",
+    "inCart": "Im Warenkorb",
+    "decreaseQuantity": "Anzahl verringern",
+    "increaseQuantity": "Anzahl erhöhen",
+    "addedToCart": "Zum Warenkorb hinzugefügt",
+    "breadcrumbs": "Seitennavigation",
+    "galleryView": "{name} — Ansicht {number}",
+    "galleryThumbnail": "Bild {number} anzeigen",
+    "galleryZoom": "Bild vergrößern",
+    "galleryCloseZoom": "Vergrößertes Bild schließen"
   },
   "cart": {
     "title": "Warenkorb",
@@ -95,7 +140,14 @@
     "checkout": "Zur Kasse",
     "remove": "Entfernen",
     "quantity": "Menge",
-    "continueShopping": "Weiter einkaufen"
+    "continueShopping": "Weiter einkaufen",
+    "eyebrow": "Ihre Auswahl",
+    "emptyDescription": "Entdecken Sie außergewöhnliche Antiquitäten in unserer Kollektion",
+    "decreaseQuantity": "Anzahl verringern",
+    "increaseQuantity": "Anzahl erhöhen",
+    "calculatedAtCheckout": "Wird an der Kasse berechnet",
+    "estimatedShipping": "inkl. geschätzter Versandkosten von {amount}",
+    "acceptedPayments": "Akzeptierte Zahlungsmethoden"
   },
   "checkout": {
     "title": "Kasse",
@@ -108,7 +160,9 @@
       "city": "Stadt",
       "state": "Bundesland / Region",
       "postalCode": "Postleitzahl",
-      "country": "Land"
+      "country": "Land",
+      "addressLine1": "Adresszeile 1",
+      "addressLine2": "Adresszeile 2 (optional)"
     },
     "shippingMethod": "Versandart",
     "paymentMethod": "Zahlungsart",
@@ -118,7 +172,56 @@
       "title": "Bestellung bestätigt",
       "orderNumber": "Bestellnummer",
       "thankYou": "Vielen Dank für Ihre Bestellung. Wir kontaktieren Sie, um die Lieferdetails zu bestätigen.",
-      "continueShopping": "Weiter einkaufen"
+      "continueShopping": "Weiter einkaufen",
+      "heading": "Vielen Dank!",
+      "orderReference": "Bestellung Nr. {orderId}",
+      "processingDescription": "Wir bearbeiten Ihre Bestellung innerhalb von 24 Stunden und kontaktieren Sie zu den Versanddetails sowie zur Provenienzdokumentation.",
+      "viewOrders": "Meine Bestellungen"
+    },
+    "eyebrow": "Sicher einkaufen",
+    "paymentStep": "Bezahlung",
+    "selectCountry": "Land auswählen…",
+    "continueToPayment": "Weiter zur Bezahlung",
+    "processing": "Wird verarbeitet…",
+    "yookassaNotice": "Bezahlung über YooKassa — verfügbar für Russland und die GUS",
+    "countries": {
+      "DE": "Deutschland",
+      "FR": "Frankreich",
+      "IT": "Italien",
+      "ES": "Spanien",
+      "AT": "Österreich",
+      "CH": "Schweiz",
+      "NL": "Niederlande",
+      "BE": "Belgien",
+      "PL": "Polen",
+      "GB": "Vereinigtes Königreich",
+      "US": "Vereinigte Staaten",
+      "CA": "Kanada",
+      "AU": "Australien",
+      "RU": "Russland",
+      "BY": "Belarus",
+      "KZ": "Kasachstan",
+      "UA": "Ukraine",
+      "OTHER": "Anderes Land"
+    },
+    "delivery": {
+      "standard": "Standardversand",
+      "express": "Expressversand",
+      "days": "{min}–{max} Tage"
+    },
+    "validation": {
+      "required": "Pflichtfeld",
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+      "selectDeliveryMethod": "Bitte wählen Sie eine Versandart",
+      "selectPaymentMethod": "Bitte wählen Sie eine Zahlungsart"
+    },
+    "failed": {
+      "title": "Zahlung fehlgeschlagen",
+      "description": "Ihre Zahlung konnte nicht verarbeitet werden. Es wurde nichts abgebucht.",
+      "instructions": "Überprüfen Sie Ihre Zahlungsdaten und versuchen Sie es erneut. Falls das Problem bestehen bleibt, wenden Sie sich an Ihre Bank.",
+      "tryAgain": "Erneut versuchen",
+      "backToCart": "Zurück zum Warenkorb",
+      "needHelp": "Brauchen Sie Hilfe?"
     }
   },
   "auth": {
@@ -128,7 +231,10 @@
       "password": "Passwort",
       "submit": "Anmelden",
       "forgotPassword": "Passwort vergessen?",
-      "noAccount": "Noch kein Konto?"
+      "noAccount": "Noch kein Konto?",
+      "emailPlaceholder": "E-Mail-Adresse",
+      "invalidCredentials": "E-Mail-Adresse oder Passwort ungültig",
+      "submitting": "Anmeldung läuft…"
     },
     "register": {
       "title": "Konto erstellen",
@@ -136,7 +242,16 @@
       "email": "E-Mail",
       "password": "Passwort",
       "submit": "Konto erstellen",
-      "hasAccount": "Bereits ein Konto?"
+      "hasAccount": "Bereits ein Konto?",
+      "error": "Die Registrierung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "submitting": "Konto wird erstellt…",
+      "successTitle": "Konto erstellt",
+      "successDescription": "Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in der Nachricht."
+    },
+    "validation": {
+      "required": "Pflichtfeld",
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+      "minCharacters": "Mindestens {count} Zeichen"
     }
   },
   "account": {
@@ -147,7 +262,10 @@
       "date": "Datum",
       "status": "Status",
       "total": "Gesamtsumme",
-      "viewDetails": "Details anzeigen"
+      "viewDetails": "Details anzeigen",
+      "browseCatalog": "Katalog ansehen",
+      "moreItems": "+{count} weitere",
+      "unknownStatus": "Status unbekannt"
     }
   },
   "orders": {
@@ -161,11 +279,12 @@
     }
   },
   "about": {
-    "title": "Über Antiqua",
+    "title": "Über Belle Époque",
     "mission": "Wir bewahren die Schönheit der Vergangenheit und bieten modernen Sammlern authentische Objekte.",
     "team": "Unser Team",
     "history": "Unsere Geschichte",
-    "contact": "Kontaktieren Sie uns"
+    "contact": "Kontaktieren Sie uns",
+    "description": "Seit 1987 kuratieren wir außergewöhnliche Antiquitäten. Erfahren Sie mehr über unsere Geschichte und Werte."
   },
   "contacts": {
     "title": "Kontakt",
@@ -180,7 +299,24 @@
       "message": "Nachricht",
       "submit": "Nachricht senden",
       "success": "Vielen Dank! Ihre Nachricht wurde gesendet.",
-      "error": "Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+      "error": "Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+      "eyebrow": "Schreiben Sie uns",
+      "successTitle": "Nachricht gesendet",
+      "responseTime": "Wir antworten innerhalb eines Werktags.",
+      "phoneOptional": "Telefon (optional)",
+      "sending": "Wird gesendet…",
+      "validation": {
+        "nameMin": "Bitte geben Sie mindestens {min} Zeichen ein",
+        "maxLength": "Bitte geben Sie höchstens {max} Zeichen ein",
+        "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+        "messageMin": "Bitte schreiben Sie mindestens {min} Zeichen"
+      }
+    },
+    "eyebrow": "Kontaktieren Sie uns",
+    "details": "Kontaktdaten",
+    "map": {
+      "label": "Standort auf der Karte",
+      "open": "In OpenStreetMap öffnen"
     }
   },
   "legal": {
@@ -233,7 +369,26 @@
     "message": "Wir verwenden Cookies, um Ihren Besuch angenehmer zu gestalten.",
     "accept": "Akzeptieren",
     "decline": "Ablehnen",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "disclosure": "Wir verwenden Cookies, um Ihr Einkaufserlebnis zu verbessern, Besuche zu analysieren und Inhalte anzupassen. Mit „Akzeptieren“ stimmen Sie der Verwendung gemäß unserer <privacy>Datenschutzerklärung</privacy> (DSGVO / 152-FZ) zu.",
+    "alwaysOn": "Immer aktiv",
+    "optional": "Optional",
+    "hideDetails": "Details ausblenden",
+    "details": "Cookie-Details",
+    "categories": {
+      "essential": {
+        "name": "Notwendig",
+        "description": "Für den Betrieb der Website erforderlich. Können nicht deaktiviert werden."
+      },
+      "analytics": {
+        "name": "Analyse",
+        "description": "Helfen uns zu verstehen, wie Besucher die Website nutzen (PostHog)."
+      },
+      "preferences": {
+        "name": "Einstellungen",
+        "description": "Speichern Ihre Auswahl für Sprache, Region und Währung."
+      }
+    }
   },
   "region": {
     "title": "Region",
@@ -256,7 +411,9 @@
   "errors": {
     "general": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
     "notFound": "Seite nicht gefunden",
-    "unauthorized": "Autorisierung erforderlich"
+    "unauthorized": "Autorisierung erforderlich",
+    "notFoundDescription": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "unexpectedDescription": "Ein unerwarteter Fehler ist aufgetreten. Versuchen Sie es erneut oder kehren Sie zur Startseite zurück."
   },
   "common": {
     "loading": "Wird geladen...",
@@ -267,6 +424,40 @@
     "next": "Weiter",
     "yes": "Ja",
     "no": "Nein",
-    "search": "Suchen"
+    "search": "Suchen",
+    "item": "Objekt",
+    "backToHome": "Zur Startseite",
+    "tryAgain": "Erneut versuchen"
+  },
+  "blog": {
+    "title": "Journal",
+    "description": "Geschichten, Einblicke und Entdeckungen aus der Welt der Antiquitäten.",
+    "eyebrow": "Unser Journal",
+    "postCount": "{count, plural, =0 {Keine Artikel} one {# Artikel} other {# Artikel}}",
+    "filterTag": "Nach Thema filtern",
+    "tagPlaceholder": "Thema eingeben",
+    "applyFilter": "Filter anwenden",
+    "clearFilter": "Filter entfernen",
+    "filteredBy": "Thema: {tag}",
+    "articles": "Artikel",
+    "emptyTitle": "Noch keine Artikel",
+    "emptyDescription": "Bald finden Sie hier Geschichten und Entdeckungen aus der Welt der Antiquitäten. Schauen Sie wieder vorbei.",
+    "emptyFilteredTitle": "Keine Artikel zu diesem Thema",
+    "emptyFilteredDescription": "Wählen Sie ein anderes Thema oder sehen Sie sich alle Artikel an.",
+    "allArticles": "Alle Artikel",
+    "pagination": "Journal-Seiten",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pageOf": "Seite {page, number} von {total, number}",
+    "backToBlog": "Zurück zum Journal",
+    "tags": "Themen",
+    "gallery": "Artikelgalerie",
+    "imageAlt": "{title} — Bild {number, number}",
+    "imageNumber": "Bild {number, number} von {total, number}",
+    "readArticle": "Artikel lesen",
+    "readArticleLabel": "Artikel lesen: {title}",
+    "errorTitle": "Das Journal konnte nicht geladen werden",
+    "errorDescription": "Bitte versuchen Sie es in Kürze erneut.",
+    "retry": "Erneut versuchen"
   }
 }

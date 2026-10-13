@@ -60,7 +60,6 @@ export interface Product {
   provenance_ru: string | null
   provenance_en: string | null
   provenance_de: string | null
-  era: string | null
   material: string
   size: string
   country_of_origin: string | null

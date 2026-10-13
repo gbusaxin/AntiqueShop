@@ -6,12 +6,12 @@ import { useRegionStore } from '@/store/regionStore'
 import { REGION_CURRENCIES } from '@/lib/region'
 import type { Region } from '@/types'
 
-const REGIONS: { value: Region; label: string; flag: string }[] = [
-  { value: 'EU', label: 'EU / EUR', flag: '🇪🇺' },
-  { value: 'UK', label: 'UK / GBP', flag: '🇬🇧' },
-  { value: 'US', label: 'US / USD', flag: '🇺🇸' },
-  { value: 'CIS', label: 'СНГ / RUB', flag: '🇷🇺' },
-  { value: 'OTHER', label: 'Other / EUR', flag: '🌐' },
+const REGIONS: { value: Region; currency: string; flag: string }[] = [
+  { value: 'EU', currency: REGION_CURRENCIES.EU, flag: '🇪🇺' },
+  { value: 'UK', currency: REGION_CURRENCIES.UK, flag: '🇬🇧' },
+  { value: 'US', currency: REGION_CURRENCIES.US, flag: '🇺🇸' },
+  { value: 'CIS', currency: REGION_CURRENCIES.CIS, flag: '🇷🇺' },
+  { value: 'OTHER', currency: REGION_CURRENCIES.OTHER, flag: '🌐' },
 ]
 
 export function Footer() {
@@ -42,8 +42,6 @@ export function Footer() {
             <p className="mb-4 text-xs uppercase tracking-[0.18em] text-gold/80">{t('footerCollection')}</p>
             <ul className="space-y-3 text-xs">
               <li><Link href="/catalog" className="hover:text-gold-rich transition-colors">{t('footerFullCatalog')}</Link></li>
-              <li><Link href="/catalog?era=Art+Deco" className="hover:text-gold-rich transition-colors">Art Deco</Link></li>
-              <li><Link href="/catalog?era=Victorian" className="hover:text-gold-rich transition-colors">Victorian</Link></li>
             </ul>
           </div>
 
@@ -72,9 +70,9 @@ export function Footer() {
                 className="appearance-none border border-gold/20 bg-transparent py-1.5 pl-3 pr-7 text-[11px] tracking-wide text-gold/70 focus:border-gold/50 focus:outline-none cursor-pointer"
                 aria-label={t('footerRegion')}
               >
-                {REGIONS.map(({ value, label, flag }) => (
+                {REGIONS.map(({ value, currency, flag }) => (
                   <option key={value} value={value} className="bg-[#0a1714] text-[#f4ead1]">
-                    {flag} {value === 'CIS' ? `${tRegion('CIS')} / RUB` : value === 'OTHER' ? `${tRegion('OTHER')} / EUR` : label}
+                    {flag} {tRegion(value)} / {currency}
                   </option>
                 ))}
               </select>

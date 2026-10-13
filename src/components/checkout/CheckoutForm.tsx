@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -12,35 +13,15 @@ import { useRegionStore } from '@/store/regionStore'
 import { getPaymentMethodsForRegion } from '@/lib/getPaymentProvidersForRegion'
 import { formatPrice } from '@/lib/getPriceForRegion'
 import { getRegionFromCountryCode } from '@/lib/region'
+import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Locale } from '@/types'
 
 const COUNTRIES = [
-  { code: 'DE', name: 'Germany' }, { code: 'FR', name: 'France' }, { code: 'IT', name: 'Italy' },
-  { code: 'ES', name: 'Spain' }, { code: 'AT', name: 'Austria' }, { code: 'CH', name: 'Switzerland' },
-  { code: 'NL', name: 'Netherlands' }, { code: 'BE', name: 'Belgium' }, { code: 'PL', name: 'Poland' },
-  { code: 'GB', name: 'United Kingdom' }, { code: 'US', name: 'United States' }, { code: 'CA', name: 'Canada' },
-  { code: 'AU', name: 'Australia' }, { code: 'RU', name: 'Russia' }, { code: 'BY', name: 'Belarus' },
-  { code: 'KZ', name: 'Kazakhstan' }, { code: 'UA', name: 'Ukraine' }, { code: 'OTHER', name: 'Other' },
-]
+  'DE', 'FR', 'IT', 'ES', 'AT', 'CH', 'NL', 'BE', 'PL',
+  'GB', 'US', 'CA', 'AU', 'RU', 'BY', 'KZ', 'UA', 'OTHER',
+] as const
 
 const STATE_COUNTRIES = ['US', 'CA', 'AU']
-
-const schema = z.object({
-  firstName: z.string().min(1, 'Required'),
-  lastName: z.string().min(1, 'Required'),
-  email: z.string().email('Invalid email'),
-  phone: z.string().min(5, 'Required'),
-  country: z.string().min(1, 'Required'),
-  addressLine1: z.string().min(1, 'Required'),
-  addressLine2: z.string().optional(),
-  city: z.string().min(1, 'Required'),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  deliveryMethod: z.enum(['standard', 'express']),
-  paymentMethodId: z.string().min(1, 'Select a payment method'),
-})
-
-type FormData = z.infer<typeof schema>
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
@@ -69,6 +50,34 @@ interface CheckoutFormProps {
 }
 
 export function CheckoutForm({ locale }: CheckoutFormProps) {
+  const t = useTranslations('checkout')
+  const cartT = useTranslations('cart')
+  const commonT = useTranslations('common')
+  const validation = useTranslations('checkout.validation')
+  const requiredString = z.string({
+    required_error: validation('required'),
+    invalid_type_error: validation('required'),
+  })
+  const schema = z.object({
+    firstName: requiredString.min(1, validation('required')),
+    lastName: requiredString.min(1, validation('required')),
+    email: requiredString.email(validation('invalidEmail')),
+    phone: requiredString.min(5, validation('required')),
+    country: requiredString.min(1, validation('required')),
+    addressLine1: requiredString.min(1, validation('required')),
+    addressLine2: requiredString.optional(),
+    city: requiredString.min(1, validation('required')),
+    state: requiredString.optional(),
+    postalCode: requiredString.optional(),
+    deliveryMethod: z.enum(['standard', 'express'], {
+      errorMap: () => ({ message: validation('selectDeliveryMethod') }),
+    }),
+    paymentMethodId: z.string({
+      required_error: validation('selectPaymentMethod'),
+      invalid_type_error: validation('selectPaymentMethod'),
+    }).min(1, validation('selectPaymentMethod')),
+  })
+  type FormData = z.infer<typeof schema>
   const [step, setStep] = useState<1 | 2>(1)
   const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
@@ -147,7 +156,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_340px]">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_340px]">
       <div>
         <div className="mb-8 flex items-center gap-4">
           {[1, 2].map((s) => (
@@ -164,7 +173,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                 {s}
               </div>
               <span className={`text-[10px] uppercase tracking-[0.15em] ${s === step ? 'text-foreground' : 'text-muted-foreground'}`}>
-                {s === 1 ? 'Shipping' : 'Payment'}
+                {s === 1 ? cartT('shipping') : t('paymentStep')}
               </span>
               {s < 2 && <div className="h-px w-8 bg-primary/15" />}
             </div>
@@ -182,43 +191,43 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               className="flex flex-col gap-5"
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <InputField label="First Name" error={errors.firstName?.message} {...register('firstName')} />
-                <InputField label="Last Name" error={errors.lastName?.message} {...register('lastName')} />
-                <InputField label="Email" type="email" error={errors.email?.message} {...register('email')} />
-                <InputField label="Phone" type="tel" error={errors.phone?.message} {...register('phone')} />
+                <InputField label={t('shippingAddress.firstName')} error={errors.firstName?.message} {...register('firstName')} />
+                <InputField label={t('shippingAddress.lastName')} error={errors.lastName?.message} {...register('lastName')} />
+                <InputField label={t('shippingAddress.email')} type="email" error={errors.email?.message} {...register('email')} />
+                <InputField label={t('shippingAddress.phone')} type="tel" error={errors.phone?.message} {...register('phone')} />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Country</label>
+                <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('shippingAddress.country')}</label>
                 <select
                   {...register('country')}
                   className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
-                  <option value="">Select country…</option>
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code} className="bg-background">{c.name}</option>
+                  <option value="">{t('selectCountry')}</option>
+                  {COUNTRIES.map((code) => (
+                    <option key={code} value={code} className="bg-background">{t(`countries.${code}`)}</option>
                   ))}
                 </select>
                 <FieldError message={errors.country?.message} />
               </div>
 
-              <InputField label="Address Line 1" error={errors.addressLine1?.message} {...register('addressLine1')} />
-              <InputField label="Address Line 2 (optional)" {...register('addressLine2')} />
+              <InputField label={t('shippingAddress.addressLine1')} error={errors.addressLine1?.message} {...register('addressLine1')} />
+              <InputField label={t('shippingAddress.addressLine2')} {...register('addressLine2')} />
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <InputField label="City" error={errors.city?.message} {...register('city')} />
+                <InputField label={t('shippingAddress.city')} error={errors.city?.message} {...register('city')} />
                 {showState && (
-                  <InputField label="State / Region" {...register('state')} />
+                  <InputField label={t('shippingAddress.state')} {...register('state')} />
                 )}
-                <InputField label="Postal Code" {...register('postalCode')} />
+                <InputField label={t('shippingAddress.postalCode')} {...register('postalCode')} />
               </div>
 
               <div>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Delivery Method</p>
+                <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('shippingMethod')}</p>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
-                    { value: 'standard', label: 'Standard Delivery', price: '€35', time: '7–14 days' },
-                    { value: 'express', label: 'Express Delivery', price: '€75', time: '2–5 days' },
+                    { value: 'standard', label: t('delivery.standard'), price: formatPrice(35, 'EUR', localeStr), time: t('delivery.days', { min: 7, max: 14 }) },
+                    { value: 'express', label: t('delivery.express'), price: formatPrice(75, 'EUR', localeStr), time: t('delivery.days', { min: 2, max: 5 }) },
                   ].map((opt) => (
                     <label
                       key={opt.value}
@@ -244,7 +253,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                 onClick={goToStep2}
                 className="mt-2 flex items-center justify-center border border-primary/40 bg-primary/10 py-4 text-xs uppercase tracking-[0.2em] text-foreground transition-colors hover:bg-primary/20"
               >
-                Continue to Payment →
+                {t('continueToPayment')} →
               </button>
             </motion.div>
           )}
@@ -259,10 +268,10 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               className="flex flex-col gap-6"
             >
               <div data-testid="payment-section">
-                <p className="mb-4 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Payment Method</p>
+                <p className="mb-4 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('paymentMethod')}</p>
                 {derivedRegion === 'CIS' && (
                   <p className="mb-3 text-[10px] text-muted-foreground">
-                    Оплата через ЮKassa — доступна для России и СНГ
+                    {t('yookassaNotice')}
                   </p>
                 )}
                 <div className="flex flex-col gap-3">
@@ -293,7 +302,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                   onClick={() => setStep(1)}
                   className="border border-primary/20 px-6 py-4 text-xs uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 >
-                  ← Back
+                  ← {commonT('back')}
                 </button>
                 <button
                   type="submit"
@@ -301,7 +310,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                   disabled={submitting}
                   className="flex-1 border border-primary bg-primary py-4 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
                 >
-                  {submitting ? 'Processing…' : 'Place Order'}
+                  {submitting ? t('processing') : t('placeOrder')}
                 </button>
               </div>
             </motion.div>
@@ -311,7 +320,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
 
       <div className="lg:sticky lg:top-24 h-fit">
         <div className="border border-primary/15 p-6">
-          <p className="mb-5 font-serif text-base text-foreground">Order Summary</p>
+          <p className="mb-5 font-serif text-base text-foreground">{t('orderSummary')}</p>
           <div className="space-y-3">
             {items.map((item) => (
               <div key={item.product.id} className="flex items-center justify-between gap-3">
@@ -327,7 +336,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                   )}
                   <div>
                     <p className="text-[10px] text-muted-foreground line-clamp-1">
-                      {item.product.name_en ?? item.product.name_ru ?? 'Item'}
+                      {getLocalizedField(item.product as unknown as Record<string, string | null | undefined>, 'name', locale) || commonT('item')}
                     </p>
                     <p className="text-[10px] text-muted-foreground">×{item.quantity}</p>
                   </div>
@@ -340,15 +349,15 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
           </div>
           <div className="mt-5 space-y-2 border-t border-primary/10 pt-4 text-xs">
             <div className="flex justify-between text-muted-foreground">
-              <span>Subtotal</span>
+              <span>{cartT('subtotal')}</span>
               <span>{formatPrice(totalEur, 'EUR', localeStr)}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
-              <span>Shipping</span>
+              <span>{cartT('shipping')}</span>
               <span>{formatPrice(shippingCost, 'EUR', localeStr)}</span>
             </div>
             <div className="flex justify-between border-t border-primary/10 pt-2">
-              <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Total</span>
+              <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{cartT('total')}</span>
               <span className="font-serif text-base text-foreground">
                 {formatPrice(totalEur + shippingCost, 'EUR', localeStr)}
               </span>

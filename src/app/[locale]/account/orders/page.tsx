@@ -4,12 +4,18 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabaseServer'
 import { formatPrice } from '@/lib/getPriceForRegion'
-import { format } from 'date-fns'
-import type { Order } from '@/types'
+import { getLocalizedField } from '@/lib/getLocalizedField'
+import type { Locale, Order } from '@/types'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'My Orders — Belle Époque',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'account.orders' })
+  return { title: `${t('title')} — Belle Époque` }
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -21,22 +27,16 @@ const STATUS_STYLES: Record<string, string> = {
   refunded: 'text-red-400 border-red-400/30 bg-red-400/5',
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  new: 'New',
-  paid: 'Paid',
-  shipped: 'Shipped',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-  refunded: 'Refunded',
-}
-
 export default async function AccountOrdersPage({
   params,
 }: {
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const t = await getTranslations('account.orders')
+  const t = await getTranslations({ locale, namespace: 'account.orders' })
+  const statusT = await getTranslations({ locale, namespace: 'orders.status' })
+  const navT = await getTranslations({ locale, namespace: 'nav' })
+  const commonT = await getTranslations({ locale, namespace: 'common' })
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -47,7 +47,7 @@ export default async function AccountOrdersPage({
 
   const { data: orders } = await supabase
     .from('orders')
-    .select('*, items:order_items(*, product:products(name_en, name_ru, images))')
+    .select('*, items:order_items(*, product:products(name_en, name_ru, name_de, images))')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -58,7 +58,7 @@ export default async function AccountOrdersPage({
     <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-10">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">Account</p>
+          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">{navT('account')}</p>
           <h1 className="mt-2 font-serif text-3xl text-gold-rich">{t('title')}</h1>
         </div>
 
@@ -69,7 +69,7 @@ export default async function AccountOrdersPage({
               href="/catalog"
               className="border border-gold/30 px-8 py-3 text-xs uppercase tracking-[0.2em] text-gold/70 transition-colors hover:border-gold hover:text-gold-rich"
             >
-              Browse Catalog
+              {t('browseCatalog')}
             </Link>
           </div>
         ) : (
@@ -90,7 +90,7 @@ export default async function AccountOrdersPage({
                       {t('date')}
                     </p>
                     <p className="mt-1 text-xs text-[#c8bfaa]/70">
-                      {format(new Date(order.created_at), 'dd MMM yyyy')}
+                      {new Intl.DateTimeFormat(localeStr, { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(order.created_at))}
                     </p>
                   </div>
                   <div>
@@ -107,7 +107,7 @@ export default async function AccountOrdersPage({
                         STATUS_STYLES[order.status] ?? 'text-gold/50 border-gold/20'
                       }`}
                     >
-                      {STATUS_LABELS[order.status] ?? order.status}
+                      {statusT.has(order.status) ? statusT(order.status) : t('unknownStatus')}
                     </span>
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export default async function AccountOrdersPage({
                         )}
                         <div>
                           <p className="text-[10px] text-[#c8bfaa]/60 line-clamp-1">
-                            {item.product?.name_en ?? item.product_snapshot?.name ?? 'Item'}
+                            {(item.product && getLocalizedField(item.product as unknown as Record<string, string | null | undefined>, 'name', locale as Locale)) || item.product_snapshot?.name || commonT('item')}
                           </p>
                           <p className="text-[10px] text-gold/50">
                             {formatPrice(item.price_eur, 'EUR', localeStr)} × {item.quantity}
@@ -137,7 +137,7 @@ export default async function AccountOrdersPage({
                     ))}
                     {order.items.length > 3 && (
                       <p className="self-center text-[10px] text-gold/40">
-                        +{order.items.length - 3} more
+                        {t('moreItems', { count: order.items.length - 3 })}
                       </p>
                     )}
                   </div>

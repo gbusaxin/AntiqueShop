@@ -1,12 +1,16 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { XCircle } from 'lucide-react'
 
 export default function CheckoutFailedPage() {
+  const t = useTranslations('checkout.failed')
+  const contactsT = useTranslations('contacts')
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-24">
+      <title>{`${t('title')} — Belle Époque`}</title>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -22,12 +26,12 @@ export default function CheckoutFailedPage() {
           <XCircle size={64} className="text-red-400" strokeWidth={1.5} />
         </motion.div>
 
-        <h1 className="mb-4 font-serif text-3xl text-[var(--fg)]">Payment Failed</h1>
+        <h1 className="mb-4 font-serif text-3xl text-[var(--fg)]">{t('title')}</h1>
         <p className="mb-2 text-sm leading-relaxed text-[var(--fg-muted)]">
-          Your payment could not be processed. No charges were made.
+          {t('description')}
         </p>
         <p className="mb-8 text-sm leading-relaxed text-[var(--fg-muted)]">
-          Please check your payment details and try again, or contact your bank if the problem persists.
+          {t('instructions')}
         </p>
 
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -35,23 +39,23 @@ export default function CheckoutFailedPage() {
             href="/checkout"
             className="inline-block border border-[var(--accent)] px-8 py-3 text-xs uppercase tracking-[0.18em] text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--bg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
           >
-            Try Again
+            {t('tryAgain')}
           </Link>
           <Link
             href="/cart"
             className="px-8 py-3 text-xs uppercase tracking-[0.18em] text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
           >
-            Back to Cart
+            {t('backToCart')}
           </Link>
         </div>
 
         <p className="mt-8 text-[11px] text-[var(--fg-muted)]">
-          Need help?{' '}
+          {t('needHelp')}{' '}
           <Link
             href="/contacts"
             className="text-[var(--accent)] underline-offset-2 hover:underline"
           >
-            Contact us
+            {contactsT('title')}
           </Link>
         </p>
       </motion.div>

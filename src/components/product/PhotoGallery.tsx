@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import Zoom from 'react-medium-image-zoom'
@@ -13,6 +14,7 @@ interface PhotoGalleryProps {
 
 export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
   const [selected, setSelected] = useState(0)
+  const t = useTranslations('product')
   const allImages = images.length ? images : []
 
   if (!allImages.length) {
@@ -28,8 +30,8 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative aspect-[4/5] overflow-hidden bg-emerald-dark/30">
+    <div className="grid min-w-0 gap-3">
+      <div className="relative aspect-square max-h-[min(65vh,36rem)] overflow-hidden border border-gold/20 bg-emerald-dark/30">
         <AnimatePresence mode="wait">
           <motion.div
             key={selected}
@@ -37,13 +39,13 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0"
+            className="absolute inset-0 [&_[data-rmiz]]:h-full [&_[data-rmiz]]:w-full [&_[data-rmiz-content]]:h-full [&_[data-rmiz-content]]:w-full"
           >
-            <Zoom>
+            <Zoom a11yNameButtonZoom={t('galleryZoom')} a11yNameButtonUnzoom={t('galleryCloseZoom')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={allImages.at(selected) ?? allImages.at(0) ?? ''}
-                alt={`${alt} — view ${selected + 1}`}
+                alt={t('galleryView', { name: alt, number: selected + 1 })}
                 className="h-full w-full object-cover"
                 width={800}
                 height={1000}
@@ -54,16 +56,19 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
       </div>
 
       {allImages.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex min-w-0 gap-2 overflow-x-auto pb-2">
           {allImages.map((img, i) => (
             <button
               key={i}
+              type="button"
               onClick={() => setSelected(i)}
-              className={`relative h-16 w-16 shrink-0 overflow-hidden border transition-colors ${
+              aria-label={t('galleryThumbnail', { number: i + 1 })}
+              aria-pressed={i === selected}
+              className={`relative h-20 w-20 shrink-0 overflow-hidden border transition-colors ${
                 i === selected ? 'border-gold' : 'border-gold/20 hover:border-gold/50'
               }`}
             >
-              <Image src={img} alt={`${alt} thumbnail ${i + 1}`} fill sizes="64px" className="object-cover" />
+              <Image src={img} alt="" fill sizes="80px" className="object-cover" />
               {i === selected && (
                 <div className="absolute inset-0 bg-gold/10" />
               )}
