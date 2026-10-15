@@ -97,6 +97,7 @@ export function FilterSidebar({
     (key: string, value: string | string[] | null) => {
       const url = new URL(window.location.href)
       url.searchParams.delete(key)
+      url.searchParams.delete('page')
       if (value) {
         if (Array.isArray(value)) {
           value.forEach((v) => url.searchParams.append(key, v))

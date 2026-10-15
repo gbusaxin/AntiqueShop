@@ -15,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'account.orders' })
-  return { title: `${t('title')} — Belle Époque` }
+  return { title: `${t('title')} — VintagEmpire` }
 }
 
 const STATUS_STYLES: Record<string, string> = {

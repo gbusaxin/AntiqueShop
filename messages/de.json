@@ -3,7 +3,7 @@
     "featured": "Ausgewählte Stücke",
     "heritageEyebrow": "Unser Erbe",
     "heritageTitle": "Jahrzehnte der Suche nach außergewöhnlichen Objekten",
-    "heritageFirst": "Belle Époque wurde 1987 im Herzen Wiens gegründet und widmet sich seit Jahrzehnten der Suche und Authentifizierung feinster Antiquitäten aus Europa und darüber hinaus. Jedes Stück unserer Sammlung wird wegen seiner historischen Bedeutung, seines künstlerischen Werts und seines hervorragenden Zustands ausgewählt.",
+    "heritageFirst": "VintagEmpire wurde 1987 im Herzen Wiens gegründet und widmet sich seit Jahrzehnten der Suche und Authentifizierung feinster Antiquitäten aus Europa und darüber hinaus. Jedes Stück unserer Sammlung wird wegen seiner historischen Bedeutung, seines künstlerischen Werts und seines hervorragenden Zustands ausgewählt.",
     "heritageSecond": "Wir arbeiten direkt mit privaten Nachlässen, Auktionshäusern und Fachhändlern zusammen, um Ihnen Objekte mit nachgewiesener Herkunft anzubieten — Stücke, deren Geschichten so schön sind wie ihre Gestalt.",
     "heritageLink": "Unsere Geschichte entdecken",
     "heritageYears": "Jahre Erfahrung",
@@ -70,6 +70,10 @@
     "sort": "Sortieren",
     "noResults": "Keine Artikel entsprechen Ihrer Suche",
     "loadMore": "Mehr laden",
+    "pagination": "Katalogseiten",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pageOf": "Seite {page} von {total}",
     "searchPlaceholder": "Artikel suchen",
     "description": "Entdecken Sie unsere sorgfältig zusammengestellte Sammlung seltener Antiquitäten aus ganz Europa.",
     "eyebrow": "Unsere Kollektion",
@@ -279,7 +283,7 @@
     }
   },
   "about": {
-    "title": "Über Belle Époque",
+    "title": "Über VintagEmpire",
     "mission": "Wir bewahren die Schönheit der Vergangenheit und bieten modernen Sammlern authentische Objekte.",
     "team": "Unser Team",
     "history": "Unsere Geschichte",

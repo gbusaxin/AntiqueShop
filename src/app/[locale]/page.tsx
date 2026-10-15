@@ -8,11 +8,11 @@ import { JsonLd } from '@/components/JsonLd'
 import type { Product, Category, Locale } from '@/types'
 import type { Metadata } from 'next'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 const LOCALE_LABELS: Record<string, string> = {
-  en: 'Belle Époque — Antique Shop',
-  ru: 'Belle Époque — Антикварный магазин',
-  de: 'Belle Époque — Antiquitätengeschäft',
+  en: 'VintagEmpire — Antique Shop',
+  ru: 'VintagEmpire — Антикварный магазин',
+  de: 'VintagEmpire — Antiquitätengeschäft',
 }
 const LOCALE_DESCS: Record<string, string> = {
   en: 'Rare antique porcelain, crystal, silver and art objects from around the world.',
@@ -44,7 +44,7 @@ export async function generateMetadata({
       url: `${BASE_URL}/${locale}`,
       title: locale === 'ru' ? LOCALE_LABELS.ru : locale === 'de' ? LOCALE_LABELS.de : LOCALE_LABELS.en,
       description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
-      siteName: 'Belle Époque',
+      siteName: 'VintagEmpire',
     },
   }
 }
@@ -77,14 +77,14 @@ export default async function HomePage({
   const organizationJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Belle Époque',
+    name: 'VintagEmpire',
     url: BASE_URL,
-    logo: `${BASE_URL}/logo.png`,
+    logo: `${BASE_URL}/brand-icon.png`,
     description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+43-1-512-44-20',
-      email: 'info@belleepoque.art',
+      email: 'gbusaxin@gmail.com',
       contactType: 'customer service',
       areaServed: ['AT', 'DE', 'RU', 'EU'],
       availableLanguage: ['English', 'Russian', 'German'],
@@ -96,13 +96,13 @@ export default async function HomePage({
       postalCode: '1010',
       addressCountry: 'AT',
     },
-    sameAs: ['https://www.instagram.com/belleepoque.art'],
+    // TODO: restore Instagram link when account ready
   }
 
   const websiteJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Belle Époque',
+    name: 'VintagEmpire',
     url: BASE_URL,
     potentialAction: {
       '@type': 'SearchAction',

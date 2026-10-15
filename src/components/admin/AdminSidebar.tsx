@@ -34,7 +34,7 @@ export function AdminSidebar({ email }: { email: string }) {
           href="/en"
           className="font-serif text-lg tracking-wide text-[var(--admin-sidebar-fg)] transition-colors hover:text-[#E5BD80]"
         >
-          Belle Époque
+          VintagEmpire
         </Link>
         <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.3em] text-[#D2B38A]">
           Admin Console

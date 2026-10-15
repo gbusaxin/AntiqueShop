@@ -17,6 +17,7 @@ export function SortControls({ currentSort }: { currentSort: string }) {
   const handleChange = (value: string) => {
     const url = new URL(window.location.href)
     url.searchParams.set('sort', value)
+    url.searchParams.delete('page')
     router.push(`${pathname}?${url.searchParams.toString()}`)
   }
 

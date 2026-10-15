@@ -82,12 +82,16 @@ export function ContactsClient({ title, content, metadata, locale }: {
                 { icon: Mail, key: 'email' },
                 { icon: Clock, key: 'working_hours' },
               ].map(({ icon: Icon, key }) => {
-                const text = key === 'address' ? metadata.address : key === 'phone' ? metadata.phone : key === 'email' ? metadata.email : metadata.working_hours
+                const text = key === 'address' ? metadata.address : key === 'phone' ? metadata.phone : key === 'email' ? (typeof metadata.email === 'string' && metadata.email.trim() ? metadata.email : 'gbusaxin@gmail.com') : metadata.working_hours
                 if (typeof text !== 'string' || !text.trim()) return null
                 return (
                   <div key={key} className="flex items-start gap-3">
                     <Icon size={12} className="mt-0.5 shrink-0 text-muted-foreground" />
-                    <span className="whitespace-pre-wrap break-words text-xs leading-relaxed text-muted-foreground">{text}</span>
+                    {key === 'email' ? (
+                      <a href={`mailto:${text}`} className="break-all text-xs leading-relaxed text-muted-foreground hover:text-primary">{text}</a>
+                    ) : (
+                      <span className="whitespace-pre-wrap break-words text-xs leading-relaxed text-muted-foreground">{text}</span>
+                    )}
                   </div>
                 )
               })}

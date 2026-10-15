@@ -1,10 +1,11 @@
+import { unstable_cache } from 'next/cache'
 import { createAdminClient } from './supabaseServer'
 
 const FALLBACK_RATES: Record<string, number> = {
   RUB: 95, USD: 1.08, GBP: 0.86, CNY: 7.8, JPY: 162, CHF: 0.95,
 }
 
-export async function getExchangeRates(): Promise<Record<string, number>> {
+export const getExchangeRates = unstable_cache(async (): Promise<Record<string, number>> => {
   try {
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return FALLBACK_RATES
     const supabase = createAdminClient()
@@ -38,4 +39,4 @@ export async function getExchangeRates(): Promise<Record<string, number>> {
   } catch {
     return FALLBACK_RATES
   }
-}
+}, ['exchange-rates'], { revalidate: 300 })

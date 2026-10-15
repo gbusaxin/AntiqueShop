@@ -18,10 +18,12 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
-  const messages = await getMessages({ locale })
-
-  const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const supabasePromise = createClient()
+  const [messages, { data: { user: authUser } }] = await Promise.all([
+    getMessages({ locale }),
+    supabasePromise.then((supabase) => supabase.auth.getUser()),
+  ])
+  const supabase = await supabasePromise
 
   let navUser: { email: string; isAdmin: boolean } | null = null
   if (authUser) {

@@ -79,7 +79,7 @@ export function RegisterClient() {
         className="w-full max-w-sm"
       >
         <div className="mb-8 text-center">
-          <p className="font-serif text-2xl text-foreground tracking-wide">Belle Époque</p>
+          <p className="font-serif text-2xl text-foreground tracking-wide">VintagEmpire</p>
           <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{t('title')}</p>
         </div>
 

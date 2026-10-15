@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'about' })
   const nav = await getTranslations({ locale, namespace: 'nav' })
   return {
-    title: `${nav('about')} — Belle Époque`,
+    title: `${nav('about')} — VintagEmpire`,
     description: t('description'),
   }
 }

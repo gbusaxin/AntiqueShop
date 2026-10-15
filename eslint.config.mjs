@@ -31,7 +31,7 @@ const config = [
         ignoreContent: [
           'CHECKOUT_SESSION_ID',
           'localhost:3000',
-          'belle-epoque',
+          'vintageempire',
           'supabase.co',
           'posthog.com',
           'sentry.io',

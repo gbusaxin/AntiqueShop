@@ -6,8 +6,10 @@ import { formatPrice } from '@/lib/getPriceForRegion'
 import type { Product } from '@/types'
 import type { Locale } from '@/types'
 
+export type ProductCardItem = Pick<Product, 'id' | 'slug' | 'name_ru' | 'name_en' | 'name_de' | 'images' | 'condition' | 'year_circa' | 'price_eur'>
+
 interface ProductCardProps {
-  product: Product
+  product: ProductCardItem
   locale: Locale
 }
 

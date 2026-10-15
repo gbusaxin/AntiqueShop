@@ -8,8 +8,9 @@ function getResend(): Resend | null {
   return resend
 }
 
-const FROM = process.env.EMAIL_FROM ?? 'Belle Époque <noreply@belle-epoque.com>'
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? ''
+// TODO: migrate to transactional email (Resend / Postmark / SendGrid) when volume grows
+const FROM = `VintagEmpire <${process.env.EMAIL_FROM ?? 'gbusaxin@gmail.com'}>`
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'gbusaxin@gmail.com'
 
 export async function sendOrderConfirmation(opts: {
   to: string

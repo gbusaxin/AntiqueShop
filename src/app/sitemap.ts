@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabaseServer'
 
 export const dynamic = 'force-dynamic'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 const LOCALES = ['en', 'ru', 'de']
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

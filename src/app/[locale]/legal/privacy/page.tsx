@@ -2,12 +2,12 @@ import { getTranslations } from 'next-intl/server'
 import { SiteContentPage } from '@/components/SiteContentPage'
 import type { Metadata } from 'next'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 
 const TITLES: Record<string, string> = {
-  en: 'Privacy Policy — Belle Époque',
-  ru: 'Политика конфиденциальности — Belle Époque',
-  de: 'Datenschutzrichtlinie — Belle Époque',
+  en: 'Privacy Policy — VintagEmpire',
+  ru: 'Политика конфиденциальности — VintagEmpire',
+  de: 'Datenschutzrichtlinie — VintagEmpire',
 }
 
 export async function generateMetadata({

@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     url.searchParams.set('limit', '1')
     const response = await fetch(url, {
       headers: {
-        'User-Agent': `BelleEpoque-Contacts/1.0 (${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'})`,
+        'User-Agent': `VintagEmpire-Contacts/1.0 (${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'})`,
         Accept: 'application/json',
       },
       cache: 'no-store',

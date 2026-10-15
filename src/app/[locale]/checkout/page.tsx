@@ -10,7 +10,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'checkout' })
-  return { title: `${t('title')} — Belle Époque` }
+  return { title: `${t('title')} — VintagEmpire` }
 }
 
 export default async function CheckoutPage({

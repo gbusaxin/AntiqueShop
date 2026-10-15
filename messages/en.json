@@ -3,7 +3,7 @@
     "featured": "Featured Pieces",
     "heritageEyebrow": "Our Heritage",
     "heritageTitle": "A Century of Curating Exceptional Objects",
-    "heritageFirst": "Founded in 1987 in the heart of Vienna, Belle Époque has spent decades sourcing and authenticating the finest antique objects from across Europe and beyond. Each piece in our collection is selected for its historical significance, artistic merit, and exceptional condition.",
+    "heritageFirst": "Founded in 1987 in the heart of Vienna, VintagEmpire has spent decades sourcing and authenticating the finest antique objects from across Europe and beyond. Each piece in our collection is selected for its historical significance, artistic merit, and exceptional condition.",
     "heritageSecond": "We work directly with private estates, auction houses, and specialist dealers to bring you objects that carry genuine provenance — items with stories as beautiful as their form.",
     "heritageLink": "Discover Our Story",
     "heritageYears": "Years of Excellence",
@@ -70,6 +70,10 @@
     "sort": "Sort",
     "noResults": "No items match your search",
     "loadMore": "Load More",
+    "pagination": "Catalog pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}",
     "searchPlaceholder": "Search items",
     "description": "Browse our curated collection of rare antique objects from across Europe.",
     "eyebrow": "Our Collection",
@@ -279,7 +283,7 @@
     }
   },
   "about": {
-    "title": "About Belle Époque",
+    "title": "About VintagEmpire",
     "mission": "We preserve the beauty of the past by offering authentic objects to modern collectors.",
     "team": "Our Team",
     "history": "Our History",

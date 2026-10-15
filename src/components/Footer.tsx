@@ -32,7 +32,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
           <div>
-            <p className="font-serif text-lg text-gold-rich tracking-wider">Belle Époque</p>
+            <p className="font-serif text-lg text-gold-rich tracking-wider">VintagEmpire</p>
             <p className="mt-3 text-xs leading-relaxed tracking-wide">
               {t('footerDescription')}
             </p>
@@ -50,6 +50,7 @@ export function Footer() {
             <ul className="space-y-3 text-xs">
               <li><Link href="/about" className="hover:text-gold-rich transition-colors">{t('footerAbout')}</Link></li>
               <li><Link href="/contacts" className="hover:text-gold-rich transition-colors">{tNav('contacts')}</Link></li>
+              <li><a href="mailto:gbusaxin@gmail.com" className="break-all hover:text-gold-rich transition-colors">gbusaxin@gmail.com</a></li>
               <li><Link href="/legal/privacy" className="hover:text-gold-rich transition-colors">{tLegal('privacy.title')}</Link></li>
               <li><Link href="/legal/offer" className="hover:text-gold-rich transition-colors">{tLegal('offer.title')}</Link></li>
             </ul>
@@ -58,7 +59,7 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col gap-4 border-t border-gold/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[11px] tracking-wide">
-            © {new Date().getFullYear()} Belle Époque. {t('footerRights')}
+            © {new Date().getFullYear()} VintagEmpire. {t('footerRights')}
           </p>
 
           <div className="flex items-center gap-3">

@@ -19,14 +19,14 @@ export async function generateMetadata({ params, searchParams }: BlogPageProps):
   const query = href.slice('/blog'.length)
   const url = blogUrl(locale)
   return {
-    title: `${t('title')} — Belle Époque`,
+    title: `${t('title')} — VintagEmpire`,
     description: t('description'),
     alternates: blogAlternates(locale, '/blog', query),
     openGraph: {
       type: 'website',
       title: t('title'),
       description: t('description'),
-      siteName: 'Belle Époque',
+      siteName: 'VintagEmpire',
       ...(url ? { url: url + query } : {}),
     },
   }

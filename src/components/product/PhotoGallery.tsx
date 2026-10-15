@@ -29,6 +29,8 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
     )
   }
 
+  const activeImage = allImages.at(selected) ?? allImages.at(0) ?? ''
+
   return (
     <div className="grid min-w-0 gap-3">
       <div className="relative aspect-square max-h-[min(65vh,36rem)] overflow-hidden border border-gold/20 bg-emerald-dark/30">
@@ -41,14 +43,19 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
             transition={{ duration: 0.3 }}
             className="absolute inset-0 [&_[data-rmiz]]:h-full [&_[data-rmiz]]:w-full [&_[data-rmiz-content]]:h-full [&_[data-rmiz-content]]:w-full"
           >
-            <Zoom a11yNameButtonZoom={t('galleryZoom')} a11yNameButtonUnzoom={t('galleryCloseZoom')}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={allImages.at(selected) ?? allImages.at(0) ?? ''}
+            <Zoom
+              a11yNameButtonZoom={t('galleryZoom')}
+              a11yNameButtonUnzoom={t('galleryCloseZoom')}
+              zoomImg={{ src: activeImage }}
+            >
+              <Image
+                src={activeImage}
                 alt={t('galleryView', { name: alt, number: selected + 1 })}
                 className="h-full w-full object-cover"
                 width={800}
-                height={1000}
+                height={800}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority={selected === 0}
               />
             </Zoom>
           </motion.div>

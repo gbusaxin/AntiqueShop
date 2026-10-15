@@ -19,7 +19,7 @@ export default function CheckoutSuccessPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a1f18] px-4 text-center text-[#f4ead1]">
-      <title>{`${t('title')} — Belle Époque`}</title>
+      <title>{`${t('title')} — VintagEmpire`}</title>
       <motion.div
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

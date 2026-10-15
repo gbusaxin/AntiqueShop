@@ -46,7 +46,7 @@ export function HeroSection({ title, subtitle, ctaLabel }: HeroSectionProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: 'easeOut' }}
         >
-          <p className="mb-6 text-[11px] uppercase tracking-[0.3em] text-gold/60">Belle Époque · Est. 1987</p>
+          <p className="mb-6 text-[11px] uppercase tracking-[0.3em] text-gold/60">VintagEmpire · Est. 1987</p>
         </motion.div>
 
         <motion.h1

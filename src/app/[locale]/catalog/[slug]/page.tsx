@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
@@ -5,11 +6,11 @@ import { createClient } from '@/lib/supabaseServer'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice, getPriceForRegion } from '@/lib/getPriceForRegion'
 import { getExchangeRates } from '@/lib/exchangeRates'
-import { getCookieRegion, getRegionFromCountryCode } from '@/lib/region'
+import { getCookieRegion, getRegionFromCountryCode, REGION_CURRENCIES } from '@/lib/region'
 import { PhotoGallery } from '@/components/product/PhotoGallery'
 import { AddToCartButton } from '@/components/product/AddToCartButton'
 import { ViewTracker } from '@/components/product/ViewTracker'
-import { ProductCard } from '@/components/ProductCard'
+import { ProductCard, type ProductCardItem } from '@/components/ProductCard'
 import { AnimatedSection } from '@/components/ui/AnimatedSection'
 import { JsonLd } from '@/components/JsonLd'
 import { cookies, headers } from 'next/headers'
@@ -25,7 +26,19 @@ const CONDITION_STYLES: Record<ProductCondition, string> = {
 
 export const dynamic = 'force-dynamic'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
+const regionCurrencies = new Map(Object.entries(REGION_CURRENCIES))
+
+const getProduct = cache(async (slug: string) => {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('products')
+    .select('id, slug, sku, category_id, name_ru, name_en, name_de, description_ru, description_en, description_de, provenance_ru, provenance_en, provenance_de, material, size, country_of_origin, condition, year_circa, price_eur, price_override, images, is_available')
+    .eq('slug', slug)
+    .eq('is_available', true)
+    .maybeSingle()
+  return data as Product | null
+})
 
 export async function generateMetadata({
   params,
@@ -35,22 +48,16 @@ export async function generateMetadata({
   const { locale, slug } = await params
   const t = await getTranslations({ locale, namespace: 'product' })
   try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('products')
-      .select('name_en, name_ru, name_de, description_en, description_ru, description_de, images, price_eur')
-      .eq('slug', slug)
-      .eq('is_available', true)
-      .maybeSingle()
+    const data = await getProduct(slug)
 
-    if (!data) return { title: `${t('title')} — Belle Époque` }
+    if (!data) return { title: `${t('title')} — VintagEmpire` }
 
-    const name = getLocalizedField(data as Record<string, string | null | undefined>, 'name', locale as Locale)
-    const description = getLocalizedField(data as Record<string, string | null | undefined>, 'description', locale as Locale).slice(0, 160)
+    const name = getLocalizedField(data as unknown as Record<string, string | null | undefined>, 'name', locale as Locale)
+    const description = getLocalizedField(data as unknown as Record<string, string | null | undefined>, 'description', locale as Locale).slice(0, 160)
     const ogImage = Array.isArray(data.images) && data.images[0] ? data.images[0] : undefined
 
     return {
-      title: `${name} — Belle Époque`,
+      title: `${name} — VintagEmpire`,
       description,
       alternates: {
         canonical: `${BASE_URL}/${locale}/catalog/${slug}`,
@@ -64,14 +71,14 @@ export async function generateMetadata({
       openGraph: {
         type: 'website',
         url: `${BASE_URL}/${locale}/catalog/${slug}`,
-        title: `${name} — Belle Époque`,
+        title: `${name} — VintagEmpire`,
         description,
-        siteName: 'Belle Époque',
+        siteName: 'VintagEmpire',
         ...(ogImage ? { images: [{ url: ogImage, width: 1200, height: 800, alt: name }] } : {}),
       },
     }
   } catch {
-    return { title: `${t('title')} — Belle Époque` }
+    return { title: `${t('title')} — VintagEmpire` }
   }
 }
 
@@ -81,47 +88,42 @@ export default async function ProductPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
-  const t = await getTranslations({ locale, namespace: 'product' })
-  const nav = await getTranslations({ locale, namespace: 'nav' })
-  const currency = await getTranslations({ locale, namespace: 'currency' })
-  const catalog = await getTranslations({ locale, namespace: 'catalog' })
+  const [t, nav, currency, catalog, product] = await Promise.all([
+    getTranslations({ locale, namespace: 'product' }),
+    getTranslations({ locale, namespace: 'nav' }),
+    getTranslations({ locale, namespace: 'currency' }),
+    getTranslations({ locale, namespace: 'catalog' }),
+    getProduct(slug),
+  ])
 
-  const supabase = await createClient()
-  const { data: raw } = await supabase
-    .from('products')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_available', true)
-    .maybeSingle()
-
-  if (!raw) notFound()
-
-  const product = raw as Product
+  if (!product) notFound()
   const productRecord = product as unknown as Record<string, string | null | undefined>
   const name = getLocalizedField(productRecord, 'name', locale as Locale)
   const description = getLocalizedField(productRecord, 'description', locale as Locale)
   const provenance = getLocalizedField(productRecord, 'provenance', locale as Locale)
   const material = catalog.has(`materials.${product.material}`) ? catalog(`materials.${product.material}`) : product.material
 
-  const { data: relatedRaw } = await supabase
+  const relatedPromise = createClient().then((supabase) => supabase
     .from('products')
-    .select('*')
+    .select('id, slug, sku, name_ru, name_en, name_de, images, condition, year_circa, price_eur')
     .eq('is_available', true)
     .eq('category_id', product.category_id)
     .neq('id', product.id)
-    .limit(4)
-
-  const related = (relatedRaw ?? []) as Product[]
+    .limit(4))
 
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
 
-  const cookieStore = await cookies()
-  const headerStore = await headers()
+  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()])
   const cookieRegion = getCookieRegion(cookieStore as Parameters<typeof getCookieRegion>[0])
   const countryCode = headerStore.get('x-vercel-ip-country')
   const region: Region = cookieRegion ?? (countryCode ? getRegionFromCountryCode(countryCode) : 'EU')
 
-  const exchangeRates = await getExchangeRates()
+  const targetCurrency = regionCurrencies.get(region) ?? 'EUR'
+  const exchangeRatesPromise = targetCurrency === 'EUR' || product.price_override?.currency === targetCurrency
+    ? Promise.resolve({} as Record<string, number>)
+    : getExchangeRates()
+  const [{ data: relatedRaw }, exchangeRates] = await Promise.all([relatedPromise, exchangeRatesPromise])
+  const related = (relatedRaw ?? []) as ProductCardItem[]
   const priceInfo = await getPriceForRegion(
     product.price_eur ?? 0,
     product.price_override as { amount: number; currency: string } | null,
@@ -146,7 +148,7 @@ export default async function ProductPage({
     },
     brand: {
       '@type': 'Organization',
-      name: 'Belle Époque',
+      name: 'VintagEmpire',
     },
   }
 

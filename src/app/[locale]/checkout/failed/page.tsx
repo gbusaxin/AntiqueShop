@@ -10,7 +10,7 @@ export default function CheckoutFailedPage() {
   const contactsT = useTranslations('contacts')
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-24">
-      <title>{`${t('title')} — Belle Époque`}</title>
+      <title>{`${t('title')} — VintagEmpire`}</title>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

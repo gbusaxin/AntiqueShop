@@ -46,7 +46,7 @@ export function Navbar({ locale, user }: NavbarProps) {
           href="/"
           className="font-serif text-xl tracking-wider text-[var(--accent)] hover:text-[var(--accent-light)] transition-colors"
         >
-          Belle Époque
+          VintagEmpire
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

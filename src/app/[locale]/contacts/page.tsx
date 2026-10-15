@@ -3,7 +3,7 @@ import { ContactsClient } from '@/components/contacts/ContactsClient'
 import { getSiteContent } from '@/components/SiteContentPage'
 import { ContentText, contentPlaceholder, localizedContent } from '@/components/admin/MarkdownEditor'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://belle-epoque.com'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 
 export async function generateMetadata({
   params,
@@ -13,9 +13,9 @@ export async function generateMetadata({
   const { locale } = await params
 
   const titles: Record<string, string> = {
-    en: 'Contact Us — Belle Époque',
-    ru: 'Контакты — Belle Époque',
-    de: 'Kontakt — Belle Époque',
+    en: 'Contact Us — VintagEmpire',
+    ru: 'Контакты — VintagEmpire',
+    de: 'Kontakt — VintagEmpire',
   }
   const descs: Record<string, string> = {
     en: 'Visit our galleries in Vienna and Berlin or send us a message. Our specialists are happy to assist.',
@@ -40,7 +40,7 @@ export async function generateMetadata({
       url: `${BASE_URL}/${locale}/contacts`,
       title: locale === 'ru' ? titles.ru : locale === 'de' ? titles.de : titles.en,
       description: locale === 'ru' ? descs.ru : locale === 'de' ? descs.de : descs.en,
-      siteName: 'Belle Époque',
+      siteName: 'VintagEmpire',
     },
   }
 }

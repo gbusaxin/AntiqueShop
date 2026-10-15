@@ -7,7 +7,18 @@ import {PostHogProvider} from '@/components/providers/PostHogProvider'
 const inter = Inter({subsets: ['latin', 'cyrillic'], variable: '--font-inter'})
 const playfair = Playfair_Display({subsets: ['latin', 'cyrillic'], variable: '--font-playfair-display'})
 
-export const metadata: Metadata = {title: 'Belle Époque', description: 'Curated antiques of exceptional provenance'}
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'),
+  title: 'VintagEmpire',
+  description: 'Curated antiques of exceptional provenance',
+  applicationName: 'VintagEmpire',
+  icons: {
+    icon: {url: '/brand-icon.png', type: 'image/png', sizes: '512x512'},
+    apple: {url: '/brand-icon.png', sizes: '512x512'},
+  },
+  openGraph: {siteName: 'VintagEmpire'},
+  twitter: {card: 'summary', title: 'VintagEmpire'},
+}
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (

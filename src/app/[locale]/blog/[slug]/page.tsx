@@ -25,14 +25,14 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const url = blogUrl(locale, path)
 
   return {
-    title: `${title} — Belle Époque`,
+    title: `${title} — VintagEmpire`,
     description,
     alternates: blogAlternates(locale, path),
     openGraph: {
       type: 'article',
       title,
       description,
-      siteName: 'Belle Époque',
+      siteName: 'VintagEmpire',
       publishedTime: post.published_at ?? post.created_at,
       modifiedTime: post.updated_at,
       tags: post.tags,
@@ -60,7 +60,7 @@ export default async function BlogArticlePage({ params }: ArticlePageProps) {
     dateModified: post.updated_at,
     inLanguage: locale,
     keywords: post.tags.join(', '),
-    publisher: { '@type': 'Organization', name: 'Belle Époque' },
+    publisher: { '@type': 'Organization', name: 'VintagEmpire' },
     ...(post.images.length ? { image: post.images } : {}),
     ...(url ? { url, mainEntityOfPage: { '@type': 'WebPage', '@id': url } } : {}),
   }

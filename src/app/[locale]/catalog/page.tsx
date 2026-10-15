@@ -5,16 +5,19 @@ import { createClient } from '@/lib/supabaseServer'
 import { FilterSidebar } from '@/components/catalog/FilterSidebar'
 import { ProductGrid } from '@/components/catalog/ProductGrid'
 import { SortControls } from '@/components/catalog/SortControls'
-import type { Product, Locale, Category } from '@/types'
+import type { ProductCardItem } from '@/components/ProductCard'
+import type { Locale, Category } from '@/types'
 import type { Metadata } from 'next'
 
 export const revalidate = 300
+
+const PAGE_SIZE = 24
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'catalog' })
   return {
-    title: `${t('title')} — Belle Époque`,
+    title: `${t('title')} — VintagEmpire`,
     description: t('description'),
   }
 }
@@ -44,6 +47,8 @@ export default async function CatalogPage({
   const categorySlug = typeof sp.category === 'string' ? sp.category : ''
   const search = typeof sp.search === 'string' ? sp.search.trim().slice(0, 100) : ''
   const sort = sp.sort === 'price_asc' || sp.sort === 'price_desc' ? sp.sort : 'newest'
+  const pageParam = typeof sp.page === 'string' ? sp.page : ''
+  const page = /^\d{1,5}$/.test(pageParam) ? Math.max(1, Number(pageParam)) : 1
 
   const supabase = await createClient()
   const { data: categoryRows } = await supabase.from('categories').select('*').eq('is_active', true).order('sort_order')
@@ -52,13 +57,13 @@ export default async function CatalogPage({
   const categoryNotFound = Boolean(categorySlug && !selectedCategory)
   const remainingParams = new URLSearchParams()
   for (const [key, value] of Object.entries(sp)) {
-    if (key !== 'category' && value !== undefined) {
+    if (key !== 'category' && key !== 'page' && value !== undefined) {
       for (const item of toArray(value)) remainingParams.append(key, item)
     }
   }
   let query = supabase
     .from('products')
-    .select('*', { count: 'exact' })
+    .select('id, slug, name_ru, name_en, name_de, images, condition, year_circa, price_eur', { count: 'exact' })
     .eq('is_available', true)
 
   if (selectedCategory) query = query.eq('category_id', selectedCategory.id)
@@ -83,8 +88,23 @@ export default async function CatalogPage({
       query = query.order('created_at', { ascending: false })
   }
 
-  const { data, count } = await query.limit(60)
-  const products = categoryNotFound ? [] : (data ?? []) as Product[]
+  const { data, count } = categoryNotFound
+    ? { data: [], count: 0 }
+    : await query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1)
+  const products = (data ?? []) as ProductCardItem[]
+  const total = count ?? 0
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+  const paginationParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(sp)) {
+    if (key !== 'page' && value !== undefined) {
+      for (const item of toArray(value)) paginationParams.append(key, item)
+    }
+  }
+  const pageHref = (nextPage: number) => {
+    const params = new URLSearchParams(paginationParams)
+    if (nextPage > 1) params.set('page', String(nextPage))
+    return `/catalog${params.size ? `?${params.toString()}` : ''}`
+  }
 
   return (
     <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
@@ -120,8 +140,15 @@ export default async function CatalogPage({
             <ProductGrid
               products={products}
               locale={locale as Locale}
-              total={count ?? products.length}
+              total={total}
             />
+            {totalPages > 1 && (
+              <nav aria-label={t('pagination')} className="mt-10 flex items-center justify-center gap-5 text-xs tracking-wide text-gold/70">
+                {page > 1 && <Link href={pageHref(page - 1)} className="hover:text-gold-rich">{t('previous')}</Link>}
+                <span>{t('pageOf', { page, total: totalPages })}</span>
+                {page < totalPages && <Link href={pageHref(page + 1)} className="hover:text-gold-rich">{t('next')}</Link>}
+              </nav>
+            )}
           </div>
         </div>
       </div>

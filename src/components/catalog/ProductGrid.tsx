@@ -2,13 +2,12 @@
 
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
-import { ProductCard } from '@/components/ProductCard'
+import { ProductCard, type ProductCardItem } from '@/components/ProductCard'
 import { SkeletonCard } from '@/components/ui/SkeletonCard'
-import type { Product } from '@/types'
 import type { Locale } from '@/types'
 
 interface ProductGridProps {
-  products: Product[]
+  products: ProductCardItem[]
   locale: Locale
   total: number
   loading?: boolean

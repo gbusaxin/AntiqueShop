@@ -211,6 +211,7 @@ export async function POST(request: Request) {
         },
         payment_method_data: { type: ykPaymentType },
         capture: true,
+        // TODO: update YooKassa payment description
         description: `Заказ Belle Époque #${order.id.slice(0, 8).toUpperCase()}`,
         metadata: { orderId: order.id },
         receipt: {
