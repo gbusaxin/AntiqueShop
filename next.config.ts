@@ -51,16 +51,11 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      ...['belle-epoque.com', 'www.belle-epoque.com', 'www.vintageempire.com'].map((host) => ({
-        source: '/:path*',
-        has: [{ type: 'host' as const, value: host.replaceAll('.', '\\.') }],
-        destination: 'https://vintageempire.com/:path*',
-        statusCode: 301 as const,
-      })),
       {
-        source: '/',
-        destination: '/en',
-        permanent: true,
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www\\.vintageempire\\.com' }],
+        destination: 'https://vintageempire.com/:path*',
+        statusCode: 301,
       },
     ]
   },
