@@ -47,7 +47,7 @@ export function CookieBanner() {
       <button
         type="button"
         onClick={() => setShowChoices(true)}
-        className="fixed bottom-4 left-4 z-[100] border border-input bg-background px-3 py-2 text-[11px] text-foreground hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="fixed bottom-4 left-4 z-[100] border border-input bg-background px-3 py-2 text-sm text-foreground hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         {t('settings')}
       </button>
@@ -66,7 +66,7 @@ export function CookieBanner() {
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1 pr-4">
-              <p className="text-xs leading-relaxed text-foreground">
+              <p className="text-sm leading-relaxed text-foreground">
                 {t.rich('disclosure', {
                   privacy: (chunks) => (
                     <Link href="/legal/privacy" className="underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
@@ -105,16 +105,16 @@ export function CookieBanner() {
                       ].map((cat) => (
                         <div key={cat.name} className="rounded border border-input p-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-medium uppercase tracking-wider text-primary">
+                            <span className="text-sm font-medium uppercase tracking-wider text-primary">
                               {cat.name}
                             </span>
                             <span
-                              className="text-[10px] text-muted-foreground"
+                              className="text-xs text-muted-foreground"
                             >
                               {cat.always ? t('alwaysOn') : t('optional')}
                             </span>
                           </div>
-                          <p className="mt-1 text-[11px] text-muted-foreground">{cat.desc}</p>
+                          <p className="mt-1 text-sm text-muted-foreground">{cat.desc}</p>
                         </div>
                       ))}
                     </div>
@@ -124,22 +124,22 @@ export function CookieBanner() {
 
               <button
                 onClick={() => setShowDetails((v) => !v)}
-                className="mt-2 text-[11px] text-foreground underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="mt-2 text-sm text-foreground underline decoration-primary/50 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {showDetails ? t('hideDetails') : t('details')}
               </button>
             </div>
 
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={() => choose('declined')}
-                className="border border-primary/40 px-5 py-2 text-[11px] uppercase tracking-wider text-primary transition-colors hover:border-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="border border-primary/40 px-5 py-2 text-sm uppercase tracking-wider text-primary transition-colors hover:border-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {t('decline')}
               </button>
               <button
                 onClick={() => choose('accepted')}
-                className="border border-primary bg-primary px-5 py-2 text-[11px] uppercase tracking-wider text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="border border-primary bg-primary px-5 py-2 text-sm uppercase tracking-wider text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {t('accept')}
               </button>

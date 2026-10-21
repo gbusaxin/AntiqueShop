@@ -33,21 +33,21 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
           <div>
             <p className="font-serif text-lg text-gold-rich tracking-wider">VintagEmpire</p>
-            <p className="mt-3 text-xs leading-relaxed tracking-wide">
+            <p className="mt-3 text-sm leading-relaxed tracking-wide">
               {t('footerDescription')}
             </p>
           </div>
 
           <div>
-            <p className="mb-4 text-xs uppercase tracking-[0.18em] text-gold/80">{t('footerCollection')}</p>
-            <ul className="space-y-3 text-xs">
+            <p className="mb-4 text-sm uppercase tracking-[0.18em] text-gold/80">{t('footerCollection')}</p>
+            <ul className="space-y-3 text-sm">
               <li><Link href="/catalog" className="hover:text-gold-rich transition-colors">{t('footerFullCatalog')}</Link></li>
             </ul>
           </div>
 
           <div>
-            <p className="mb-4 text-xs uppercase tracking-[0.18em] text-gold/80">{t('footerInformation')}</p>
-            <ul className="space-y-3 text-xs">
+            <p className="mb-4 text-sm uppercase tracking-[0.18em] text-gold/80">{t('footerInformation')}</p>
+            <ul className="space-y-3 text-sm">
               <li><Link href="/about" className="hover:text-gold-rich transition-colors">{t('footerAbout')}</Link></li>
               <li><Link href="/contacts" className="hover:text-gold-rich transition-colors">{tNav('contacts')}</Link></li>
               <li><a href="mailto:gbusaxin@gmail.com" className="break-all hover:text-gold-rich transition-colors">gbusaxin@gmail.com</a></li>
@@ -58,17 +58,17 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-4 border-t border-gold/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[11px] tracking-wide">
+          <p className="text-sm tracking-wide">
             © {new Date().getFullYear()} VintagEmpire. {t('footerRights')}
           </p>
 
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] uppercase tracking-[0.15em] text-gold/40">{t('footerRegion')}</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs uppercase tracking-[0.15em] text-gold/40">{t('footerRegion')}</span>
             <div className="relative">
               <select
                 value={region}
                 onChange={(e) => setRegion(e.target.value as Region)}
-                className="appearance-none border border-gold/20 bg-transparent py-1.5 pl-3 pr-7 text-[11px] tracking-wide text-gold/70 focus:border-gold/50 focus:outline-none cursor-pointer"
+                className="appearance-none border border-gold/20 bg-transparent py-1.5 pl-3 pr-7 text-sm tracking-wide text-gold/70 focus:border-gold/50 focus:outline-none cursor-pointer"
                 aria-label={t('footerRegion')}
               >
                 {REGIONS.map(({ value, currency, flag }) => (
@@ -79,7 +79,7 @@ export function Footer() {
               </select>
               <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-gold/40">▼</span>
             </div>
-            <span className="text-[10px] text-gold/30">{currency}</span>
+            <span className="text-xs text-gold/30">{currency}</span>
           </div>
         </div>
       </div>

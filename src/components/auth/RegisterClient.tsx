@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase'
 
 export function RegisterClient() {
   const t = useTranslations('auth.register')
+  const locale = useLocale()
   const loginT = useTranslations('auth.login')
   const validation = useTranslations('auth.validation')
   const requiredString = z.string({
@@ -27,6 +28,7 @@ export function RegisterClient() {
   const [serverError, setServerError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [confirmationRequired, setConfirmationRequired] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -35,19 +37,29 @@ export function RegisterClient() {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     setServerError('')
-    const supabase = await createClient()
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: { data: { full_name: data.name } },
-    })
-    if (error) {
+    try {
+      const emailRedirectTo = `${window.location.origin}/${locale}/auth/callback?next=${encodeURIComponent('/auth/verify')}`
+      const supabase = createClient()
+      const { data: result, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: { data: { full_name: data.name }, emailRedirectTo },
+      })
+      if (error) {
+        setServerError(t('error'))
+        return
+      }
+      setConfirmationRequired(!result.session)
+      setSuccess(true)
+      if (result.session) {
+        router.replace('/')
+        router.refresh()
+      }
+    } catch {
       setServerError(t('error'))
+    } finally {
       setLoading(false)
-      return
     }
-    setSuccess(true)
-    setTimeout(() => router.push('/'), 2500)
   }
 
   if (success) {
@@ -64,7 +76,12 @@ export function RegisterClient() {
             </svg>
           </div>
           <p className="font-serif text-xl text-foreground">{t('successTitle')}</p>
-          <p className="text-xs text-muted-foreground">{t('successDescription')}</p>
+          {confirmationRequired && (
+            <>
+              <p className="text-sm text-muted-foreground">{t('successDescription')}</p>
+              <Link href="/auth/login" className="text-sm text-foreground underline">{loginT('submit')}</Link>
+            </>
+          )}
         </motion.div>
       </div>
     )
@@ -80,7 +97,7 @@ export function RegisterClient() {
       >
         <div className="mb-8 text-center">
           <p className="font-serif text-2xl text-foreground tracking-wide">VintagEmpire</p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{t('title')}</p>
+          <p className="mt-2 text-sm uppercase tracking-[0.15em] text-muted-foreground">{t('title')}</p>
         </div>
 
         <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -101,26 +118,26 @@ export function RegisterClient() {
                   type={type}
                   autoComplete={autocomplete}
                   {...register(key)}
-                  className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 />
                 {fieldError && (
-                  <p className="mt-1 text-[10px] text-red-400">{fieldError.message}</p>
+                  <p role="alert" className="mt-1 text-sm text-red-400">{fieldError.message}</p>
                 )}
               </div>
             )
           })}
 
-          {serverError && <p className="text-[11px] text-red-400">{serverError}</p>}
+          {serverError && <p role="alert" className="text-sm text-red-400">{serverError}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 border border-primary bg-primary py-3.5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
+            className="mt-2 border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
           >
             {loading ? t('submitting') : t('submit')}
           </button>
 
-          <p className="text-center text-[10px] text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {t('hasAccount')}{' '}
             <Link href="/auth/login" className="text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
               {loginT('submit')}

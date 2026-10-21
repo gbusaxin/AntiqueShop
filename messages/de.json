@@ -7,11 +7,6 @@
     "heritageSecond": "Wir arbeiten direkt mit privaten Nachlässen, Auktionshäusern und Fachhändlern zusammen, um Ihnen Objekte mit nachgewiesener Herkunft anzubieten — Stücke, deren Geschichten so schön sind wie ihre Gestalt.",
     "heritageLink": "Unsere Geschichte entdecken",
     "heritageYears": "Jahre Erfahrung",
-    "newsletterEyebrow": "Bleiben Sie informiert",
-    "newsletterTitle": "Neuzugänge und Ausstellungen",
-    "newsletterDescription": "Abonnieren Sie Neuigkeiten zu unseren jüngsten Neuzugängen, exklusiven Vorbesichtigungen und bevorstehenden Veranstaltungen für Sammler.",
-    "newsletterPlaceholder": "Ihre E-Mail-Adresse",
-    "newsletterSubmit": "Abonnieren",
     "footerDescription": "Seltene Antiquitäten von außergewöhnlicher Schönheit und belegter Herkunft, ausgewählt für anspruchsvolle Sammler.",
     "footerCollection": "Kollektion",
     "footerFullCatalog": "Gesamter Katalog",
@@ -238,6 +233,7 @@
       "noAccount": "Noch kein Konto?",
       "emailPlaceholder": "E-Mail-Adresse",
       "invalidCredentials": "E-Mail-Adresse oder Passwort ungültig",
+      "error": "Die Anmeldung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "submitting": "Anmeldung läuft…"
     },
     "register": {
@@ -251,6 +247,39 @@
       "submitting": "Konto wird erstellt…",
       "successTitle": "Konto erstellt",
       "successDescription": "Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in der Nachricht."
+    },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen",
+      "description": "Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen.",
+      "email": "E-Mail-Adresse",
+      "submit": "Link senden",
+      "submitting": "Wird gesendet…",
+      "sent": "Wenn ein Konto für diese Adresse besteht, erhalten Sie einen Link. Bitte prüfen Sie Ihren Posteingang.",
+      "error": "Der Link konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+      "backToLogin": "Zurück zur Anmeldung"
+    },
+    "resetPassword": {
+      "title": "Neues Passwort festlegen",
+      "password": "Neues Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "passwordMismatch": "Die Passwörter stimmen nicht überein",
+      "checking": "Link wird überprüft…",
+      "invalidLink": "Dieser Link ist ungültig oder abgelaufen.",
+      "requestAgain": "Neuen Link anfordern",
+      "submit": "Passwort speichern",
+      "submitting": "Wird gespeichert…",
+      "error": "Das Passwort konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+      "success": "Passwort aktualisiert. Melden Sie sich mit Ihrem neuen Passwort an.",
+      "backToLogin": "Zurück zur Anmeldung"
+    },
+    "verify": {
+      "title": "E-Mail-Adresse bestätigen",
+      "checkEmail": "Bitte prüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink.",
+      "successTitle": "E-Mail-Adresse bestätigt",
+      "success": "Ihre E-Mail-Adresse ist bestätigt. Ihr Konto ist bereit.",
+      "invalidLink": "Dieser Bestätigungslink ist ungültig oder abgelaufen.",
+      "goHome": "Zum Shop",
+      "backToLogin": "Zurück zur Anmeldung"
     },
     "validation": {
       "required": "Pflichtfeld",

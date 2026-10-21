@@ -33,17 +33,23 @@ export function LoginClient() {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     setServerError('')
-    const supabase = await createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    })
-    if (error) {
-      setServerError(t('invalidCredentials'))
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      })
+      if (error) {
+        setServerError(t('invalidCredentials'))
+        return
+      }
+      router.replace('/')
+      router.refresh()
+    } catch {
+      setServerError(t('error'))
+    } finally {
       setLoading(false)
-      return
     }
-    router.push('/')
   }
 
   return (
@@ -56,7 +62,7 @@ export function LoginClient() {
       >
         <div className="mb-8 text-center">
           <p className="font-serif text-2xl text-foreground tracking-wide">VintagEmpire</p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{t('title')}</p>
+          <p className="mt-2 text-sm uppercase tracking-[0.15em] text-muted-foreground">{t('title')}</p>
         </div>
 
         <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -67,9 +73,9 @@ export function LoginClient() {
               autoComplete="email"
               placeholder={t('emailPlaceholder')}
               {...register('email')}
-              className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             />
-            {errors.email && <p className="mt-1 text-[10px] text-red-400">{errors.email.message}</p>}
+            {errors.email && <p role="alert" className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
           </div>
 
           <div>
@@ -79,22 +85,22 @@ export function LoginClient() {
               autoComplete="current-password"
               placeholder={t('password')}
               {...register('password')}
-              className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             />
-            {errors.password && <p className="mt-1 text-[10px] text-red-400">{errors.password.message}</p>}
+            {errors.password && <p role="alert" className="mt-1 text-sm text-red-400">{errors.password.message}</p>}
           </div>
 
-          {serverError && <p className="text-[11px] text-red-400">{serverError}</p>}
+          {serverError && <p role="alert" className="text-sm text-red-400">{serverError}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 border border-primary bg-primary py-3.5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
+            className="mt-2 border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
           >
             {loading ? t('submitting') : t('submit')}
           </button>
 
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
             <Link href="/auth/register" className="hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
               {registerT('title')}
             </Link>
