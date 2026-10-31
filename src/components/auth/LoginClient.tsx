@@ -100,11 +100,11 @@ export function LoginClient() {
             {loading ? t('submitting') : t('submit')}
           </button>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
-            <Link href="/auth/register" className="hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-base text-foreground/80">
+            <Link href="/auth/register" className="text-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
               {registerT('title')}
             </Link>
-            <Link href="/auth/forgot-password" className="hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
+            <Link href="/auth/forgot-password" className="text-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
               {t('forgotPassword')}
             </Link>
           </div>

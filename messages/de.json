@@ -243,6 +243,8 @@
       "password": "Passwort",
       "submit": "Konto erstellen",
       "hasAccount": "Bereits ein Konto?",
+      "termsConsent": "Ich stimme den <terms>Nutzungsbedingungen</terms> und der <privacy>Datenschutzerklärung</privacy> zu",
+      "termsRequired": "Sie müssen die Bedingungen akzeptieren",
       "error": "Die Registrierung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "submitting": "Konto wird erstellt…",
       "successTitle": "Konto erstellt",

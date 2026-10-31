@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
             <button type="submit" disabled={loading} className="border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground disabled:opacity-50">{loading ? t('submitting') : t('submit')}</button>
           </form>
         )}
-        <p className="text-center text-sm"><Link href="/auth/login" className="text-foreground underline">{t('backToLogin')}</Link></p>
+        <p className="text-center text-base"><Link href="/auth/login" className="text-foreground underline underline-offset-2">{t('backToLogin')}</Link></p>
       </div>
     </div>
   )

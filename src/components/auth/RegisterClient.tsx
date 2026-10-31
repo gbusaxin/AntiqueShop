@@ -22,6 +22,7 @@ export function RegisterClient() {
     name: requiredString.min(2, validation('minCharacters', { count: 2 })),
     email: requiredString.email(validation('invalidEmail')),
     password: requiredString.min(8, validation('minCharacters', { count: 8 })),
+    terms_accepted: z.literal(true, { errorMap: () => ({ message: t('termsRequired') }) }),
   })
   type FormData = z.infer<typeof schema>
   const router = useRouter()
@@ -30,9 +31,11 @@ export function RegisterClient() {
   const [success, setSuccess] = useState(false)
   const [confirmationRequired, setConfirmationRequired] = useState(false)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: 'onTouched',
   })
+  const termsAccepted = watch('terms_accepted') === true
 
   const onSubmit = async (data: FormData) => {
     setLoading(true)
@@ -43,7 +46,7 @@ export function RegisterClient() {
       const { data: result, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: { data: { full_name: data.name }, emailRedirectTo },
+        options: { data: { full_name: data.name, terms_accepted_at: new Date().toISOString() }, emailRedirectTo },
       })
       if (error) {
         setServerError(t('error'))
@@ -79,7 +82,7 @@ export function RegisterClient() {
           {confirmationRequired && (
             <>
               <p className="text-sm text-muted-foreground">{t('successDescription')}</p>
-              <Link href="/auth/login" className="text-sm text-foreground underline">{loginT('submit')}</Link>
+              <Link href="/auth/login" className="text-base text-foreground underline">{loginT('submit')}</Link>
             </>
           )}
         </motion.div>
@@ -106,7 +109,7 @@ export function RegisterClient() {
               { key: 'name', label: t('name'), type: 'text', autocomplete: 'name' },
               { key: 'email', label: t('email'), type: 'email', autocomplete: 'email' },
               { key: 'password', label: t('password'), type: 'password', autocomplete: 'new-password' },
-            ] as { key: keyof FormData; label: string; type: string; autocomplete: string }[]
+            ] as { key: 'name' | 'email' | 'password'; label: string; type: string; autocomplete: string }[]
           ).map(({ key, label, type, autocomplete }) => {
             const fieldError = key === 'name' ? errors.name : key === 'email' ? errors.email : errors.password
             return (
@@ -127,19 +130,40 @@ export function RegisterClient() {
             )
           })}
 
+          <div>
+            <div className="flex items-start gap-3">
+              <input
+                id="terms-accepted"
+                type="checkbox"
+                aria-invalid={!!errors.terms_accepted}
+                aria-labelledby="terms-label"
+                aria-describedby={errors.terms_accepted ? 'terms-error' : undefined}
+                {...register('terms_accepted')}
+                className="mt-1 h-4 w-4 shrink-0 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              />
+              <span id="terms-label" className="text-sm text-foreground/80">
+                {t.rich('termsConsent', {
+                  terms: (chunks) => <Link href="/legal/offer" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">{chunks}</Link>,
+                  privacy: (chunks) => <Link href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">{chunks}</Link>,
+                })}
+              </span>
+            </div>
+            {errors.terms_accepted && <p id="terms-error" role="alert" className="mt-1 text-sm text-red-400">{errors.terms_accepted.message}</p>}
+          </div>
+
           {serverError && <p role="alert" className="text-sm text-red-400">{serverError}</p>}
 
           <button
             type="submit"
-            disabled={loading}
-            className="mt-2 border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
+            disabled={loading || !termsAccepted}
+            className="mt-2 border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? t('submitting') : t('submit')}
           </button>
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-base text-foreground/80">
             {t('hasAccount')}{' '}
-            <Link href="/auth/login" className="text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
+            <Link href="/auth/login" className="text-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-colors">
               {loginT('submit')}
             </Link>
           </p>
