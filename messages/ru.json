@@ -128,7 +128,9 @@
     "galleryView": "{name} — фото {number}",
     "galleryThumbnail": "Показать фото {number}",
     "galleryZoom": "Увеличить фото",
-    "galleryCloseZoom": "Закрыть увеличенное фото"
+    "galleryCloseZoom": "Закрыть увеличенное фото",
+    "galleryPrevious": "Предыдущее фото",
+    "galleryNext": "Следующее фото"
   },
   "cart": {
     "title": "Корзина",
@@ -290,6 +292,22 @@
     }
   },
   "account": {
+    "title": "Личный кабинет",
+    "breadcrumbs": "Навигация по разделам",
+    "allOrders": "Все заказы",
+    "signOut": "Выйти",
+    "profile": {
+      "title": "Мои данные",
+      "email": "Email",
+      "name": "Имя",
+      "phone": "Телефон (необязательно)",
+      "save": "Сохранить изменения",
+      "saving": "Сохранение…",
+      "saved": "Ваши данные сохранены",
+      "saveError": "Не удалось сохранить данные. Попробуйте ещё раз.",
+      "signingOut": "Выходим…",
+      "signOutError": "Не удалось выйти. Попробуйте ещё раз."
+    },
     "orders": {
       "title": "Мои заказы",
       "empty": "У вас пока нет заказов",
@@ -300,7 +318,23 @@
       "viewDetails": "Подробнее",
       "browseCatalog": "Открыть каталог",
       "moreItems": "и ещё {count, plural, one {# предмет} few {# предмета} many {# предметов} other {# предмета}}",
-      "unknownStatus": "Статус неизвестен"
+      "unknownStatus": "Статус неизвестен",
+      "pagination": "Страницы заказов",
+      "previous": "Назад",
+      "next": "Вперёд",
+      "pageOf": "Страница {page} из {total}",
+      "details": {
+        "items": "Товары",
+        "quantity": "Количество",
+        "shippingAddress": "Адрес доставки",
+        "noAddress": "Адрес доставки не указан",
+        "shippingMethod": "Способ доставки",
+        "shippingCost": "Стоимость доставки",
+        "standard": "Стандартная",
+        "express": "Экспресс",
+        "payment": "Способ оплаты",
+        "notSpecified": "Не указан"
+      }
     }
   },
   "orders": {

@@ -128,7 +128,9 @@
     "galleryView": "{name} — Ansicht {number}",
     "galleryThumbnail": "Bild {number} anzeigen",
     "galleryZoom": "Bild vergrößern",
-    "galleryCloseZoom": "Vergrößertes Bild schließen"
+    "galleryCloseZoom": "Vergrößertes Bild schließen",
+    "galleryPrevious": "Vorheriges Foto",
+    "galleryNext": "Nächstes Foto"
   },
   "cart": {
     "title": "Warenkorb",
@@ -290,6 +292,22 @@
     }
   },
   "account": {
+    "title": "Mein Konto",
+    "breadcrumbs": "Brotkrumennavigation",
+    "allOrders": "Alle Bestellungen",
+    "signOut": "Abmelden",
+    "profile": {
+      "title": "Profil",
+      "email": "E-Mail",
+      "name": "Name",
+      "phone": "Telefon (optional)",
+      "save": "Änderungen speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Ihre Angaben wurden gespeichert",
+      "saveError": "Ihre Angaben konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+      "signingOut": "Abmeldung läuft…",
+      "signOutError": "Abmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+    },
     "orders": {
       "title": "Meine Bestellungen",
       "empty": "Sie haben noch keine Bestellungen",
@@ -300,7 +318,23 @@
       "viewDetails": "Details anzeigen",
       "browseCatalog": "Katalog ansehen",
       "moreItems": "+{count} weitere",
-      "unknownStatus": "Status unbekannt"
+      "unknownStatus": "Status unbekannt",
+      "pagination": "Bestellseiten",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "pageOf": "Seite {page} von {total}",
+      "details": {
+        "items": "Artikel",
+        "quantity": "Menge",
+        "shippingAddress": "Lieferadresse",
+        "noAddress": "Keine Lieferadresse angegeben",
+        "shippingMethod": "Versandart",
+        "shippingCost": "Versandkosten",
+        "standard": "Standard",
+        "express": "Express",
+        "payment": "Zahlungsart",
+        "notSpecified": "Nicht angegeben"
+      }
     }
   },
   "orders": {

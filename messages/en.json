@@ -128,7 +128,9 @@
     "galleryView": "{name} — view {number}",
     "galleryThumbnail": "Show image {number}",
     "galleryZoom": "Enlarge image",
-    "galleryCloseZoom": "Close enlarged image"
+    "galleryCloseZoom": "Close enlarged image",
+    "galleryPrevious": "Previous photo",
+    "galleryNext": "Next photo"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -290,6 +292,22 @@
     }
   },
   "account": {
+    "title": "My Account",
+    "breadcrumbs": "Breadcrumbs",
+    "allOrders": "All orders",
+    "signOut": "Log out",
+    "profile": {
+      "title": "Profile",
+      "email": "Email",
+      "name": "Name",
+      "phone": "Phone (optional)",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "saved": "Your details have been saved",
+      "saveError": "Could not save your details. Please try again.",
+      "signingOut": "Signing out…",
+      "signOutError": "Could not sign out. Please try again."
+    },
     "orders": {
       "title": "My Orders",
       "empty": "You have no orders yet",
@@ -300,7 +318,23 @@
       "viewDetails": "View Details",
       "browseCatalog": "Browse Catalog",
       "moreItems": "+{count} more",
-      "unknownStatus": "Unknown status"
+      "unknownStatus": "Unknown status",
+      "pagination": "Order pages",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}",
+      "details": {
+        "items": "Items",
+        "quantity": "Quantity",
+        "shippingAddress": "Delivery address",
+        "noAddress": "No delivery address provided",
+        "shippingMethod": "Delivery method",
+        "shippingCost": "Delivery cost",
+        "standard": "Standard",
+        "express": "Express",
+        "payment": "Payment method",
+        "notSpecified": "Not specified"
+      }
     }
   },
   "orders": {

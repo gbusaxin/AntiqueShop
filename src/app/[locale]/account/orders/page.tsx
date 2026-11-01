@@ -15,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'account.orders' })
-  return { title: `${t('title')} — VintagEmpire` }
+  return { title: `${t('title')} — VintagEmpire`, robots: { index: false, follow: false } }
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -29,10 +29,15 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default async function AccountOrdersPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>
+  searchParams: Promise<{ page?: string }>
 }) {
   const { locale } = await params
+  const { page: pageParam } = await searchParams
+  const page = pageParam && /^\d{1,6}$/.test(pageParam) ? Math.max(1, Number(pageParam)) : 1
+  const pageSize = 10
   const t = await getTranslations({ locale, namespace: 'account.orders' })
   const statusT = await getTranslations({ locale, namespace: 'orders.status' })
   const navT = await getTranslations({ locale, namespace: 'nav' })
@@ -45,13 +50,17 @@ export default async function AccountOrdersPage({
     redirect(`/${locale}/auth/login`)
   }
 
-  const { data: orders } = await supabase
+  const { data: orders, count, error } = await supabase
     .from('orders')
-    .select('*, items:order_items(*, product:products(name_en, name_ru, name_de, images))')
+    .select('id, created_at, total_eur, status, items:order_items(id, price_eur, quantity, product_snapshot, product:products(name_en, name_ru, name_de, images))', { count: 'exact' })
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+    .range((page - 1) * pageSize, page * pageSize - 1)
+  if (error) throw error
 
-  const typedOrders = (orders ?? []) as Order[]
+  const typedOrders = (orders ?? []) as unknown as Order[]
+  const totalPages = Math.max(1, Math.ceil((count ?? 0) / pageSize))
+  if (page > totalPages) redirect(`/${locale}/account/orders?page=${totalPages}`)
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
 
   return (
@@ -122,7 +131,7 @@ export default async function AccountOrdersPage({
                             alt=""
                             width={40}
                             height={48}
-                            className="h-12 w-10 object-cover opacity-80"
+                            className="h-12 w-10 bg-[#1F1B17] object-contain opacity-80"
                           />
                         )}
                         <div>
@@ -142,9 +151,19 @@ export default async function AccountOrdersPage({
                     )}
                   </div>
                 )}
+                <Link href={`/account/orders/${order.id}`} className="mt-4 inline-block text-sm text-gold-rich underline underline-offset-4 hover:text-gold">
+                  {t('viewDetails')} →
+                </Link>
               </div>
             ))}
           </div>
+        )}
+        {totalPages > 1 && (
+          <nav aria-label={t('pagination')} className="mt-8 flex items-center justify-center gap-4 text-sm">
+            {page > 1 && <Link href={`/account/orders?page=${page - 1}`} className="text-gold-rich hover:underline">← {t('previous')}</Link>}
+            <span>{t('pageOf', { page, total: totalPages })}</span>
+            {page < totalPages && <Link href={`/account/orders?page=${page + 1}`} className="text-gold-rich hover:underline">{t('next')} →</Link>}
+          </nav>
         )}
       </div>
     </div>
