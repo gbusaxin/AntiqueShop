@@ -236,9 +236,9 @@ export default async function ProductPage({
             {specs.length > 0 && (
               <dl className="flex flex-col">
                 {specs.map((spec) => (
-                  <div key={spec.label} className="flex items-baseline gap-3 border-b border-gold/10 py-3 text-sm">
+                  <div key={spec.label} className="reveal flex items-baseline gap-3 border-b border-gold/10 py-3 text-sm">
                     <dt className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{spec.label}</dt>
-                    <span aria-hidden="true" className="mb-1 flex-1 border-b border-dotted border-gold/30" />
+                    <span aria-hidden="true" className="reveal-line mb-1 flex-1 border-b border-dotted border-gold/30" />
                     <dd className="text-right text-foreground">{spec.value}</dd>
                   </div>
                 ))}
@@ -246,7 +246,7 @@ export default async function ProductPage({
             )}
 
             {provenance && (
-              <figure className="relative bg-deep/70 px-6 py-6">
+              <figure className="reveal relative bg-deep/70 px-6 py-6">
                 <span aria-hidden="true" className="heading-display absolute -top-5 left-4 text-6xl leading-none text-gold/40">“</span>
                 <figcaption className="eyebrow mb-3">{t('provenance')}</figcaption>
                 <blockquote className="font-display text-lg italic leading-relaxed text-foreground/90">{provenance}</blockquote>
@@ -254,7 +254,7 @@ export default async function ProductPage({
             )}
 
             {description && (
-              <div className="space-y-4 text-[15px] leading-[1.8] text-muted-foreground">
+              <div className="reveal space-y-4 text-[15px] leading-[1.8] text-muted-foreground">
                 {description.split('\n').filter(Boolean).map((para, i) => (
                   <p key={i}>{para}</p>
                 ))}

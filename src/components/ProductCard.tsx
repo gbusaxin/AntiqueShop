@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl'
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { FavoriteButton } from '@/components/favorites/FavoriteButton'
+import { VitrineFrame } from '@/components/ui/VitrineFrame'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice } from '@/lib/getPriceForRegion'
 import type { Product } from '@/types'
@@ -37,7 +38,7 @@ export function ProductCard({ product, locale }: ProductCardProps) {
         data-testid="product-card"
         className="group relative flex h-full flex-col outline-offset-4"
       >
-        <div className="frame-gilt relative aspect-[4/5] overflow-hidden bg-deep transition-shadow duration-700 ease-lux group-hover:shadow-[var(--shadow-lux)]">
+        <VitrineFrame className="frame-gilt relative aspect-[4/5] overflow-hidden bg-deep group-hover:shadow-[var(--shadow-lux)]">
           {cover ? (
             <>
               <Image
@@ -76,11 +77,11 @@ export function ProductCard({ product, locale }: ProductCardProps) {
 
           <span
             aria-hidden="true"
-            className="absolute bottom-4 right-4 z-10 flex h-10 w-10 translate-y-3 items-center justify-center rounded-full bg-card text-foreground opacity-0 shadow-[var(--shadow-lux)] transition-all duration-500 ease-lux group-hover:translate-y-0 group-hover:opacity-100"
+            className="absolute bottom-4 right-4 z-10 flex h-10 w-10 translate-y-3 items-center justify-center rounded-full bg-card text-foreground opacity-0 shadow-[var(--shadow-lux)] transition-[transform,opacity] duration-500 ease-lux group-hover:translate-y-0 group-hover:opacity-100"
           >
             <ArrowUpRight size={16} />
           </span>
-        </div>
+        </VitrineFrame>
 
         <div className="flex flex-1 flex-col pt-5">
           {product.year_circa && (
@@ -98,7 +99,10 @@ export function ProductCard({ product, locale }: ProductCardProps) {
         </div>
       </Link>
       {/* Sibling of the link (a button must not live inside an <a>) */}
-      <FavoriteButton item={product} className="absolute right-4 top-4 z-20" />
+      {/* Wrapper positions it: the button itself stays `relative` for its heart-burst animation */}
+      <div className="absolute right-4 top-4 z-20">
+        <FavoriteButton item={product} />
+      </div>
     </div>
   )
 }

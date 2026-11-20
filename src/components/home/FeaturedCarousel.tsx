@@ -41,8 +41,10 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
 
   useEffect(() => {
     if (!emblaApi) return
-    setScrollSnaps(emblaApi.scrollSnapList())
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
+    const onSelect = () => {
+      setScrollSnaps(emblaApi.scrollSnapList())
+      setSelectedIndex(emblaApi.selectedScrollSnap())
+    }
     onSelect()
     emblaApi.on('select', onSelect)
     emblaApi.on('reInit', onSelect)
@@ -53,12 +55,14 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
   }, [emblaApi])
 
   useEffect(() => {
-    if (!emblaApi || paused || reduceMotion) return
+    if (!emblaApi || paused || reduceMotion || scrollSnaps.length < 2) return
     const id = setInterval(() => emblaApi.scrollNext(), 4500)
     return () => clearInterval(id)
-  }, [emblaApi, paused, reduceMotion])
+  }, [emblaApi, paused, reduceMotion, scrollSnaps.length])
 
   if (!products.length) return null
+  // When every item fits on screen there is nothing to scroll: hide arrows, pager and autoplay
+  const scrollable = scrollSnaps.length > 1
 
   const navButton =
     'group flex h-11 w-11 items-center justify-center rounded-full border border-gold/30 text-foreground transition-all duration-500 ease-lux hover:border-gold hover:bg-gold hover:text-[var(--bg)]'
@@ -82,7 +86,7 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
               <span className="link-lux">{t('footerFullCatalog')}</span>
               <ArrowRight size={13} aria-hidden="true" className="text-gold transition-transform duration-500 ease-lux group-hover:translate-x-1" />
             </Link>
-            <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-2 ${scrollable ? '' : 'hidden'}`}>
               <button type="button" onClick={scrollPrev} className={navButton} aria-label={t('carouselPrevious')}>
                 <ChevronLeft size={16} className="transition-transform duration-500 ease-lux group-hover:-translate-x-0.5" />
               </button>
@@ -122,7 +126,7 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
           </div>
         </div>
 
-        <div className="mt-12 flex items-center justify-center gap-4">
+        <div className={`mt-12 items-center justify-center gap-4 ${scrollable ? 'flex' : 'hidden'}`}>
           <span className="heading-display w-8 text-right text-lg tabular-nums text-gold">
             {String(selectedIndex + 1).padStart(2, '0')}
           </span>

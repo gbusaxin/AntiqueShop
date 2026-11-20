@@ -12,7 +12,7 @@ export async function BlogCard({ post, locale }: { post: BlogPost; locale: strin
   const href = `/blog/${encodeURIComponent(post.slug)}`
 
   return (
-    <article className="group flex min-w-0 flex-col border-b border-primary/20 pb-8">
+    <article className="reveal group flex min-w-0 flex-col border-b border-primary/20 pb-8">
       {post.images[0] && (
         <Link href={href} locale={locale} tabIndex={-1} aria-hidden="true" className="relative mb-6 block aspect-[4/3] overflow-hidden bg-primary/5">
           <Image

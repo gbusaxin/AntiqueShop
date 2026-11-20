@@ -305,6 +305,59 @@ body {
   }
 }
 
+/* Scroll reveal, driven by the scroll position on the compositor (no JS, works in server components).
+   Browsers without scroll timelines and reduced-motion users simply see the content. */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(32px); }
+}
+
+@keyframes draw-line {
+  from { transform: scaleX(0); }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal,
+    .reveal-line {
+      animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+      animation-fill-mode: both;
+      animation-timeline: view();
+    }
+
+    .reveal {
+      animation-name: reveal-up;
+      animation-range: entry 0% entry 70%;
+    }
+
+    .reveal-line {
+      animation-name: draw-line;
+      animation-range: entry 20% entry 90%;
+      transform-origin: left;
+    }
+  }
+}
+
+/* Museum vitrine: light that follows the cursor across the glass (position set from JS). */
+.vitrine-glare {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, rgb(255 244 214 / .28), rgb(var(--gold-rgb) / .1) 45%, transparent);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .6s ease, transform .5s cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .vitrine-glare {
+    opacity: 1;
+  }
+}
+
 .admin-theme {
   --bg: #F5F1EA;
   --fg: #1A1A1A;

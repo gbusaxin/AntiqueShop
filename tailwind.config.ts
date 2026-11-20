@@ -71,6 +71,9 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(6px)' },
           to: { opacity: '1', transform: 'none' },
         },
+        'fade-in': {
+          from: { opacity: '0' },
+        },
         shimmer: {
           from: { backgroundPosition: '-200% 0' },
           to: { backgroundPosition: '200% 0' },
@@ -86,6 +89,7 @@ const config: Config = {
         marquee: 'marquee 40s linear infinite',
         'spin-slow': 'spin-slow 40s linear infinite',
         'page-in': 'page-in .6s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'fade-in': 'fade-in .7s ease both',
         shimmer: 'shimmer 2.2s linear infinite',
         'scroll-cue': 'scroll-cue 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite',
       },

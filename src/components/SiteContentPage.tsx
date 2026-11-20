@@ -22,10 +22,10 @@ export async function SiteContentPage({ pageKey, locale, defaultTitle }: {
     <div className="min-h-screen bg-background pt-20 text-foreground">
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-12 border-b border-gold/20 pb-10">
-          <p className="eyebrow mb-6">VintagEmpire</p>
-          <h1 className="heading-display text-5xl md:text-6xl">{localizedContent(item, locale, 'title') || defaultTitle}</h1>
+          <p className="eyebrow mb-6 animate-page-in">VintagEmpire</p>
+          <h1 className="heading-display animate-page-in text-5xl [animation-delay:120ms] md:text-6xl">{localizedContent(item, locale, 'title') || defaultTitle}</h1>
         </div>
-        <ContentText content={localizedContent(item, locale, 'content') || contentPlaceholder(locale)} />
+        <div className="animate-page-in [animation-delay:240ms]"><ContentText content={localizedContent(item, locale, 'content') || contentPlaceholder(locale)} /></div>
       </div>
     </div>
   )

@@ -8,7 +8,8 @@ import { Link } from '@/i18n/navigation'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 const FOUNDED = 1987
-const YEARS = 35
+// Derived, so the figure never goes stale
+const YEARS = new Date().getFullYear() - FOUNDED
 
 function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
@@ -71,12 +72,16 @@ export function AboutTeaser() {
             </div>
           </motion.div>
 
-          <div className="relative mx-auto w-full max-w-md lg:col-span-5 lg:col-start-8">
+          {/* The wrapper is observed, not the panel: a fully clipped element never counts as "in view" */}
+          <motion.div
+            initial="hidden"
+            whileInView="shown"
+            viewport={{ once: true, amount: 0.3 }}
+            className="relative mx-auto w-full max-w-md lg:col-span-5 lg:col-start-8"
+          >
             <motion.div
               style={{ y: panelY }}
-              initial={{ clipPath: 'inset(0% 0% 100% 0%)' }}
-              whileInView={{ clipPath: 'inset(0% 0% 0% 0%)' }}
-              viewport={{ once: true, amount: 0.3 }}
+              variants={{ hidden: { clipPath: 'inset(0% 0% 100% 0%)' }, shown: { clipPath: 'inset(0% 0% 0% 0%)' } }}
               transition={{ duration: 1.4, ease: EASE }}
               className="arch relative flex aspect-[4/5] flex-col items-center justify-center overflow-hidden bg-[linear-gradient(160deg,#3b2d1d_0%,#1a140e_55%,#0e0b08_100%)] shadow-[var(--shadow-lux)]"
             >
@@ -123,7 +128,7 @@ export function AboutTeaser() {
               </p>
               <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{t('heritageYears')}</p>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
