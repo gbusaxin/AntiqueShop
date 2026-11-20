@@ -1,40 +1,13 @@
--- init.sql — полная схема магазина VintagEmpire
--- ОПАСНО: этот файл удаляет все таблицы проекта и создаёт их заново.
--- Не выполнять в production с данными. auth.users и файлы Storage не удаляются.
--- При повторном запуске роли профилей сбрасываются до customer; назначьте admin заново.
+-- init.sql — схема магазина VintagEmpire.
+-- Безопасно запускать повторно на рабочей базе: таблицы и данные (товары, заказы, профили,
+-- заявки) НЕ удаляются. Скрипт только создаёт недостающее, добавляет новые колонки и
+-- заново выставляет функции, триггеры, политики RLS и права доступа.
 BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- Сначала удаляем зависимости из схемы Auth и Storage.
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-DROP POLICY IF EXISTS storage_read_all ON storage.objects;
-DROP POLICY IF EXISTS storage_write_admin ON storage.objects;
-DROP POLICY IF EXISTS storage_update_admin ON storage.objects;
-DROP POLICY IF EXISTS storage_delete_admin ON storage.objects;
-
-DROP POLICY IF EXISTS blog_storage_read ON storage.objects;
-DROP POLICY IF EXISTS blog_storage_insert ON storage.objects;
-DROP POLICY IF EXISTS blog_storage_update ON storage.objects;
-DROP POLICY IF EXISTS blog_storage_delete ON storage.objects;
-DROP TABLE IF EXISTS public.blog_posts CASCADE;
-DROP TABLE IF EXISTS public.webhook_events CASCADE;
-DROP TABLE IF EXISTS public.order_items CASCADE;
-DROP TABLE IF EXISTS public.orders CASCADE;
-DROP TABLE IF EXISTS public.exchange_rates CASCADE;
-DROP TABLE IF EXISTS public.contact_requests CASCADE;
-DROP TABLE IF EXISTS public.site_content CASCADE;
-DROP TABLE IF EXISTS public.products CASCADE;
-DROP TABLE IF EXISTS public.categories CASCADE;
-DROP TABLE IF EXISTS public.profiles CASCADE;
-
-DROP FUNCTION IF EXISTS public.is_admin() CASCADE;
-DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
-DROP FUNCTION IF EXISTS public.increment_views(TEXT) CASCADE;
-DROP FUNCTION IF EXISTS public.update_updated_at_column() CASCADE;
-
 -- Роли customer/admin соответствуют проверкам в приложении.
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT,
   role TEXT NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
@@ -45,7 +18,7 @@ CREATE TABLE public.profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.categories (
+CREATE TABLE IF NOT EXISTS public.categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
   name_ru TEXT NOT NULL CHECK (length(btrim(name_ru)) > 0),
@@ -63,7 +36,7 @@ CREATE TABLE public.categories (
 
 -- price_override сохранён для работающего механизма расчёта региональных цен.
 -- images — JSON-массив URL; из Supabase JS он возвращается как string[].
-CREATE TABLE public.products (
+CREATE TABLE IF NOT EXISTS public.products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT NOT NULL UNIQUE,
   sku TEXT NOT NULL UNIQUE CHECK (sku ~ '^[0-9]{7}$'),
@@ -93,7 +66,7 @@ CREATE TABLE public.products (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.site_content (
+CREATE TABLE IF NOT EXISTS public.site_content (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   page_key TEXT NOT NULL UNIQUE CHECK (page_key IN ('about', 'contacts', 'legal_offer', 'legal_privacy')),
   title_ru TEXT,
@@ -107,7 +80,7 @@ CREATE TABLE public.site_content (
   updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
 );
 
-CREATE TABLE public.blog_posts (
+CREATE TABLE IF NOT EXISTS public.blog_posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT NOT NULL UNIQUE CHECK (length(slug) <= 160 AND slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
   title_ru TEXT NOT NULL DEFAULT '' CHECK (length(title_ru) <= 300),
@@ -131,10 +104,10 @@ CREATE TABLE public.blog_posts (
     (length(btrim(title_de)) > 0 AND length(btrim(content_de)) > 0)
   )))
 );
-CREATE INDEX idx_blog_posts_published ON public.blog_posts(published_at DESC, id) WHERE is_published;
-CREATE INDEX idx_blog_posts_tags ON public.blog_posts USING gin(tags);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_published ON public.blog_posts(published_at DESC, id) WHERE is_published;
+CREATE INDEX IF NOT EXISTS idx_blog_posts_tags ON public.blog_posts USING gin(tags);
 
-CREATE TABLE public.contact_requests (
+CREATE TABLE IF NOT EXISTS public.contact_requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -145,7 +118,7 @@ CREATE TABLE public.contact_requests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.exchange_rates (
+CREATE TABLE IF NOT EXISTS public.exchange_rates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   base_currency TEXT NOT NULL DEFAULT 'EUR',
   rates JSONB NOT NULL,
@@ -153,7 +126,7 @@ CREATE TABLE public.exchange_rates (
   expires_at TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE public.orders (
+CREATE TABLE IF NOT EXISTS public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   status TEXT NOT NULL DEFAULT 'new' CONSTRAINT orders_status_check
@@ -170,11 +143,16 @@ CREATE TABLE public.orders (
   shipping_method TEXT,
   shipping_cost_eur NUMERIC(10,2) NOT NULL DEFAULT 0,
   notes TEXT,
+  email TEXT,
+  locale TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- Для уже существующей базы: колонки, которых не было в первой версии схемы.
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS locale TEXT;
 
-CREATE TABLE public.order_items (
+CREATE TABLE IF NOT EXISTS public.order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
   product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
@@ -183,30 +161,30 @@ CREATE TABLE public.order_items (
   price_eur NUMERIC(10,2) NOT NULL CHECK (price_eur > 0)
 );
 
-CREATE TABLE public.webhook_events (
+CREATE TABLE IF NOT EXISTS public.webhook_events (
   id TEXT PRIMARY KEY,
   provider TEXT NOT NULL,
   processed_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Индексы для каталога, фильтров, заказов и очистки webhook_events.
-CREATE INDEX idx_products_category ON public.products(category_id);
-CREATE INDEX idx_products_available ON public.products(is_available);
-CREATE INDEX idx_products_slug ON public.products(slug);
-CREATE INDEX idx_products_sku ON public.products(sku);
-CREATE INDEX idx_products_created ON public.products(created_at DESC);
-CREATE INDEX idx_categories_slug ON public.categories(slug);
-CREATE INDEX idx_categories_order ON public.categories(sort_order);
-CREATE INDEX idx_orders_user ON public.orders(user_id);
-CREATE INDEX idx_orders_status ON public.orders(status);
-CREATE INDEX idx_orders_created ON public.orders(created_at DESC);
-CREATE INDEX idx_orders_payment_session ON public.orders(payment_session_id);
-CREATE INDEX idx_orders_payment_intent ON public.orders(payment_intent_id);
-CREATE INDEX idx_order_items_order ON public.order_items(order_id);
-CREATE INDEX idx_profiles_role ON public.profiles(role);
-CREATE INDEX idx_webhook_events_processed_at ON public.webhook_events(processed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_available ON public.products(is_available);
+CREATE INDEX IF NOT EXISTS idx_products_slug ON public.products(slug);
+CREATE INDEX IF NOT EXISTS idx_products_sku ON public.products(sku);
+CREATE INDEX IF NOT EXISTS idx_products_created ON public.products(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_categories_slug ON public.categories(slug);
+CREATE INDEX IF NOT EXISTS idx_categories_order ON public.categories(sort_order);
+CREATE INDEX IF NOT EXISTS idx_orders_user ON public.orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_created ON public.orders(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_payment_session ON public.orders(payment_session_id);
+CREATE INDEX IF NOT EXISTS idx_orders_payment_intent ON public.orders(payment_intent_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON public.order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
+CREATE INDEX IF NOT EXISTS idx_webhook_events_processed_at ON public.webhook_events(processed_at DESC);
 
-CREATE FUNCTION public.is_admin() RETURNS BOOLEAN
+CREATE OR REPLACE FUNCTION public.is_admin() RETURNS BOOLEAN
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = ''
 AS $$
   SELECT EXISTS (
@@ -215,7 +193,7 @@ AS $$
   );
 $$;
 
-CREATE FUNCTION public.update_updated_at_column() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION public.update_updated_at_column() RETURNS TRIGGER
 LANGUAGE plpgsql SET search_path = ''
 AS $$
 BEGIN
@@ -224,7 +202,7 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION public.handle_new_user() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS TRIGGER
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
@@ -235,7 +213,7 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION public.increment_views(product_slug TEXT) RETURNS VOID
+CREATE OR REPLACE FUNCTION public.increment_views(product_slug TEXT) RETURNS VOID
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
@@ -248,31 +226,37 @@ REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION public.handle_new_user() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.increment_views(TEXT) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.increment_views(TEXT) TO anon, authenticated, service_role;
+-- Счётчик просмотров вызывается только сервером (с лимитом по IP), не напрямую через API.
+REVOKE ALL ON FUNCTION public.increment_views(TEXT) FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_views(TEXT) TO service_role;
 
-CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users
+CREATE OR REPLACE TRIGGER on_auth_user_created AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
-CREATE TRIGGER profiles_update_updated_at BEFORE UPDATE ON public.profiles
+CREATE OR REPLACE TRIGGER profiles_update_updated_at BEFORE UPDATE ON public.profiles
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-CREATE TRIGGER categories_update_updated_at BEFORE UPDATE ON public.categories
+CREATE OR REPLACE TRIGGER categories_update_updated_at BEFORE UPDATE ON public.categories
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-CREATE TRIGGER products_update_updated_at BEFORE UPDATE ON public.products
+CREATE OR REPLACE TRIGGER products_update_updated_at BEFORE UPDATE ON public.products
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-CREATE TRIGGER site_content_update_updated_at BEFORE UPDATE ON public.site_content
+CREATE OR REPLACE TRIGGER site_content_update_updated_at BEFORE UPDATE ON public.site_content
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-CREATE TRIGGER orders_update_updated_at BEFORE UPDATE ON public.orders
+CREATE OR REPLACE TRIGGER orders_update_updated_at BEFORE UPDATE ON public.orders
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
-CREATE TRIGGER blog_posts_update_updated_at BEFORE UPDATE ON public.blog_posts
+CREATE OR REPLACE TRIGGER blog_posts_update_updated_at BEFORE UPDATE ON public.blog_posts
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS blog_posts_read ON public.blog_posts;
 CREATE POLICY blog_posts_read ON public.blog_posts FOR SELECT TO anon, authenticated
   USING ((is_published AND published_at <= now()) OR (SELECT public.is_admin()));
+DROP POLICY IF EXISTS blog_posts_admin_insert ON public.blog_posts;
 CREATE POLICY blog_posts_admin_insert ON public.blog_posts FOR INSERT TO authenticated
   WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS blog_posts_admin_update ON public.blog_posts;
 CREATE POLICY blog_posts_admin_update ON public.blog_posts FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS blog_posts_admin_delete ON public.blog_posts;
 CREATE POLICY blog_posts_admin_delete ON public.blog_posts FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 REVOKE ALL ON public.blog_posts FROM PUBLIC, anon, authenticated;
@@ -284,13 +268,17 @@ INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 VALUES ('blog-images', 'blog-images', true, 10485760, ARRAY['image/webp'])
 ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public,
   file_size_limit = EXCLUDED.file_size_limit, allowed_mime_types = EXCLUDED.allowed_mime_types;
+DROP POLICY IF EXISTS blog_storage_read ON storage.objects;
 CREATE POLICY blog_storage_read ON storage.objects FOR SELECT TO anon, authenticated
   USING (bucket_id = 'blog-images');
+DROP POLICY IF EXISTS blog_storage_insert ON storage.objects;
 CREATE POLICY blog_storage_insert ON storage.objects FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'blog-images' AND (SELECT public.is_admin()));
+DROP POLICY IF EXISTS blog_storage_update ON storage.objects;
 CREATE POLICY blog_storage_update ON storage.objects FOR UPDATE TO authenticated
   USING (bucket_id = 'blog-images' AND (SELECT public.is_admin()))
   WITH CHECK (bucket_id = 'blog-images' AND (SELECT public.is_admin()));
+DROP POLICY IF EXISTS blog_storage_delete ON storage.objects;
 CREATE POLICY blog_storage_delete ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'blog-images' AND (SELECT public.is_admin()));
 
@@ -305,76 +293,104 @@ ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.webhook_events ENABLE ROW LEVEL SECURITY;
 
 -- Профиль создаётся только через Auth-триггер. Из клиента разрешены только безопасные поля.
+DROP POLICY IF EXISTS profiles_read ON public.profiles;
 CREATE POLICY profiles_read ON public.profiles FOR SELECT TO authenticated
   USING (id = (SELECT auth.uid()) OR (SELECT public.is_admin()));
+DROP POLICY IF EXISTS profiles_update ON public.profiles;
 CREATE POLICY profiles_update ON public.profiles FOR UPDATE TO authenticated
   USING (id = (SELECT auth.uid())) WITH CHECK (id = (SELECT auth.uid()));
 
+DROP POLICY IF EXISTS categories_read ON public.categories;
 CREATE POLICY categories_read ON public.categories FOR SELECT TO anon, authenticated
   USING (is_active OR (SELECT public.is_admin()));
+DROP POLICY IF EXISTS categories_admin_insert ON public.categories;
 CREATE POLICY categories_admin_insert ON public.categories FOR INSERT TO authenticated
   WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS categories_admin_update ON public.categories;
 CREATE POLICY categories_admin_update ON public.categories FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS categories_admin_delete ON public.categories;
 CREATE POLICY categories_admin_delete ON public.categories FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 
+DROP POLICY IF EXISTS products_read ON public.products;
 CREATE POLICY products_read ON public.products FOR SELECT TO anon, authenticated
   USING (is_available OR (SELECT public.is_admin()));
+DROP POLICY IF EXISTS products_admin_insert ON public.products;
 CREATE POLICY products_admin_insert ON public.products FOR INSERT TO authenticated
   WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS products_admin_update ON public.products;
 CREATE POLICY products_admin_update ON public.products FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS products_admin_delete ON public.products;
 CREATE POLICY products_admin_delete ON public.products FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 
+DROP POLICY IF EXISTS site_content_read ON public.site_content;
 CREATE POLICY site_content_read ON public.site_content FOR SELECT TO anon, authenticated
   USING (true);
+DROP POLICY IF EXISTS site_content_admin_insert ON public.site_content;
 CREATE POLICY site_content_admin_insert ON public.site_content FOR INSERT TO authenticated
   WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS site_content_admin_update ON public.site_content;
 CREATE POLICY site_content_admin_update ON public.site_content FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS site_content_admin_delete ON public.site_content;
 CREATE POLICY site_content_admin_delete ON public.site_content FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 
+DROP POLICY IF EXISTS contact_requests_insert ON public.contact_requests;
 CREATE POLICY contact_requests_insert ON public.contact_requests FOR INSERT TO anon, authenticated
   WITH CHECK (true);
+DROP POLICY IF EXISTS contact_requests_admin_read ON public.contact_requests;
 CREATE POLICY contact_requests_admin_read ON public.contact_requests FOR SELECT TO authenticated
   USING ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS contact_requests_admin_update ON public.contact_requests;
 CREATE POLICY contact_requests_admin_update ON public.contact_requests FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS contact_requests_admin_delete ON public.contact_requests;
 CREATE POLICY contact_requests_admin_delete ON public.contact_requests FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 
+DROP POLICY IF EXISTS exchange_rates_read ON public.exchange_rates;
 CREATE POLICY exchange_rates_read ON public.exchange_rates FOR SELECT TO anon, authenticated
   USING (true);
+DROP POLICY IF EXISTS exchange_rates_admin_insert ON public.exchange_rates;
 CREATE POLICY exchange_rates_admin_insert ON public.exchange_rates FOR INSERT TO authenticated
   WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS exchange_rates_admin_update ON public.exchange_rates;
 CREATE POLICY exchange_rates_admin_update ON public.exchange_rates FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS exchange_rates_admin_delete ON public.exchange_rates;
 CREATE POLICY exchange_rates_admin_delete ON public.exchange_rates FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 
+DROP POLICY IF EXISTS orders_read ON public.orders;
 CREATE POLICY orders_read ON public.orders FOR SELECT TO authenticated
   USING (user_id = (SELECT auth.uid()) OR (SELECT public.is_admin()));
-CREATE POLICY orders_insert ON public.orders FOR INSERT TO authenticated
-  WITH CHECK (user_id = (SELECT auth.uid()) AND status = 'new');
+-- Заказы создаёт только сервер (service_role): клиент не может подделать сумму.
+DROP POLICY IF EXISTS orders_insert ON public.orders;
+DROP POLICY IF EXISTS orders_admin_update ON public.orders;
 CREATE POLICY orders_admin_update ON public.orders FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS orders_admin_delete ON public.orders;
 CREATE POLICY orders_admin_delete ON public.orders FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 
+DROP POLICY IF EXISTS order_items_read ON public.order_items;
 CREATE POLICY order_items_read ON public.order_items FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.orders WHERE id = order_items.order_id
     AND (user_id = (SELECT auth.uid()) OR (SELECT public.is_admin()))));
-CREATE POLICY order_items_insert ON public.order_items FOR INSERT TO authenticated
-  WITH CHECK (EXISTS (SELECT 1 FROM public.orders WHERE id = order_items.order_id
-    AND user_id = (SELECT auth.uid()) AND status = 'new'));
+-- Заказы создаёт только сервер (service_role): клиент не может подделать сумму.
+DROP POLICY IF EXISTS order_items_insert ON public.order_items;
+DROP POLICY IF EXISTS order_items_admin_update ON public.order_items;
 CREATE POLICY order_items_admin_update ON public.order_items FOR UPDATE TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
+DROP POLICY IF EXISTS order_items_admin_delete ON public.order_items;
 CREATE POLICY order_items_admin_delete ON public.order_items FOR DELETE TO authenticated
   USING ((SELECT public.is_admin()));
 
+DROP POLICY IF EXISTS webhook_events_admin ON public.webhook_events;
 CREATE POLICY webhook_events_admin ON public.webhook_events FOR ALL TO authenticated
   USING ((SELECT public.is_admin())) WITH CHECK ((SELECT public.is_admin()));
 
@@ -387,8 +403,8 @@ GRANT INSERT ON public.contact_requests TO anon, authenticated;
 GRANT SELECT ON public.profiles, public.orders, public.order_items, public.contact_requests, public.webhook_events TO authenticated;
 GRANT UPDATE (full_name, phone, avatar_url) ON public.profiles TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.categories, public.products, public.site_content,
-  public.contact_requests, public.exchange_rates, public.orders, public.order_items,
-  public.webhook_events TO authenticated;
+  public.contact_requests, public.exchange_rates, public.webhook_events TO authenticated;
+GRANT UPDATE, DELETE ON public.orders, public.order_items TO authenticated;
 GRANT ALL ON public.profiles, public.categories, public.products, public.site_content,
   public.contact_requests, public.exchange_rates, public.orders, public.order_items,
   public.webhook_events TO service_role;
@@ -400,17 +416,21 @@ VALUES ('products-images', 'products-images', true, 10485760,
 ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public,
   file_size_limit = EXCLUDED.file_size_limit, allowed_mime_types = EXCLUDED.allowed_mime_types;
 
+DROP POLICY IF EXISTS storage_read_all ON storage.objects;
 CREATE POLICY storage_read_all ON storage.objects FOR SELECT TO anon, authenticated
   USING (bucket_id = 'products-images');
+DROP POLICY IF EXISTS storage_write_admin ON storage.objects;
 CREATE POLICY storage_write_admin ON storage.objects FOR INSERT TO authenticated
   WITH CHECK (bucket_id = 'products-images' AND (SELECT public.is_admin()));
+DROP POLICY IF EXISTS storage_update_admin ON storage.objects;
 CREATE POLICY storage_update_admin ON storage.objects FOR UPDATE TO authenticated
   USING (bucket_id = 'products-images' AND (SELECT public.is_admin()))
   WITH CHECK (bucket_id = 'products-images' AND (SELECT public.is_admin()));
+DROP POLICY IF EXISTS storage_delete_admin ON storage.objects;
 CREATE POLICY storage_delete_admin ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'products-images' AND (SELECT public.is_admin()));
 
--- Seed: при каждом повторном запуске категории и страницы создаются заново.
+-- Seed: добавляет только отсутствующие категории и страницы, существующие не трогает.
 INSERT INTO public.categories (name_ru, name_en, name_de, slug, sort_order) VALUES
   ('Фарфор', 'Porcelain', 'Porzellan', 'porcelain', 1),
   ('Хрусталь', 'Crystal', 'Kristall', 'crystal', 2),
@@ -432,13 +452,13 @@ INSERT INTO public.site_content
    'Редактируется в /admin/content', 'Edit in /admin/content', 'Bearbeiten in /admin/content', '{}'::jsonb)
 ON CONFLICT (page_key) DO NOTHING;
 
--- Auth-пользователи остаются, но каждый получает новый профиль без привилегий.
+-- Создаёт профиль только тем пользователям, у кого его ещё нет (роли не сбрасываются).
 INSERT INTO public.profiles (id, email, role, full_name)
 SELECT id, email, 'customer', raw_user_meta_data ->> 'full_name'
 FROM auth.users
 ON CONFLICT (id) DO NOTHING;
 
--- После Run назначьте себе admin вручную в SQL Editor:
+-- Первый запуск на пустой базе: назначьте себе admin вручную в SQL Editor:
 -- UPDATE public.profiles SET role = 'admin' WHERE email = 'you@example.com';
 -- SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';
 -- SELECT COUNT(*) FROM public.categories;

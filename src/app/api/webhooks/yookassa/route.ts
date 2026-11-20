@@ -91,6 +91,8 @@ export async function POST(request: Request) {
 
     if (error && error.code !== 'PGRST116') {
       console.error('[yookassa webhook] failed to update order', error)
+      // Forget the event so the provider's retry is processed instead of skipped as a duplicate
+      await supabase.from('webhook_events').delete().eq('id', eventId)
       return NextResponse.json({ error: 'DB update failed' }, { status: 500 })
     }
 
