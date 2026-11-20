@@ -212,7 +212,8 @@ export async function POST(request: Request) {
           customer: { email },
           items: items.map((item) => {
             const p = productMap.get(item.productId)!
-            const unitRub = parseFloat((p.price_eur * rubRate).toFixed(2))
+            // Same rounding as totalRub: YooKassa rejects receipts whose lines don't sum to amount
+            const unitRub = Math.round(p.price_eur * rubRate * 100) / 100
             return {
               description: p.name_ru ?? p.name_en ?? 'Антикварный предмет',
               quantity: String(item.quantity),
