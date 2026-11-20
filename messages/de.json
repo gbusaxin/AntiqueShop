@@ -99,7 +99,14 @@
       "Copper": "Kupfer",
       "Glass": "Glas",
       "Wood": "Holz",
-      "Ivory": "Elfenbein"
+      "Ivory": "Elfenbein",
+      "Pewter": "Zinn",
+      "Ceramic": "Keramik",
+      "Faience": "Fayence",
+      "Earthenware": "Steingut",
+      "Brass": "Messing",
+      "Enamel": "Emaille",
+      "Polyresin": "Polyresin"
     }
   },
   "product": {

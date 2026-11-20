@@ -8,7 +8,7 @@ import * as Checkbox from '@radix-ui/react-checkbox'
 import { Check, ChevronDown, SlidersHorizontal, X } from 'lucide-react'
 import type { Category, Locale } from '@/types'
 
-const MATERIALS = ['Porcelain', 'Crystal', 'Silver', 'Bronze', 'Copper', 'Glass', 'Wood', 'Ivory']
+const MATERIALS = ['Porcelain', 'Crystal', 'Glass', 'Pewter', 'Ceramic', 'Faience', 'Silver', 'Bronze', 'Brass', 'Copper', 'Wood', 'Ivory']
 const CONDITIONS = ['excellent', 'good', 'fair', 'poor'] as const
 
 function FilterGroup({

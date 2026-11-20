@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
-const MATERIALS = ['Porcelain', 'Crystal', 'Silver', 'Bronze', 'Copper', 'Glass', 'Wood', 'Ivory'] as const
+const MATERIALS = ['Porcelain', 'Crystal', 'Pewter', 'Faience', 'Silver', 'Glass', 'Ceramic', 'Wood'] as const
 
 function Ornament() {
   return (

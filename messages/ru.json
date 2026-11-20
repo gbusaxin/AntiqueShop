@@ -99,7 +99,14 @@
       "Copper": "Медь",
       "Glass": "Стекло",
       "Wood": "Дерево",
-      "Ivory": "Слоновая кость"
+      "Ivory": "Слоновая кость",
+      "Pewter": "Олово",
+      "Ceramic": "Керамика",
+      "Faience": "Фаянс",
+      "Earthenware": "Фаянс (ironstone)",
+      "Brass": "Латунь",
+      "Enamel": "Эмаль",
+      "Polyresin": "Полирезин"
     }
   },
   "product": {

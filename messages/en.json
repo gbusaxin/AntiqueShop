@@ -99,7 +99,14 @@
       "Copper": "Copper",
       "Glass": "Glass",
       "Wood": "Wood",
-      "Ivory": "Ivory"
+      "Ivory": "Ivory",
+      "Pewter": "Pewter",
+      "Ceramic": "Ceramic",
+      "Faience": "Faience",
+      "Earthenware": "Earthenware",
+      "Brass": "Brass",
+      "Enamel": "Enamelled steel",
+      "Polyresin": "Polyresin"
     }
   },
   "product": {

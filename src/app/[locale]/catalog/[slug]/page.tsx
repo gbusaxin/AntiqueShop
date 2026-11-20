@@ -29,6 +29,16 @@ const CONDITION_DOT: Record<ProductCondition, string> = {
 
 export const dynamic = 'force-dynamic'
 
+/** Country is stored as an ISO code by the Etsy import; older free-text values are shown as is. */
+function countryName(value: string | null, locale: string): string | null {
+  if (!value || !/^[A-Z]{2}$/.test(value)) return value
+  try {
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(value) ?? value
+  } catch {
+    return value
+  }
+}
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 const regionCurrencies = new Map(Object.entries(REGION_CURRENCIES))
 
@@ -170,7 +180,7 @@ export default async function ProductPage({
   const specs = [
     { label: t('material'), value: product.material ? material : null },
     { label: t('size'), value: product.size },
-    { label: t('country'), value: product.country_of_origin },
+    { label: t('country'), value: countryName(product.country_of_origin, locale) },
     { label: t('year'), value: product.year_circa ? t('circa', { year: product.year_circa }) : null },
   ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value))
 

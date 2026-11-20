@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   // Fonts read from disk by the product share-card generator (opengraph-image)
   outputFileTracingIncludes: {
-    '/**': ['./assets/fonts/**/*'],
+    '/**': ['./assets/fonts/**/*', './data/etsy-import/**/*'],
   },
   images: {
     remotePatterns: [
