@@ -24,23 +24,23 @@ export function AddToCartButton({ product, label, inCartLabel }: AddToCartButton
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex items-center gap-0 border border-gold/50"
+        className="flex items-center gap-0 border border-gold/50 bg-card"
       >
         <button
           onClick={() => quantity === 1 ? removeItem(product.id) : updateQuantity(product.id, quantity - 1)}
-          className="flex h-12 w-12 items-center justify-center text-gold/70 transition-colors hover:bg-gold/10 hover:text-gold-rich"
+          className="flex h-12 w-12 items-center justify-center text-gold transition-colors hover:bg-gold/10 hover:text-gold-rich"
           aria-label={t('decreaseQuantity')}
         >
           <Minus size={14} />
         </button>
         <div className="flex flex-1 items-center justify-center gap-2 border-x border-gold/30 py-3">
           <Check size={14} className="text-gold-rich" />
-          <span className="text-xs uppercase tracking-[0.15em] text-gold/80">{inCartLabel ?? t('inCart')}</span>
+          <span className="text-xs uppercase tracking-[0.15em] text-gold">{inCartLabel ?? t('inCart')}</span>
           <span className="font-serif text-base text-gold-rich">{quantity}</span>
         </div>
         <button
           onClick={() => updateQuantity(product.id, quantity + 1)}
-          className="flex h-12 w-12 items-center justify-center text-gold/70 transition-colors hover:bg-gold/10 hover:text-gold-rich"
+          className="flex h-12 w-12 items-center justify-center text-gold transition-colors hover:bg-gold/10 hover:text-gold-rich"
           aria-label={t('increaseQuantity')}
         >
           <Plus size={14} />
@@ -54,9 +54,9 @@ export function AddToCartButton({ product, label, inCartLabel }: AddToCartButton
       data-testid="add-to-cart"
       whileTap={{ scale: 0.98 }}
       onClick={() => { addItem(product, product.price_eur); toast.success(t('addedToCart')) }}
-      className="group flex w-full items-center justify-center gap-3 bg-gold/10 border border-gold/40 px-6 py-4 text-xs uppercase tracking-[0.2em] text-gold/80 transition-all duration-300 hover:bg-gold hover:text-emerald-dark hover:border-gold"
+      className="btn-lux group w-full !py-5"
     >
-      <ShoppingBag size={16} className="transition-transform group-hover:scale-110" />
+      <ShoppingBag size={16} aria-hidden="true" className="transition-transform duration-500 ease-lux group-hover:-rotate-6 group-hover:scale-110" />
       {label}
     </motion.button>
   )

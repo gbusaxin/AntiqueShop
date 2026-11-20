@@ -99,7 +99,7 @@ export function RegisterClient() {
         className="w-full max-w-sm"
       >
         <div className="mb-8 text-center">
-          <p className="font-serif text-2xl text-foreground tracking-wide">VintagEmpire</p>
+          <p className="heading-display text-4xl text-foreground tracking-wide">VintagEmpire</p>
           <p className="mt-2 text-sm uppercase tracking-[0.15em] text-muted-foreground">{t('title')}</p>
         </div>
 
@@ -121,10 +121,10 @@ export function RegisterClient() {
                   type={type}
                   autoComplete={autocomplete}
                   {...register(key)}
-                  className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  className="field-lux !px-4 !py-3 !text-sm"
                 />
                 {fieldError && (
-                  <p role="alert" className="mt-1 text-sm text-red-400">{fieldError.message}</p>
+                  <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">{fieldError.message}</p>
                 )}
               </div>
             )
@@ -148,15 +148,15 @@ export function RegisterClient() {
                 })}
               </span>
             </div>
-            {errors.terms_accepted && <p id="terms-error" role="alert" className="mt-1 text-sm text-red-400">{errors.terms_accepted.message}</p>}
+            {errors.terms_accepted && <p id="terms-error" role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">{errors.terms_accepted.message}</p>}
           </div>
 
-          {serverError && <p role="alert" className="text-sm text-red-400">{serverError}</p>}
+          {serverError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{serverError}</p>}
 
           <button
             type="submit"
             disabled={loading || !termsAccepted}
-            className="mt-2 border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-lux mt-2"
           >
             {loading ? t('submitting') : t('submit')}
           </button>

@@ -27,61 +27,79 @@ export function Footer() {
   const tLegal = useTranslations('legal')
   const tRegion = useTranslations('region')
 
+  const linkClass = 'link-lux text-foreground/80 transition-colors hover:text-foreground'
+
   return (
-    <footer className="border-t border-gold/15 bg-emerald-dark text-gold/60">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
-          <div>
-            <p className="font-serif text-lg text-gold-rich tracking-wider">VintagEmpire</p>
-            <p className="mt-3 text-sm leading-relaxed tracking-wide">
+    <footer data-testid="site-footer" className="relative overflow-hidden border-t border-gold/15 bg-deep text-muted-foreground">
+      <div aria-hidden="true" className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(var(--gold-rgb)/0.12),transparent)]" />
+
+      <div className="relative mx-auto max-w-7xl px-4 pt-20 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <p className="font-display text-3xl font-medium tracking-wide text-foreground">
+              Vintag<span className="italic text-gold">Empire</span>
+            </p>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed">
               {t('footerDescription')}
             </p>
+            <div className="mt-8 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-gold">
+              <span className="h-px w-8 bg-gold/50" />
+              Wien · Est. 1987
+            </div>
           </div>
 
-          <div>
-            <p className="mb-4 text-sm uppercase tracking-[0.18em] text-gold/80">{t('footerCollection')}</p>
+          <div className="lg:col-span-3">
+            <p className="mb-5 text-[11px] uppercase tracking-[0.24em] text-gold">{t('footerCollection')}</p>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/catalog" className="hover:text-gold-rich transition-colors">{t('footerFullCatalog')}</Link></li>
+              <li><Link href="/catalog" className={linkClass}>{t('footerFullCatalog')}</Link></li>
             </ul>
           </div>
 
-          <div>
-            <p className="mb-4 text-sm uppercase tracking-[0.18em] text-gold/80">{t('footerInformation')}</p>
+          <div className="lg:col-span-4">
+            <p className="mb-5 text-[11px] uppercase tracking-[0.24em] text-gold">{t('footerInformation')}</p>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/about" className="hover:text-gold-rich transition-colors">{t('footerAbout')}</Link></li>
-              <li><Link href="/contacts" className="hover:text-gold-rich transition-colors">{tNav('contacts')}</Link></li>
-              <li><a href="mailto:gbusaxin@gmail.com" className="break-all hover:text-gold-rich transition-colors">gbusaxin@gmail.com</a></li>
-              <li><Link href="/legal/privacy" className="hover:text-gold-rich transition-colors">{tLegal('privacy.title')}</Link></li>
-              <li><Link href="/legal/offer" className="hover:text-gold-rich transition-colors">{tLegal('offer.title')}</Link></li>
+              <li><Link href="/about" className={linkClass}>{t('footerAbout')}</Link></li>
+              <li><Link href="/contacts" className={linkClass}>{tNav('contacts')}</Link></li>
+              <li><a href="mailto:gbusaxin@gmail.com" className={`break-all ${linkClass}`}>gbusaxin@gmail.com</a></li>
+              <li><Link href="/legal/privacy" className={linkClass}>{tLegal('privacy.title')}</Link></li>
+              <li><Link href="/legal/offer" className={linkClass}>{tLegal('offer.title')}</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-4 border-t border-gold/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm tracking-wide">
+        <div className="mt-16 flex flex-col gap-5 border-t border-gold/15 py-7 sm:flex-row sm:items-center sm:justify-between">
+          <p data-visual="dynamic" className="text-xs tracking-wide">
             © {new Date().getFullYear()} VintagEmpire. {t('footerRights')}
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs uppercase tracking-[0.15em] text-gold/40">{t('footerRegion')}</span>
+            <span className="text-[10px] uppercase tracking-[0.2em]">{t('footerRegion')}</span>
             <div className="relative">
               <select
                 value={region}
                 onChange={(e) => setRegion(e.target.value as Region)}
-                className="appearance-none border border-gold/20 bg-transparent py-1.5 pl-3 pr-7 text-sm tracking-wide text-gold/70 focus:border-gold/50 focus:outline-none cursor-pointer"
+                className="cursor-pointer appearance-none border border-gold/30 bg-card py-1.5 pl-3 pr-8 text-xs tracking-wide text-foreground transition-colors hover:border-gold/60 focus:border-gold focus:outline-none"
                 aria-label={t('footerRegion')}
               >
                 {REGIONS.map(({ value, currency, flag }) => (
-                  <option key={value} value={value} className="bg-[#0a1714] text-[#f4ead1]">
+                  <option key={value} value={value} className="bg-card text-foreground">
                     {flag} {tRegion(value)} / {currency}
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-gold/40">▼</span>
+              <span aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[8px] text-gold">▼</span>
             </div>
-            <span className="text-xs text-gold/30">{currency}</span>
+            <span className="text-xs text-gold">{currency}</span>
           </div>
         </div>
+
+        {/* Oversized engraved wordmark */}
+        <p
+          aria-hidden="true"
+          className="heading-display pointer-events-none -mb-[0.22em] select-none whitespace-nowrap text-center text-[15vw] leading-none text-transparent [-webkit-text-stroke:1px_rgb(var(--gold-rgb)/0.28)] lg:text-[13.5rem]"
+        >
+          VintagEmpire
+        </p>
       </div>
     </footer>
   )

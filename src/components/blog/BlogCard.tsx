@@ -25,7 +25,7 @@ export async function BlogCard({ post, locale }: { post: BlogPost; locale: strin
         </Link>
       )}
       <time dateTime={date} className="mb-3 text-xs tracking-wide text-[var(--fg-muted)]">{blogDate(date, locale)}</time>
-      <h2 className="break-words font-serif text-2xl leading-snug sm:text-3xl">
+      <h2 className="heading-display break-words text-3xl sm:text-4xl">
         <Link href={href} locale={locale} className="transition-colors hover:text-primary">{title}</Link>
       </h2>
       <p className="mt-4 line-clamp-3 break-words text-sm leading-7 text-[var(--fg-muted)]">{localizedBlog(post, locale, 'excerpt')}</p>

@@ -2,7 +2,7 @@ import { SkeletonCard } from '@/components/ui/SkeletonCard'
 
 export default function CatalogLoading() {
   return (
-    <div className="min-h-screen bg-emerald-dark pt-24">
+    <div className="min-h-screen bg-deep pt-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex gap-8 py-10">
           <aside className="hidden w-64 shrink-0 lg:block">

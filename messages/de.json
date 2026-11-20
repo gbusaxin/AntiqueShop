@@ -34,7 +34,8 @@
     "accountMenu": "Kontomenü",
     "switchLanguage": "Sprache zu {language} wechseln",
     "toggleTheme": "Darstellung wechseln",
-    "toggleMenu": "Menü öffnen oder schließen"
+    "toggleMenu": "Menü öffnen oder schließen",
+    "favorites": "Merkliste"
   },
   "hero": {
     "title": "Seltene Antiquitäten von außergewöhnlicher Schönheit",
@@ -130,7 +131,8 @@
     "galleryZoom": "Bild vergrößern",
     "galleryCloseZoom": "Vergrößertes Bild schließen",
     "galleryPrevious": "Vorheriges Foto",
-    "galleryNext": "Nächstes Foto"
+    "galleryNext": "Nächstes Foto",
+    "askAboutItem": "Frage zu diesem Objekt stellen"
   },
   "cart": {
     "title": "Warenkorb",
@@ -146,8 +148,6 @@
     "emptyDescription": "Entdecken Sie außergewöhnliche Antiquitäten in unserer Kollektion",
     "decreaseQuantity": "Anzahl verringern",
     "increaseQuantity": "Anzahl erhöhen",
-    "calculatedAtCheckout": "Wird an der Kasse berechnet",
-    "estimatedShipping": "inkl. geschätzter Versandkosten von {amount}",
     "acceptedPayments": "Akzeptierte Zahlungsmethoden"
   },
   "checkout": {
@@ -182,6 +182,9 @@
     "eyebrow": "Sicher einkaufen",
     "paymentStep": "Bezahlung",
     "selectCountry": "Land auswählen…",
+    "country_search": "Land suchen…",
+    "country_empty": "Keine Länder gefunden",
+    "shipping_note": "Die Versandkosten werden nach der Bestellung berechnet und mit Ihnen abgestimmt.",
     "continueToPayment": "Weiter zur Bezahlung",
     "processing": "Wird verarbeitet…",
     "yookassaNotice": "Bezahlung über YooKassa — verfügbar für Russland und die GUS",
@@ -329,11 +332,11 @@
         "shippingAddress": "Lieferadresse",
         "noAddress": "Keine Lieferadresse angegeben",
         "shippingMethod": "Versandart",
-        "shippingCost": "Versandkosten",
         "standard": "Standard",
         "express": "Express",
         "payment": "Zahlungsart",
-        "notSpecified": "Nicht angegeben"
+        "notSpecified": "Nicht angegeben",
+        "shippingCost": "Versandkosten"
       }
     }
   },
@@ -379,7 +382,8 @@
         "maxLength": "Bitte geben Sie höchstens {max} Zeichen ein",
         "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
         "messageMin": "Bitte schreiben Sie mindestens {min} Zeichen"
-      }
+      },
+      "itemPrefill": "Guten Tag! Ich interessiere mich für „{name}“ (Artikelnr. {sku}). "
     },
     "eyebrow": "Kontaktieren Sie uns",
     "details": "Kontaktdaten",
@@ -528,5 +532,16 @@
     "errorTitle": "Das Journal konnte nicht geladen werden",
     "errorDescription": "Bitte versuchen Sie es in Kürze erneut.",
     "retry": "Erneut versuchen"
+  },
+  "favorites": {
+    "title": "Merkliste",
+    "eyebrow": "Ihre Auswahl",
+    "empty": "Sie haben noch nichts gemerkt",
+    "emptyHint": "Tippen Sie auf das Herz eines Objekts, um es hier zu speichern.",
+    "add": "Zur Merkliste hinzufügen",
+    "remove": "Von der Merkliste entfernen",
+    "unavailable": "Nicht mehr verfügbar",
+    "clear": "Liste leeren",
+    "recentlyViewed": "Zuletzt angesehen"
   }
 }

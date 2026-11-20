@@ -17,11 +17,12 @@ type FormData = {
   message: string
 }
 
-export function ContactsClient({ title, content, metadata, locale }: {
+export function ContactsClient({ title, content, metadata, locale, defaultMessage }: {
   title: string
   content: ReactNode
   metadata: Record<string, unknown>
   locale: string
+  defaultMessage?: string
 }) {
   const t = useTranslations('contacts')
   const schema = z.object({
@@ -35,6 +36,7 @@ export function ContactsClient({ title, content, metadata, locale }: {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: defaultMessage ? { message: defaultMessage } : undefined,
   })
 
   const onSubmit = async (data: FormData) => {
@@ -54,11 +56,11 @@ export function ContactsClient({ title, content, metadata, locale }: {
 
   return (
     <div className="min-h-screen bg-background pt-20 text-foreground">
-      <section className="bg-primary/10 py-24">
+      <section className="border-b border-gold/15 bg-deep/60 py-24 md:py-32">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">{t('eyebrow')}</p>
-          <h1 className="mt-4 font-serif text-4xl text-foreground">{title}</h1>
-          <div className="mx-auto mt-5 h-px w-12 bg-primary/40" />
+          <p className="eyebrow eyebrow-center">{t('eyebrow')}</p>
+          <h1 className="heading-display mt-4 text-5xl text-foreground md:text-6xl">{title}</h1>
+          <div className="mx-auto mt-6 h-px w-16 bg-gold/50" />
           <div className="mx-auto mt-6 max-w-3xl text-left text-muted-foreground">{content}</div>
         </div>
       </section>
@@ -72,10 +74,10 @@ export function ContactsClient({ title, content, metadata, locale }: {
             transition={{ duration: 0.65 }}
             className="flex flex-col gap-8"
           >
-            <h2 className="font-serif text-2xl text-foreground">
+            <h2 className="heading-display text-3xl text-foreground md:text-4xl">
               {t('details')}
             </h2>
-            <div className="flex flex-col gap-4 border border-primary/15 p-5">
+            <div className="frame-gilt flex flex-col gap-5 bg-card p-8 shadow-[var(--shadow-lux)]">
               {[
                 { icon: MapPin, key: 'address' },
                 { icon: Phone, key: 'phone' },
@@ -86,7 +88,7 @@ export function ContactsClient({ title, content, metadata, locale }: {
                 if (typeof text !== 'string' || !text.trim()) return null
                 return (
                   <div key={key} className="flex items-start gap-3">
-                    <Icon size={12} className="mt-0.5 shrink-0 text-muted-foreground" />
+                    <Icon size={14} className="mt-0.5 shrink-0 text-gold" />
                     {key === 'email' ? (
                       <a href={`mailto:${text}`} className="break-all text-xs leading-relaxed text-muted-foreground hover:text-primary">{text}</a>
                     ) : (
@@ -105,8 +107,8 @@ export function ContactsClient({ title, content, metadata, locale }: {
             viewport={{ once: true }}
             transition={{ duration: 0.65 }}
           >
-            <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{t('form.eyebrow')}</p>
-            <h2 className="mt-3 mb-8 font-serif text-2xl text-foreground">{t('form.submit')}</h2>
+            <p id="contact-form" className="eyebrow scroll-mt-32">{t('form.eyebrow')}</p>
+            <h2 className="heading-display mb-8 mt-4 text-3xl text-foreground md:text-4xl">{t('form.submit')}</h2>
 
             {status === 'success' ? (
               <motion.div
@@ -131,10 +133,10 @@ export function ContactsClient({ title, content, metadata, locale }: {
                     <input
                       type={type}
                       {...register(key as keyof FormData)}
-                      className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      className="field-lux !px-4 !py-3"
                     />
                     {errors[key as keyof FormData] && (
-                      <p className="mt-1 text-[10px] text-red-400">{errors[key as keyof FormData]?.message}</p>
+                      <p className="mt-1 text-[10px] text-red-700 dark:text-red-400">{errors[key as keyof FormData]?.message}</p>
                     )}
                   </div>
                 ))}
@@ -144,21 +146,21 @@ export function ContactsClient({ title, content, metadata, locale }: {
                   <textarea
                     rows={5}
                     {...register('message')}
-                    className="w-full resize-none border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    className="field-lux resize-none !px-4 !py-3"
                   />
                   {errors.message && (
-                    <p className="mt-1 text-[10px] text-red-400">{errors.message.message}</p>
+                    <p className="mt-1 text-[10px] text-red-700 dark:text-red-400">{errors.message.message}</p>
                   )}
                 </div>
 
                 {status === 'error' && (
-                  <p className="text-[11px] text-red-400">{t('form.error')}</p>
+                  <p className="text-[11px] text-red-700 dark:text-red-400">{t('form.error')}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="border border-primary bg-primary py-3.5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
+                  className="btn-lux w-full"
                 >
                   {status === 'loading' ? t('form.sending') : t('form.submit')}
                 </button>

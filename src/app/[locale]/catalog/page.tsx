@@ -107,15 +107,18 @@ export default async function CatalogPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-10">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">{t('eyebrow')}</p>
-          <h1 className="mt-2 font-serif text-3xl text-gold-rich md:text-4xl">{t('title')}</h1>
+    <div className="min-h-screen bg-background pt-20 text-foreground">
+      <header data-testid="catalog-header" className="relative overflow-hidden border-b border-gold/15">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(closest-side,rgb(var(--gold-rgb)/0.14),transparent)]" />
+        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6 md:pb-20 md:pt-24 lg:px-8">
+          <p className="eyebrow animate-page-in">{t('eyebrow')}</p>
+          <h1 className="heading-display mt-6 max-w-4xl animate-page-in text-5xl text-foreground [animation-delay:120ms] md:text-7xl">{t('title')}</h1>
+          <p className="mt-6 max-w-xl animate-page-in text-[15px] leading-relaxed text-muted-foreground [animation-delay:240ms]">{t('description')}</p>
         </div>
-
-        <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-          <aside className="w-full shrink-0 lg:w-56 xl:w-64">
+      </header>
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-8 lg:flex-row lg:gap-14">
+          <aside data-testid="catalog-filters" className="w-full shrink-0 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:w-56 lg:self-start lg:overflow-y-auto lg:pr-2 xl:w-64">
             <FilterSidebar
               selectedMaterials={materials}
               priceMin={priceMin}
@@ -129,12 +132,12 @@ export default async function CatalogPage({
 
           <div className="flex-1">
             {categorySlug && (
-              <div className="mb-4 flex items-center gap-3 text-sm text-[#f4ead1]">
+              <div className="mb-6 inline-flex items-center gap-3 border border-gold/30 bg-card px-4 py-2 text-sm text-foreground">
                 <span>{categoryNotFound ? t('categoryNotFound') : t('selectedCategory', { name: getLocalizedField(selectedCategory as unknown as Record<string, string | null | undefined>, 'name', locale as Locale) })}</span>
-                <Link href={`/catalog${remainingParams.size ? `?${remainingParams.toString()}` : ''}`} className="text-[#A67C52] hover:underline" aria-label={t('clearCategoryFilter')}>✕</Link>
+                <Link href={`/catalog${remainingParams.size ? `?${remainingParams.toString()}` : ''}`} className="inline-block text-gold transition-transform duration-300 hover:rotate-90" aria-label={t('clearCategoryFilter')}>✕</Link>
               </div>
             )}
-            <div className="mb-6 flex items-center justify-end">
+            <div className="mb-8 flex items-center justify-end border-b border-gold/10 pb-6">
               <SortControls currentSort={sort} />
             </div>
             <ProductGrid
@@ -143,10 +146,10 @@ export default async function CatalogPage({
               total={total}
             />
             {totalPages > 1 && (
-              <nav aria-label={t('pagination')} className="mt-10 flex items-center justify-center gap-5 text-xs tracking-wide text-gold/70">
-                {page > 1 && <Link href={pageHref(page - 1)} className="hover:text-gold-rich">{t('previous')}</Link>}
-                <span>{t('pageOf', { page, total: totalPages })}</span>
-                {page < totalPages && <Link href={pageHref(page + 1)} className="hover:text-gold-rich">{t('next')}</Link>}
+              <nav aria-label={t('pagination')} className="mt-16 flex items-center justify-center gap-6 border-t border-gold/15 pt-10">
+                {page > 1 && <Link href={pageHref(page - 1)} className="btn-ghost !px-6 !py-3">{t('previous')}</Link>}
+                <span className="heading-display text-lg italic text-muted-foreground">{t('pageOf', { page, total: totalPages })}</span>
+                {page < totalPages && <Link href={pageHref(page + 1)} className="btn-ghost !px-6 !py-3">{t('next')}</Link>}
               </nav>
             )}
           </div>

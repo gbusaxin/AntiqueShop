@@ -40,6 +40,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
+  // Fonts read from disk by the product share-card generator (opengraph-image)
+  outputFileTracingIncludes: {
+    '/**': ['./assets/fonts/**/*'],
+  },
   images: {
     remotePatterns: [
       {

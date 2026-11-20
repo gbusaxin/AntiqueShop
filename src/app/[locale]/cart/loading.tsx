@@ -1,6 +1,6 @@
 export default function CartLoading() {
   return (
-    <div className="min-h-screen bg-emerald-dark pt-24">
+    <div className="min-h-screen bg-deep pt-24">
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-10 h-8 w-32 animate-pulse rounded bg-gold/15" />
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">

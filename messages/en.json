@@ -34,7 +34,8 @@
     "accountMenu": "Account menu",
     "switchLanguage": "Switch language to {language}",
     "toggleTheme": "Toggle theme",
-    "toggleMenu": "Toggle menu"
+    "toggleMenu": "Toggle menu",
+    "favorites": "Favorites"
   },
   "hero": {
     "title": "Rare Antique Objects of Exceptional Beauty",
@@ -130,7 +131,8 @@
     "galleryZoom": "Enlarge image",
     "galleryCloseZoom": "Close enlarged image",
     "galleryPrevious": "Previous photo",
-    "galleryNext": "Next photo"
+    "galleryNext": "Next photo",
+    "askAboutItem": "Ask about this piece"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -146,8 +148,6 @@
     "emptyDescription": "Discover exceptional antique objects in our collection",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
-    "calculatedAtCheckout": "Calculated at checkout",
-    "estimatedShipping": "incl. est. shipping {amount}",
     "acceptedPayments": "Accepted Payments"
   },
   "checkout": {
@@ -182,6 +182,9 @@
     "eyebrow": "Secure Purchase",
     "paymentStep": "Payment",
     "selectCountry": "Select country…",
+    "country_search": "Search countries…",
+    "country_empty": "No countries found",
+    "shipping_note": "Shipping cost will be calculated and agreed upon with you after placing the order.",
     "continueToPayment": "Continue to Payment",
     "processing": "Processing…",
     "yookassaNotice": "Payment via YooKassa — available for Russia and the CIS",
@@ -329,11 +332,11 @@
         "shippingAddress": "Delivery address",
         "noAddress": "No delivery address provided",
         "shippingMethod": "Delivery method",
-        "shippingCost": "Delivery cost",
         "standard": "Standard",
         "express": "Express",
         "payment": "Payment method",
-        "notSpecified": "Not specified"
+        "notSpecified": "Not specified",
+        "shippingCost": "Delivery cost"
       }
     }
   },
@@ -379,7 +382,8 @@
         "maxLength": "Please enter no more than {max} characters",
         "email": "Invalid email",
         "messageMin": "Please write at least {min} characters"
-      }
+      },
+      "itemPrefill": "Hello! I am interested in “{name}” (SKU {sku}). "
     },
     "eyebrow": "Get in Touch",
     "details": "Contact details",
@@ -528,5 +532,16 @@
     "errorTitle": "The journal could not be loaded",
     "errorDescription": "Please try again in a moment.",
     "retry": "Try again"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "eyebrow": "Your selection",
+    "empty": "You have not saved anything yet",
+    "emptyHint": "Tap the heart on any piece to keep it here.",
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "unavailable": "No longer available",
+    "clear": "Clear list",
+    "recentlyViewed": "Recently viewed"
   }
 }

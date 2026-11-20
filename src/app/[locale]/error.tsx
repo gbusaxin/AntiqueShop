@@ -26,8 +26,8 @@ export default function LocaleError({
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md text-center"
       >
-        <p className="mb-4 font-serif text-7xl text-[var(--accent)]">500</p>
-        <h1 className="mb-4 font-serif text-2xl text-[var(--fg)]">{t('general')}</h1>
+        <p className="heading-display text-gilded mb-6 text-[8rem] italic leading-none">500</p>
+        <h1 className="heading-display mb-4 text-4xl text-[var(--fg)]">{t('general')}</h1>
         <p className="mb-8 text-sm leading-relaxed text-[var(--fg-muted)]">
           {t('unexpectedDescription')}
         </p>
@@ -40,7 +40,7 @@ export default function LocaleError({
           </button>
           <Link
             href="/"
-            className="px-8 py-3 text-xs uppercase tracking-[0.18em] text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            className="btn-ghost"
           >
             {tCommon('backToHome')}
           </Link>

@@ -18,8 +18,8 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
 
   if (!images.length) {
     return (
-      <div className="flex aspect-[4/5] items-center justify-center bg-[#F5F1EA] dark:bg-[#1F1B17]">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="text-gold/20">
+      <div className="flex aspect-[4/5] items-center justify-center bg-deep">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true" className="text-gold/40">
           <rect x="8" y="8" width="48" height="48" rx="2" stroke="currentColor" strokeWidth="1.5" />
           <circle cx="32" cy="28" r="8" stroke="currentColor" strokeWidth="1.5" />
           <path d="M8 52l12-12 8 8 12-14 16 18" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
@@ -36,14 +36,14 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
           type="button"
           onClick={() => setLightboxOpen(true)}
           aria-label={t('galleryZoom')}
-          className="relative aspect-[4/5] max-h-[min(65vh,36rem)] w-full cursor-zoom-in overflow-hidden border border-gold/20 bg-[#F5F1EA] dark:bg-[#1F1B17]"
+          className="group frame-gilt relative aspect-[4/5] max-h-[min(70vh,40rem)] w-full cursor-zoom-in overflow-hidden bg-deep"
         >
           <Image
             src={images.at(selected) ?? images[0]}
             alt={t('galleryView', { name: alt, number: selected + 1 })}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-contain p-4"
+            className="object-contain p-6 transition-transform duration-[1200ms] ease-lux group-hover:scale-[1.04]"
             priority={selected === 0}
           />
         </button>
@@ -57,8 +57,8 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
                 onClick={() => setSelected(i)}
                 aria-label={t('galleryThumbnail', { number: i + 1 })}
                 aria-pressed={i === selected}
-                className={`relative h-20 w-20 shrink-0 overflow-hidden bg-[#F5F1EA] transition-opacity dark:bg-[#1F1B17] ${
-                  i === selected ? 'border-2 border-gold' : 'border border-transparent opacity-60 hover:opacity-100'
+                className={`relative h-20 w-20 shrink-0 overflow-hidden bg-deep transition-all duration-500 ease-lux ${
+                  i === selected ? 'outline outline-1 outline-offset-2 outline-gold' : 'opacity-55 hover:opacity-100'
                 }`}
               >
                 <Image src={img} alt="" fill sizes="80px" className="object-contain p-1" />

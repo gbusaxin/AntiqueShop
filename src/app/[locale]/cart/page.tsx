@@ -22,11 +22,11 @@ export default async function CartPage({
   const t = await getTranslations({ locale, namespace: 'cart' })
 
   return (
-    <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
+    <div className="min-h-screen bg-background pt-20 text-foreground">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-10">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">{t('eyebrow')}</p>
-          <h1 className="mt-2 font-serif text-3xl text-gold-rich md:text-4xl">{t('title')}</h1>
+        <div className="mb-12 border-b border-gold/15 pb-10">
+          <p className="eyebrow">{t('eyebrow')}</p>
+          <h1 className="heading-display mt-5 text-5xl text-foreground md:text-6xl">{t('title')}</h1>
         </div>
         <CartContent locale={locale as Locale} />
       </div>

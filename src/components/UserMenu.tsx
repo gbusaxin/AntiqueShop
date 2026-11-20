@@ -47,7 +47,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
         className="flex items-center gap-1.5 text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)]"
         aria-label={t('accountMenu')}
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent)] text-[11px] font-bold text-white">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/40 bg-[var(--fg)] font-display text-[13px] font-semibold text-[var(--bg)] transition-transform duration-300 hover:scale-105">
           {initial}
         </span>
         <ChevronDown size={13} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -60,7 +60,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-10 z-50 min-w-[180px] border border-[var(--border)] bg-[var(--bg)] py-1 shadow-xl"
+            className="absolute right-0 top-11 z-50 min-w-[200px] border border-gold/20 bg-card py-1 shadow-[var(--shadow-lux)]"
           >
             <p className="truncate border-b border-[var(--border)] px-4 py-2 text-[10px] text-[var(--fg-muted)]">
               {user.email}
@@ -68,7 +68,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
             <Link
               href="/account/orders"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-[var(--accent)]/10 hover:text-[var(--accent)]"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-gold/10 hover:text-gold"
             >
               <ShoppingBag size={13} />
               {t('myOrders')}
@@ -76,7 +76,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
             <Link
               href="/account"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-[var(--accent)]/10 hover:text-[var(--accent)]"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-gold/10 hover:text-gold"
             >
               <User size={13} />
               {t('profile')}
@@ -85,7 +85,7 @@ export function UserMenu({ user, locale }: UserMenuProps) {
               <NextLink
                 href="/admin"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-[var(--accent)]/10 hover:text-[var(--accent)]"
+                className="flex items-center gap-2.5 px-4 py-2.5 text-[12px] text-[var(--fg)] transition-colors hover:bg-gold/10 hover:text-gold"
               >
                 <Settings size={13} />
                 {t('admin')}

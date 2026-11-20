@@ -23,15 +23,15 @@ export function SortControls({ currentSort }: { currentSort: string }) {
 
   return (
     <div className="flex items-center gap-3">
-      <label className="text-[10px] uppercase tracking-[0.18em] text-gold/50 shrink-0">{t('sort')}</label>
+      <label className="shrink-0 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{t('sort')}</label>
       <select
         value={currentSort}
         aria-label={t('sort')}
         onChange={(e) => handleChange(e.target.value)}
-        className="border border-gold/25 bg-transparent px-3 py-2 text-xs text-[#c8bfaa]/80 focus:border-gold/50 focus:outline-none"
+        className="field-lux w-auto cursor-pointer pr-8"
       >
         {SORT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value} className="bg-[#0a1f18]">
+          <option key={opt.value} value={opt.value} className="bg-card text-foreground">
             {t(`sortOptions.${opt.label}`)}
           </option>
         ))}

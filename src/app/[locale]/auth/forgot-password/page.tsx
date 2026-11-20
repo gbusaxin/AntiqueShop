@@ -40,8 +40,8 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <p className="font-serif text-2xl tracking-wide text-foreground">VintagEmpire</p>
-          <h1 className="mt-3 font-serif text-xl text-foreground">{t('title')}</h1>
+          <p className="font-display text-3xl font-medium tracking-wide text-foreground">Vintag<span className="italic text-gold">Empire</span></p>
+          <h1 className="heading-display mt-3 text-4xl text-foreground">{t('title')}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{t('description')}</p>
         </div>
         {sent ? (
@@ -50,11 +50,11 @@ export default function ForgotPasswordPage() {
           <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div>
               <label htmlFor="recovery-email" className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('email')}</label>
-              <input id="recovery-email" type="email" autoComplete="email" {...register('email')} className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
-              {errors.email && <p role="alert" className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
+              <input id="recovery-email" type="email" autoComplete="email" {...register('email')} className="field-lux !px-4 !py-3 !text-sm" />
+              {errors.email && <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">{errors.email.message}</p>}
             </div>
-            {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
-            <button type="submit" disabled={loading} className="border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground disabled:opacity-50">{loading ? t('submitting') : t('submit')}</button>
+            {error && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-lux">{loading ? t('submitting') : t('submit')}</button>
           </form>
         )}
         <p className="text-center text-base"><Link href="/auth/login" className="text-foreground underline underline-offset-2">{t('backToLogin')}</Link></p>

@@ -28,27 +28,28 @@ export function ProductGrid({ products, locale, total, loading }: ProductGridPro
   if (!products.length) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-gold/20">
+        <svg width="56" height="56" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="text-gold/40">
           <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="1" />
           <path d="M16 24h16M24 16v16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <p className="text-sm tracking-wide text-[#c8bfaa]/50">{t('noResults')}</p>
+        <p className="heading-display text-2xl italic text-muted-foreground">{t('noResults')}</p>
       </div>
     )
   }
 
   return (
     <div>
-      <p className="mb-6 text-[11px] uppercase tracking-[0.18em] text-gold/50">
+      <p data-visual="dynamic" className="mb-8 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
         {t('itemCount', { count: total })}
       </p>
-      <div data-testid="products-grid" className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div data-testid="products-grid" className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((product, i) => (
           <motion.div
             key={product.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: Math.min(i * 0.06, 0.4) }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
+            transition={{ duration: 0.8, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
           >
             <ProductCard product={product} locale={locale} />
           </motion.div>

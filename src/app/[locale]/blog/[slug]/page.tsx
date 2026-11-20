@@ -75,7 +75,7 @@ export default async function BlogArticlePage({ params }: ArticlePageProps) {
           </Link>
           <header>
             <p className="mb-5 text-xs font-medium uppercase tracking-[0.25em] text-[var(--fg-muted)]">{t('eyebrow')}</p>
-            <h1 className="break-words font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">{title}</h1>
+            <h1 className="heading-display break-words text-5xl sm:text-6xl lg:text-7xl">{title}</h1>
             <time dateTime={date} className="mt-6 block text-sm text-[var(--fg-muted)]">{blogDate(date, locale)}</time>
             {excerpt && <p className="mt-8 break-words font-serif text-xl leading-relaxed text-[var(--fg-muted)] sm:text-2xl">{excerpt}</p>}
             {post.tags.length > 0 && (

@@ -21,8 +21,9 @@ export async function SiteContentPage({ pageKey, locale, defaultTitle }: {
   return (
     <div className="min-h-screen bg-background pt-20 text-foreground">
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mb-10 border-b border-primary/15 pb-8">
-          <h1 className="font-serif text-3xl">{localizedContent(item, locale, 'title') || defaultTitle}</h1>
+        <div className="mb-12 border-b border-gold/20 pb-10">
+          <p className="eyebrow mb-6">VintagEmpire</p>
+          <h1 className="heading-display text-5xl md:text-6xl">{localizedContent(item, locale, 'title') || defaultTitle}</h1>
         </div>
         <ContentText content={localizedContent(item, locale, 'content') || contentPlaceholder(locale)} />
       </div>

@@ -5,6 +5,8 @@ import { RegionProvider } from '@/components/providers/RegionProvider'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { CookieBanner } from '@/components/CookieBanner'
+import { MotionProvider } from '@/components/providers/MotionProvider'
+import { ScrollProgress } from '@/components/ui/ScrollProgress'
 import { createClient } from '@/lib/supabaseServer'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -43,15 +45,23 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages} locale={locale}>
       <RegionProvider>
         <CartProvider>
-          <div className="flex min-h-screen flex-col">
-            <Navbar locale={locale} user={navUser} />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CookieBanner />
-            <Toaster />
-            <Analytics />
-            <SpeedInsights />
-          </div>
+          <MotionProvider>
+            <div className="storefront relative flex min-h-screen flex-col">
+              <ScrollProgress />
+              <Navbar locale={locale} user={navUser} />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <CookieBanner />
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  className: '!rounded-none !border !border-gold/30 !bg-card !text-foreground !font-sans !shadow-[var(--shadow-lux)]',
+                }}
+              />
+              <Analytics />
+              <SpeedInsights />
+            </div>
+          </MotionProvider>
         </CartProvider>
       </RegionProvider>
     </NextIntlClientProvider>

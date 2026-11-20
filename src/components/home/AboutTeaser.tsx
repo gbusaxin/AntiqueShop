@@ -1,69 +1,129 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { animate, motion, useInView, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { useTranslations } from 'next-intl'
+import { ArrowRight } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
+
+const EASE = [0.22, 1, 0.36, 1] as const
+const FOUNDED = 1987
+const YEARS = 35
+
+function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.8 })
+  const reduceMotion = useReducedMotion()
+  const [value, setValue] = useState(0)
+
+  useEffect(() => {
+    if (!inView) return
+    if (reduceMotion) {
+      setValue(to)
+      return
+    }
+    const controls = animate(0, to, {
+      duration: 2,
+      ease: EASE,
+      onUpdate: (v) => setValue(Math.round(v)),
+    })
+    return () => controls.stop()
+  }, [inView, reduceMotion, to])
+
+  return (
+    <span ref={ref} className="tabular-nums">
+      {value}
+      {suffix}
+    </span>
+  )
+}
 
 export function AboutTeaser() {
   const t = useTranslations('home')
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
+  const panelY = useTransform(scrollYProgress, [0, 1], ['6%', '-6%'])
+  const ringRotate = useTransform(scrollYProgress, [0, 1], [0, 90])
 
   return (
-    <section className="py-24">
+    <section ref={sectionRef} data-testid="heritage-section" className="relative overflow-hidden bg-deep/60 py-24 md:py-36">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-center gap-20 lg:grid-cols-12 lg:gap-12">
           <motion.div
-            initial={{ opacity: 0, x: -32 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.75, ease: 'easeOut' }}
-            className="flex flex-col gap-6"
+            transition={{ duration: 1, ease: EASE }}
+            className="flex flex-col gap-7 lg:col-span-6"
           >
-            <p className="text-[11px] uppercase tracking-[0.3em] text-gold/60">{t('heritageEyebrow')}</p>
-            <h2 className="font-serif text-3xl leading-snug text-gold-rich md:text-4xl">
-              {t('heritageTitle')}
-            </h2>
-            <div className="h-px w-12 bg-gold/40" />
-            <p className="text-sm leading-relaxed tracking-wide text-[#c8bfaa]/75">
+            <p className="eyebrow">{t('heritageEyebrow')}</p>
+            <h2 className="heading-display text-4xl text-foreground md:text-6xl">{t('heritageTitle')}</h2>
+            <div className="h-px w-16 bg-gold/50" />
+            <p className="max-w-xl text-[15px] leading-[1.85] text-muted-foreground first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[4.2rem] first-letter:leading-[0.8] first-letter:text-gold-rich">
               {t('heritageFirst')}
             </p>
-            <p className="text-sm leading-relaxed tracking-wide text-[#c8bfaa]/75">
-              {t('heritageSecond')}
-            </p>
-            <div className="pt-2">
-              <Link
-                href="/about"
-                className="border-b border-gold/40 pb-0.5 text-xs uppercase tracking-[0.2em] text-gold/80 transition-colors hover:border-gold hover:text-gold-rich"
-              >
+            <p className="max-w-xl text-[15px] leading-[1.85] text-muted-foreground">{t('heritageSecond')}</p>
+            <div className="pt-3">
+              <Link href="/about" className="btn-ghost group">
                 {t('heritageLink')}
+                <ArrowRight size={14} aria-hidden="true" className="text-gold transition-transform duration-500 ease-lux group-hover:translate-x-1" />
               </Link>
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 32 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.75, delay: 0.15, ease: 'easeOut' }}
-            className="relative"
-          >
-            <div
-              className="aspect-[4/5] bg-gradient-to-br from-[#1a4a3a] to-[#3d1a1a]"
-              style={{
-                boxShadow: '16px 16px 0 0 rgba(184,134,11,0.08)',
-              }}
+          <div className="relative mx-auto w-full max-w-md lg:col-span-5 lg:col-start-8">
+            <motion.div
+              style={{ y: panelY }}
+              initial={{ clipPath: 'inset(0% 0% 100% 0%)' }}
+              whileInView={{ clipPath: 'inset(0% 0% 0% 0%)' }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 1.4, ease: EASE }}
+              className="arch relative flex aspect-[4/5] flex-col items-center justify-center overflow-hidden bg-[linear-gradient(160deg,#3b2d1d_0%,#1a140e_55%,#0e0b08_100%)] shadow-[var(--shadow-lux)]"
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" className="text-gold/10">
-                  <circle cx="40" cy="40" r="38" stroke="currentColor" strokeWidth="1" />
-                  <path d="M40 10L43.5 28H62L47.5 38.5L53 57L40 46.5L27 57L32.5 38.5L18 28H36.5Z" fill="currentColor" />
-                </svg>
-              </div>
-            </div>
-            <div className="absolute -bottom-4 -right-4 border border-gold/20 bg-emerald-dark px-6 py-4">
-              <p className="font-serif text-2xl text-gold-rich">35+</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-gold/60">{t('heritageYears')}</p>
-            </div>
-          </motion.div>
+              <motion.svg
+                aria-hidden="true"
+                style={{ rotate: ringRotate }}
+                viewBox="0 0 200 200"
+                className="absolute h-[85%] w-[85%] text-[#C4A06A]/25"
+                fill="none"
+              >
+                <circle cx="100" cy="100" r="96" stroke="currentColor" strokeWidth=".6" />
+                <circle cx="100" cy="100" r="84" stroke="currentColor" strokeWidth=".4" strokeDasharray="1 5" />
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <line
+                    key={i}
+                    x1="100"
+                    y1="4"
+                    x2="100"
+                    y2="14"
+                    stroke="currentColor"
+                    strokeWidth=".8"
+                    transform={`rotate(${i * 30} 100 100)`}
+                  />
+                ))}
+              </motion.svg>
+              <div aria-hidden="true" className="arch pointer-events-none absolute inset-3 border border-[#C4A06A]/35" />
+              <p className="relative text-[10px] uppercase tracking-[0.5em] text-[#DEC08C]/80">Wien</p>
+              <p className="heading-display relative mt-3 text-7xl italic text-[#DEC08C] md:text-8xl">{FOUNDED}</p>
+              <svg aria-hidden="true" viewBox="0 0 120 12" className="relative mt-5 w-28 text-[#C4A06A]/70" fill="none">
+                <path d="M0 6h48M72 6h48" stroke="currentColor" strokeWidth=".8" />
+                <path d="M60 1l5 5-5 5-5-5z" fill="currentColor" />
+              </svg>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
+              className="absolute -bottom-8 -left-4 border border-gold/25 bg-card px-7 py-5 shadow-[var(--shadow-lux)] sm:-left-10"
+            >
+              <p className="heading-display text-5xl text-gold-rich">
+                <CountUp to={YEARS} suffix="+" />
+              </p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{t('heritageYears')}</p>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>

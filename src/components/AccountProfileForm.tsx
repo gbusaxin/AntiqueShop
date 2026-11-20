@@ -72,19 +72,19 @@ export function AccountProfileForm({ email, name, phone, locale }: AccountProfil
       <form onSubmit={save} className="space-y-4">
         <div>
           <label htmlFor="account-email" className="mb-2 block text-sm text-[var(--fg-muted)]">{t('email')}</label>
-          <input id="account-email" type="email" value={email} readOnly className="w-full border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[var(--fg-muted)]" />
+          <input id="account-email" type="email" value={email} readOnly className="field-lux !px-4 !py-3 !text-sm opacity-70" />
         </div>
         <div>
           <label htmlFor="account-name" className="mb-2 block text-sm text-[var(--fg-muted)]">{t('name')}</label>
-          <input id="account-name" value={fullName} onChange={(event) => setFullName(event.target.value)} maxLength={150} autoComplete="name" disabled={saving} className="w-full border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[var(--fg)]" />
+          <input id="account-name" value={fullName} onChange={(event) => setFullName(event.target.value)} maxLength={150} autoComplete="name" disabled={saving} className="field-lux !px-4 !py-3 !text-sm disabled:opacity-60" />
         </div>
         <div>
           <label htmlFor="account-phone" className="mb-2 block text-sm text-[var(--fg-muted)]">{t('phone')}</label>
-          <input id="account-phone" type="tel" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} maxLength={30} autoComplete="tel" disabled={saving} className="w-full border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-[var(--fg)]" />
+          <input id="account-phone" type="tel" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} maxLength={30} autoComplete="tel" disabled={saving} className="field-lux !px-4 !py-3 !text-sm disabled:opacity-60" />
         </div>
         {message && <p role="status" className="text-sm text-emerald-600 dark:text-emerald-400">{message}</p>}
         {error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-        <button type="submit" disabled={saving} className="border border-[var(--accent)] px-6 py-3 text-sm text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50">{saving ? t('saving') : t('save')}</button>
+        <button type="submit" disabled={saving} className="btn-lux">{saving ? t('saving') : t('save')}</button>
       </form>
       <button type="button" onClick={signOut} disabled={signingOut} className="text-sm text-[var(--fg-muted)] underline underline-offset-4 hover:text-[var(--accent)] disabled:opacity-50">{signingOut ? t('signingOut') : accountT('signOut')}</button>
     </div>

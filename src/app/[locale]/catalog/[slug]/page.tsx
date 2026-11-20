@@ -2,6 +2,7 @@ import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
+import { MessageCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabaseServer'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice, getPriceForRegion } from '@/lib/getPriceForRegion'
@@ -10,6 +11,8 @@ import { getCookieRegion, getRegionFromCountryCode, REGION_CURRENCIES } from '@/
 import { PhotoGallery } from '@/components/product/PhotoGallery'
 import { AddToCartButton } from '@/components/product/AddToCartButton'
 import { ViewTracker } from '@/components/product/ViewTracker'
+import { RecentlyViewed } from '@/components/favorites/RecentlyViewed'
+import { FavoriteButton } from '@/components/favorites/FavoriteButton'
 import { ProductCard, type ProductCardItem } from '@/components/ProductCard'
 import { AnimatedSection } from '@/components/ui/AnimatedSection'
 import { JsonLd } from '@/components/JsonLd'
@@ -17,11 +20,11 @@ import { cookies, headers } from 'next/headers'
 import type { Product, Locale, ProductCondition, Region } from '@/types'
 import type { Metadata } from 'next'
 
-const CONDITION_STYLES: Record<ProductCondition, string> = {
-  excellent: 'border-emerald-400/40 text-emerald-400 bg-emerald-400/5',
-  poor: 'border-orange-300/40 text-orange-300 bg-orange-300/5',
-  good: 'border-amber-400/40 text-amber-400 bg-amber-400/5',
-  fair: 'border-orange-400/40 text-orange-400 bg-orange-400/5',
+const CONDITION_DOT: Record<ProductCondition, string> = {
+  excellent: 'bg-emerald-500',
+  good: 'bg-amber-500',
+  fair: 'bg-orange-500',
+  poor: 'bg-rose-500',
 }
 
 export const dynamic = 'force-dynamic'
@@ -152,110 +155,129 @@ export default async function ProductPage({
     },
   }
 
+  const cardItem: ProductCardItem = {
+    id: product.id,
+    slug: product.slug,
+    name_ru: product.name_ru,
+    name_en: product.name_en,
+    name_de: product.name_de,
+    images: product.images ?? [],
+    condition: product.condition,
+    year_circa: product.year_circa,
+    price_eur: product.price_eur,
+  }
+
+  const specs = [
+    { label: t('material'), value: product.material ? material : null },
+    { label: t('size'), value: product.size },
+    { label: t('country'), value: product.country_of_origin },
+    { label: t('year'), value: product.year_circa ? t('circa', { year: product.year_circa }) : null },
+  ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value))
+
   return (
-    <div className="min-h-screen bg-[#0a1f18] pt-20 text-[#f4ead1]">
+    <div className="min-h-screen bg-background pt-20 text-foreground">
       <JsonLd data={jsonLd} />
       <ViewTracker slug={slug} />
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <nav aria-label={t('breadcrumbs')} className="mb-8 flex items-center gap-2 text-[11px] tracking-wide text-gold/50">
-          <Link href="/" className="hover:text-gold/80 transition-colors">{nav('home')}</Link>
-          <span>/</span>
-          <Link href="/catalog" className="hover:text-gold/80 transition-colors">{nav('catalog')}</Link>
-          <span>/</span>
-          <span className="text-gold/70">{name}</span>
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-14 lg:px-8">
+        <nav aria-label={t('breadcrumbs')} className="mb-10 flex min-w-0 items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+          <Link href="/" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('home')}</Link>
+          <span aria-hidden="true" className="h-px w-4 shrink-0 bg-gold/40" />
+          <Link href="/catalog" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('catalog')}</Link>
+          <span aria-hidden="true" className="h-px w-4 shrink-0 bg-gold/40" />
+          <span className="truncate text-gold">{name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          <div>
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="animate-page-in lg:sticky lg:top-28 lg:col-span-7 lg:self-start">
             <PhotoGallery images={product.images ?? []} alt={name} />
           </div>
 
-          <div className="flex flex-col gap-6">
-            <div>
-              <h1 className="font-serif text-3xl leading-snug text-[#f4ead1] md:text-4xl">{name}</h1>
-              <p className="mt-2 font-mono text-[11px] tracking-wide text-gold/60">{t('sku', { sku: product.sku })}</p>
-            </div>
-
-            {product.condition && (
-              <div className="flex items-center gap-3">
-                <span
-                  className={`border px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] ${CONDITION_STYLES[product.condition]}`}
-                >
+          <div className="flex flex-col gap-8 lg:col-span-5">
+            <div className="animate-page-in [animation-delay:120ms]">
+              {product.condition && (
+                <span className="mb-5 inline-flex items-center gap-2 border border-gold/25 bg-card px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-foreground">
+                  <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${CONDITION_DOT[product.condition]}`} />
                   {t(`condition.${product.condition}`)}
                 </span>
-                {product.year_circa && (
-                  <span className="text-xs tracking-wide text-gold/50">{t('circa', { year: product.year_circa })}</span>
-                )}
+              )}
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="heading-display text-4xl text-foreground md:text-5xl">{name}</h1>
+                <FavoriteButton item={cardItem} className="mt-1 h-11 w-11 shrink-0 border border-gold/25" />
               </div>
-            )}
+              <p className="mt-4 font-mono text-[11px] tracking-wider text-muted-foreground">{t('sku', { sku: product.sku })}</p>
+            </div>
 
-            <div className="border-y border-gold/10 py-5">
-              <p className="font-serif text-3xl text-gold-rich tracking-wide">
+            <div className="animate-page-in border-y border-gold/20 py-6 [animation-delay:200ms]">
+              <p className="heading-display text-5xl text-gold-rich">
                 {formatPrice(priceInfo.amount, priceInfo.currency, localeStr)}
               </p>
               {priceInfo.isConverted && priceInfo.originalEur && (
-                <p className="mt-1 text-[10px] text-gold/40 tracking-wide">
+                <p className="mt-2 text-[11px] tracking-wide text-muted-foreground">
                   {formatPrice(priceInfo.originalEur, 'EUR', localeStr)} · {currency('converted')}
                 </p>
               )}
             </div>
 
-            <div className="flex flex-col gap-3 text-xs">
-              {product.material && (
-                <div className="flex gap-4">
-                  <span className="w-28 shrink-0 text-[10px] uppercase tracking-[0.15em] text-gold/50">{t('material')}</span>
-                  <span className="tracking-wide text-[#c8bfaa]/80">{material}</span>
-                </div>
-              )}
-              {product.size && (
-                <div className="flex gap-4">
-                  <span className="w-28 shrink-0 text-[10px] uppercase tracking-[0.15em] text-gold/50">{t('size')}</span>
-                  <span className="tracking-wide text-[#c8bfaa]/80">{product.size}</span>
-                </div>
-              )}
-              {product.country_of_origin && (
-                <div className="flex gap-4">
-                  <span className="w-28 shrink-0 text-[10px] uppercase tracking-[0.15em] text-gold/50">{t('country')}</span>
-                  <span className="tracking-wide text-[#c8bfaa]/80">{product.country_of_origin}</span>
-                </div>
-              )}
-            </div>
-
-            {provenance && (
-              <div className="border-l-2 border-gold/40 pl-4">
-                <p className="mb-1 text-[10px] uppercase tracking-[0.15em] text-gold/60">{t('provenance')}</p>
-                <p className="text-xs italic leading-relaxed tracking-wide text-[#c8bfaa]/70">{provenance}</p>
-              </div>
-            )}
-
-            {description && (
-              <div className="text-xs leading-relaxed tracking-wide text-[#c8bfaa]/75 space-y-3">
-                {description.split('\n').filter(Boolean).map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
-              </div>
-            )}
-
-            <div className="pt-2">
+            <div className="animate-page-in [animation-delay:280ms]">
               <AddToCartButton
                 product={product}
                 label={t('addToCart')}
                 inCartLabel={t('inCart')}
               />
+              <Link
+                href={`/contacts?item=${encodeURIComponent(product.sku)}#contact-form`}
+                className="btn-ghost group mt-3 w-full"
+              >
+                <MessageCircle size={14} aria-hidden="true" className="text-gold transition-transform duration-500 ease-lux group-hover:-rotate-12" />
+                {t('askAboutItem')}
+              </Link>
             </div>
+
+            {specs.length > 0 && (
+              <dl className="flex flex-col">
+                {specs.map((spec) => (
+                  <div key={spec.label} className="flex items-baseline gap-3 border-b border-gold/10 py-3 text-sm">
+                    <dt className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{spec.label}</dt>
+                    <span aria-hidden="true" className="mb-1 flex-1 border-b border-dotted border-gold/30" />
+                    <dd className="text-right text-foreground">{spec.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            {provenance && (
+              <figure className="relative bg-deep/70 px-6 py-6">
+                <span aria-hidden="true" className="heading-display absolute -top-5 left-4 text-6xl leading-none text-gold/40">“</span>
+                <figcaption className="eyebrow mb-3">{t('provenance')}</figcaption>
+                <blockquote className="font-display text-lg italic leading-relaxed text-foreground/90">{provenance}</blockquote>
+              </figure>
+            )}
+
+            {description && (
+              <div className="space-y-4 text-[15px] leading-[1.8] text-muted-foreground">
+                {description.split('\n').filter(Boolean).map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {related.length > 0 && (
-          <AnimatedSection className="mt-20 border-t border-gold/10 pt-16">
-            <h2 className="mb-8 font-serif text-2xl text-gold-rich">{t('similarItems')}</h2>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <AnimatedSection className="mt-28 border-t border-gold/15 pt-20">
+            <div className="mb-12 flex items-end justify-between gap-6">
+              <h2 className="heading-display text-4xl text-foreground md:text-5xl">{t('similarItems')}</h2>
+              <Link href="/catalog" className="link-lux hidden text-[11px] uppercase tracking-[0.22em] text-gold sm:inline">{nav('catalog')}</Link>
+            </div>
+            <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((p) => (
                 <ProductCard key={p.id} product={p} locale={locale as Locale} />
               ))}
             </div>
           </AnimatedSection>
         )}
+
+        <RecentlyViewed current={cardItem} locale={locale as Locale} />
       </div>
     </div>
   )

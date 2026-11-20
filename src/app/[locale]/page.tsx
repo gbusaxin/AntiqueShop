@@ -1,10 +1,12 @@
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabaseServer'
-import { HeroSection } from '@/components/home/HeroSection'
+import { HeroSection, type HeroItem } from '@/components/home/HeroSection'
+import { MaterialsMarquee } from '@/components/home/MaterialsMarquee'
 import { FeaturedCarousel } from '@/components/home/FeaturedCarousel'
 import { CategoriesGrid } from '@/components/home/CategoriesGrid'
 import { AboutTeaser } from '@/components/home/AboutTeaser'
 import { JsonLd } from '@/components/JsonLd'
+import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Product, Category, Locale } from '@/types'
 import type { Metadata } from 'next'
 
@@ -68,7 +70,7 @@ export default async function HomePage({
       .eq('is_available', true)
       .order('created_at', { ascending: false })
       .limit(8),
-    supabase.from('categories').select('*').order('sort_order'),
+    supabase.from('categories').select('*').eq('is_active', true).order('sort_order'),
   ])
 
   const products = (rawProducts ?? []) as Product[]
@@ -114,25 +116,38 @@ export default async function HomePage({
     },
   }
 
+  const heroItems: HeroItem[] = products
+    .filter((product) => Boolean(product.images?.[0]))
+    .slice(0, 2)
+    .map((product) => ({
+      src: product.images[0],
+      slug: product.slug,
+      name: getLocalizedField(product as unknown as Record<string, string | null | undefined>, 'name', locale as Locale),
+    }))
+
   return (
-    <div className="bg-[#0a1f18] text-[#f4ead1]">
+    <div className="bg-background text-foreground">
       <JsonLd data={organizationJsonLd} />
       <JsonLd data={websiteJsonLd} />
       <HeroSection
         title={t('title')}
         subtitle={t('subtitle')}
         ctaLabel={t('ctaButton')}
+        secondaryLabel={tHome('heritageLink')}
+        yearsValue="35+"
+        yearsLabel={tHome('heritageYears')}
+        items={heroItems}
       />
 
-      <div className="border-t border-gold/10">
-        <FeaturedCarousel
-          products={products}
-          locale={locale as Locale}
-          title={tHome('featured')}
-        />
-      </div>
+      <MaterialsMarquee />
 
-      <div className="border-t border-gold/10">
+      <FeaturedCarousel
+        products={products}
+        locale={locale as Locale}
+        title={tHome('featured')}
+      />
+
+      <div className="border-t border-gold/15">
         <CategoriesGrid
           categories={categories}
           locale={locale as Locale}
@@ -140,9 +155,7 @@ export default async function HomePage({
         />
       </div>
 
-      <div className="overflow-hidden border-t border-gold/10">
-        <AboutTeaser />
-      </div>
+      <AboutTeaser />
     </div>
   )
 }

@@ -1,11 +1,18 @@
 import type {Metadata} from 'next'
-import {Inter, Playfair_Display} from 'next/font/google'
+import {Cormorant_Garamond, Inter, Playfair_Display} from 'next/font/google'
 import './globals.css'
 import {ThemeProvider} from '@/components/providers/ThemeProvider'
 import {PostHogProvider} from '@/components/providers/PostHogProvider'
 
 const inter = Inter({subsets: ['latin', 'cyrillic'], variable: '--font-inter'})
 const playfair = Playfair_Display({subsets: ['latin', 'cyrillic'], variable: '--font-playfair-display'})
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'),
@@ -23,7 +30,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} ${cormorant.variable} antialiased`}>
         <ThemeProvider>
           <PostHogProvider>
             {children}

@@ -8,11 +8,6 @@ import { isPositiveInteger, isValidEmail } from '@/lib/validation'
 import { rateLimit, getClientIp } from '@/lib/rateLimit'
 import type { Region } from '@/types'
 
-const SHIPPING_COSTS_EUR = new Map<string, number>([
-  ['standard', 35],
-  ['express', 75],
-])
-
 interface CheckoutItem {
   productId: string
   quantity: number
@@ -117,14 +112,12 @@ export async function POST(request: Request) {
       }
     }
 
-    const shippingCostEur = SHIPPING_COSTS_EUR.get(deliveryMethod) ?? 35
-
     const serverItemsTotal = items.reduce((sum, i) => {
       const p = productMap.get(i.productId)!
       return sum + p.price_eur * i.quantity
     }, 0)
 
-    const totalEur = serverItemsTotal + shippingCostEur
+    const totalEur = serverItemsTotal
 
     const { data: order, error: orderError } = await supabase
       .from('orders')
@@ -137,7 +130,6 @@ export async function POST(request: Request) {
         total_eur: totalEur,
         shipping_address: shippingAddress,
         shipping_method: deliveryMethod,
-        shipping_cost_eur: shippingCostEur,
       })
       .select('id')
       .single()
@@ -167,27 +159,17 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       customer_email: email,
-      line_items: [
-        ...items.map((item) => {
-          const p = productMap.get(item.productId)!
-          return {
-            price_data: {
-              currency: 'eur',
-              unit_amount: Math.round(p.price_eur * 100),
-              product_data: { name: p.name_en ?? p.name_ru ?? 'Antique Item' },
-            },
-            quantity: item.quantity,
-          }
-        }),
-        {
+      line_items: items.map((item) => {
+        const p = productMap.get(item.productId)!
+        return {
           price_data: {
             currency: 'eur',
-            unit_amount: Math.round(shippingCostEur * 100),
-            product_data: { name: `Shipping (${deliveryMethod})` },
+            unit_amount: Math.round(p.price_eur * 100),
+            product_data: { name: p.name_en ?? p.name_ru ?? 'Antique Item' },
           },
-          quantity: 1,
-        },
-      ],
+          quantity: item.quantity,
+        }
+      }),
       metadata: { orderId: order.id },
       success_url: `${baseUrl}/${locale}/checkout/success?session_id={CHECKOUT_SESSION_ID}&orderId=${order.id}`,
       cancel_url: `${baseUrl}/${locale}/checkout/failed`,

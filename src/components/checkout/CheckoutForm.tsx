@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,18 +14,14 @@ import { getPaymentMethodsForRegion } from '@/lib/getPaymentProvidersForRegion'
 import { formatPrice } from '@/lib/getPriceForRegion'
 import { getRegionFromCountryCode } from '@/lib/region'
 import { getLocalizedField } from '@/lib/getLocalizedField'
+import { CountryCombobox } from '@/components/checkout/CountryCombobox'
 import type { Locale } from '@/types'
-
-const COUNTRIES = [
-  'DE', 'FR', 'IT', 'ES', 'AT', 'CH', 'NL', 'BE', 'PL',
-  'GB', 'US', 'CA', 'AU', 'RU', 'BY', 'KZ', 'UA', 'OTHER',
-] as const
 
 const STATE_COUNTRIES = ['US', 'CA', 'AU']
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
-  return <p className="mt-1 text-[10px] text-red-400">{message}</p>
+  return <p role="alert" className="mt-1 text-[11px] text-red-700 dark:text-red-400">{message}</p>
 }
 
 function InputField({
@@ -38,7 +34,7 @@ function InputField({
       <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{label}</label>
       <input
         {...props}
-        className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="field-lux !px-4 !py-3 !text-sm"
       />
       <FieldError message={error} />
     </div>
@@ -86,13 +82,14 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     formState: { errors },
     trigger,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { deliveryMethod: 'standard' },
+    defaultValues: { country: '', deliveryMethod: 'standard' },
   })
 
   const watchedCountry = watch('country')
@@ -102,7 +99,6 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
 
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
   const deliveryMethod = watch('deliveryMethod')
-  const shippingCost = deliveryMethod === 'express' ? 75 : 35
 
   const step1Fields: (keyof FormData)[] = [
     'firstName', 'lastName', 'email', 'phone',
@@ -198,16 +194,13 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('shippingAddress.country')}</label>
-                <select
-                  {...register('country')}
-                  className="w-full border border-input bg-background px-4 py-3 text-xs text-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  <option value="">{t('selectCountry')}</option>
-                  {COUNTRIES.map((code) => (
-                    <option key={code} value={code} className="bg-background">{t(`countries.${code}`)}</option>
-                  ))}
-                </select>
+                <Controller
+                  name="country"
+                  control={control}
+                  render={({ field }) => (
+                    <CountryCombobox value={field.value} onChange={field.onChange} error={!!errors.country} />
+                  )}
+                />
                 <FieldError message={errors.country?.message} />
               </div>
 
@@ -226,8 +219,8 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                 <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('shippingMethod')}</p>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
-                    { value: 'standard', label: t('delivery.standard'), price: formatPrice(35, 'EUR', localeStr), time: t('delivery.days', { min: 7, max: 14 }) },
-                    { value: 'express', label: t('delivery.express'), price: formatPrice(75, 'EUR', localeStr), time: t('delivery.days', { min: 2, max: 5 }) },
+                    { value: 'standard', label: t('delivery.standard'), time: t('delivery.days', { min: 7, max: 14 }) },
+                    { value: 'express', label: t('delivery.express'), time: t('delivery.days', { min: 2, max: 5 }) },
                   ].map((opt) => (
                     <label
                       key={opt.value}
@@ -238,10 +231,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                       }`}
                     >
                       <input type="radio" value={opt.value} {...register('deliveryMethod')} className="sr-only" />
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-foreground">{opt.label}</span>
-                        <span className="font-serif text-sm text-foreground">{opt.price}</span>
-                      </div>
+                      <span className="text-xs text-foreground">{opt.label}</span>
                       <span className="text-[10px] text-muted-foreground">{opt.time}</span>
                     </label>
                   ))}
@@ -300,7 +290,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="border border-primary/20 px-6 py-4 text-xs uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                  className="btn-ghost"
                 >
                   ← {commonT('back')}
                 </button>
@@ -308,7 +298,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
                   type="submit"
                   data-testid="checkout-submit"
                   disabled={submitting}
-                  className="flex-1 border border-primary bg-primary py-4 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
+                  className="btn-lux flex-1"
                 >
                   {submitting ? t('processing') : t('placeOrder')}
                 </button>
@@ -352,16 +342,13 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
               <span>{cartT('subtotal')}</span>
               <span>{formatPrice(totalEur, 'EUR', localeStr)}</span>
             </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>{cartT('shipping')}</span>
-              <span>{formatPrice(shippingCost, 'EUR', localeStr)}</span>
-            </div>
             <div className="flex justify-between border-t border-primary/10 pt-2">
               <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{cartT('total')}</span>
               <span className="font-serif text-base text-foreground">
-                {formatPrice(totalEur + shippingCost, 'EUR', localeStr)}
+                {formatPrice(totalEur, 'EUR', localeStr)}
               </span>
             </div>
+            <p className="mt-4 text-sm text-muted-foreground">{t('shipping_note')}</p>
           </div>
         </div>
       </div>

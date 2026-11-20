@@ -41,3 +41,9 @@ coverage/
 
 # Misc
 .cache/
+
+# Playwright / Lighthouse CI
+playwright-report/
+test-results/
+blob-report/
+.lighthouseci/

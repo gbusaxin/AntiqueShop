@@ -2,21 +2,12 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Category } from '@/types'
 import type { Locale } from '@/types'
-
-const PLACEHOLDER_GRADIENTS = [
-  'from-[#1a4a3a] to-[#0d2e24]',
-  'from-[#3d1a1a] to-[#1a0a0a]',
-  'from-[#2a3a1a] to-[#1a2a0d]',
-  'from-[#1a2a4a] to-[#0d1a2e]',
-  'from-[#3a2a1a] to-[#2a1a0d]',
-  'from-[#1a3a3a] to-[#0d2a2a]',
-  'from-[#3a1a3a] to-[#2a0d2a]',
-  'from-[#2a3a2a] to-[#1a2a1a]',
-]
 
 interface CategoriesGridProps {
   categories: Category[]
@@ -24,60 +15,103 @@ interface CategoriesGridProps {
   title: string
 }
 
+const EASE = [0.22, 1, 0.36, 1] as const
+
+/** Engraved lattice for categories without a photograph: a dark velvet display-case look. */
+const LATTICE =
+  "url(\"data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M24 0l24 24-24 24L0 24z' fill='none' stroke='%23C4A06A' stroke-opacity='.14'/%3E%3Ccircle cx='24' cy='24' r='2' fill='%23C4A06A' fill-opacity='.18'/%3E%3C/svg%3E\")"
+
 export function CategoriesGrid({ categories, locale, title }: CategoriesGridProps) {
+  const t = useTranslations('home')
+
+  if (!categories.length) return null
+
   return (
-    <section className="py-20" style={{ background: 'rgba(3,55,40,0.06)' }}>
+    <section className="relative py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="mb-12 text-center"
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.9, ease: EASE }}
+          className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
         >
-          <h2 className="font-serif text-3xl text-gold-rich md:text-4xl">{title}</h2>
-          <div className="mx-auto mt-4 h-px w-16 bg-gold/40" />
+          <div>
+            <p className="eyebrow">VintagEmpire</p>
+            <h2 className="heading-display mt-5 text-4xl text-foreground md:text-6xl">{title}</h2>
+          </div>
+          <Link href="/catalog" className="group flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-foreground">
+            <span className="link-lux">{t('footerFullCatalog')}</span>
+            <ArrowRight size={13} aria-hidden="true" className="text-gold transition-transform duration-500 ease-lux group-hover:translate-x-1" />
+          </Link>
         </motion.div>
 
-        <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:auto-rows-[17rem] lg:grid-cols-4">
           {categories.map((cat, i) => {
-            const name = getLocalizedField(
-              cat as unknown as Record<string, string | null | undefined>,
-              'name',
-              locale
-            )
-            const gradient = PLACEHOLDER_GRADIENTS[i % PLACEHOLDER_GRADIENTS.length]
+            const record = cat as unknown as Record<string, string | null | undefined>
+            const name = getLocalizedField(record, 'name', locale)
+            const description = getLocalizedField(record, 'description', locale)
+            const featured = i === 0
 
             return (
               <motion.div
                 key={cat.id}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.55, delay: (i % 4) * 0.1 }}
+                transition={{ duration: 0.9, delay: (i % 4) * 0.08, ease: EASE }}
+                className={featured ? 'col-span-2 lg:row-span-2' : ''}
               >
                 <Link
                   href={`/catalog?category=${encodeURIComponent(cat.slug)}`}
-                  className="group relative flex aspect-square items-end overflow-hidden"
+                  className={`group relative flex h-full items-end overflow-hidden bg-[#1a140e] ${
+                    featured ? 'aspect-[2/1] lg:aspect-auto' : 'aspect-square lg:aspect-auto'
+                  }`}
                 >
                   {cat.image_url ? (
                     <Image
                       src={cat.image_url}
                       alt={name}
                       fill
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes={featured ? '(max-width: 1024px) 100vw, 50vw' : '(max-width: 1024px) 50vw, 25vw'}
+                      className="object-cover transition-transform duration-[1400ms] ease-lux group-hover:scale-[1.08]"
                     />
                   ) : (
                     <div
-                      className={`absolute inset-0 bg-gradient-to-br ${gradient} transition-opacity duration-300 group-hover:opacity-80`}
-                    />
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-[linear-gradient(140deg,#3b2d1d_0%,#1a140e_55%,#0e0b08_100%)] transition-transform duration-[1400ms] ease-lux group-hover:scale-[1.08]"
+                    >
+                      <div className="absolute inset-0" style={{ backgroundImage: LATTICE }} />
+                      <span className="heading-display absolute -right-2 -top-6 select-none text-[9rem] italic leading-none text-[#C4A06A]/10 lg:text-[12rem]">
+                        {name.charAt(0)}
+                      </span>
+                    </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-dark/80 via-emerald-dark/20 to-transparent transition-all duration-300 group-hover:from-emerald-dark/60" />
-                  <div className="relative z-10 w-full p-4">
-                    <p className="font-serif text-base tracking-wide text-[#f4ead1] transition-transform duration-300 group-hover:scale-105 group-hover:text-gold-rich sm:text-lg">
+
+                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent transition-opacity duration-700 group-hover:opacity-90" />
+                  <div aria-hidden="true" className="pointer-events-none absolute inset-3 border border-[#C4A06A]/0 transition-all duration-700 ease-lux group-hover:inset-4 group-hover:border-[#C4A06A]/45" />
+
+                  <span
+                    aria-hidden="true"
+                    className="absolute right-4 top-4 flex h-9 w-9 -translate-y-2 items-center justify-center rounded-full border border-white/30 text-white opacity-0 backdrop-blur-sm transition-all duration-500 ease-lux group-hover:translate-y-0 group-hover:opacity-100"
+                  >
+                    <ArrowUpRight size={15} />
+                  </span>
+
+                  <div className="relative z-10 w-full p-5 sm:p-6">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DEC08C]">{String(i + 1).padStart(2, '0')}</p>
+                    <p
+                      className={`heading-display mt-2 text-[#F6F1E8] transition-transform duration-700 ease-lux group-hover:-translate-y-1 ${
+                        featured ? 'text-3xl sm:text-4xl lg:text-5xl' : 'text-xl sm:text-2xl'
+                      }`}
+                    >
                       {name}
                     </p>
+                    {featured && description && (
+                      <p className="mt-3 line-clamp-2 max-w-md text-sm leading-relaxed text-[#F6F1E8]/75">
+                        {description}
+                      </p>
+                    )}
                   </div>
                 </Link>
               </motion.div>

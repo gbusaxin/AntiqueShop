@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation'
 
 export default function CheckoutSuccessPage() {
   const t = useTranslations('checkout.success')
+  const checkoutT = useTranslations('checkout')
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId') ?? searchParams.get('session_id')
   const clearCart = useCartStore((s) => s.clearCart)
@@ -18,7 +19,7 @@ export default function CheckoutSuccessPage() {
   }, [clearCart])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a1f18] px-4 text-center text-[#f4ead1]">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center text-foreground">
       <title>{`${t('title')} — VintagEmpire`}</title>
       <motion.div
         initial={{ scale: 0.6, opacity: 0 }}
@@ -55,31 +56,32 @@ export default function CheckoutSuccessPage() {
         transition={{ duration: 0.6, delay: 0.5 }}
         className="flex flex-col items-center gap-4"
       >
-        <p className="text-[11px] uppercase tracking-[0.3em] text-gold/50">{t('title')}</p>
-        <h1 className="font-serif text-3xl text-gold-rich md:text-4xl">{t('heading')}</h1>
+        <p className="eyebrow">{t('title')}</p>
+        <h1 className="heading-display text-5xl text-foreground md:text-6xl">{t('heading')}</h1>
 
         {orderId && (
-          <p className="text-xs tracking-wide text-gold/60">
+          <p className="text-xs tracking-wide text-muted-foreground">
             {t('orderReference', { orderId: orderId.slice(0, 8).toUpperCase() })}
           </p>
         )}
 
         <div className="mx-auto mt-2 h-px w-12 bg-gold/30" />
 
-        <p className="max-w-sm text-xs leading-relaxed tracking-wide text-[#c8bfaa]/65">
+        <p className="max-w-sm text-xs leading-relaxed tracking-wide text-muted-foreground">
           {t('processingDescription')}
         </p>
+        <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">{checkoutT('shipping_note')}</p>
 
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:gap-5">
           <Link
             href="/account/orders"
-            className="border border-gold/30 px-8 py-3 text-xs uppercase tracking-[0.2em] text-gold/70 transition-colors hover:border-gold hover:text-gold-rich"
+            className="btn-lux"
           >
             {t('viewOrders')}
           </Link>
           <Link
             href="/catalog"
-            className="border border-gold/15 px-8 py-3 text-xs uppercase tracking-[0.2em] text-gold/50 transition-colors hover:border-gold/30 hover:text-gold/70"
+            className="btn-ghost"
           >
             {t('continueShopping')}
           </Link>

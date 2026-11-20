@@ -10,11 +10,6 @@ import type { Region } from '@/types'
 
 const YOOKASSA_API = 'https://api.yookassa.ru/v3/payments'
 
-const SHIPPING_COSTS_RUB = new Map<string, number>([
-  ['standard', 3000],
-  ['express', 6500],
-])
-
 interface CheckoutItem {
   productId: string
   quantity: number
@@ -131,16 +126,16 @@ export async function POST(request: Request) {
 
     const rubRate: number = (exchangeRates.data?.rates as Record<string, number>)?.RUB ?? 95
 
-    const shippingCostRub = SHIPPING_COSTS_RUB.get(deliveryMethod) ?? 3000
-    const shippingCostEur = shippingCostRub / rubRate
-
     const serverItemsTotal = items.reduce((sum, i) => {
       const p = productMap.get(i.productId)!
       return sum + p.price_eur * i.quantity
     }, 0)
 
-    const totalEur = serverItemsTotal + shippingCostEur
-    const totalRub = parseFloat((serverItemsTotal * rubRate + shippingCostRub).toFixed(2))
+    const totalEur = serverItemsTotal
+    const totalRub = items.reduce((sum, item) => {
+      const unitRub = Math.round(productMap.get(item.productId)!.price_eur * rubRate * 100)
+      return sum + unitRub * item.quantity
+    }, 0) / 100
 
     const { data: order, error: orderError } = await supabase
       .from('orders')
@@ -155,7 +150,6 @@ export async function POST(request: Request) {
         exchange_rate: rubRate,
         shipping_address: shippingAddress,
         shipping_method: deliveryMethod,
-        shipping_cost_eur: shippingCostEur,
       })
       .select('id')
       .single()
@@ -216,24 +210,16 @@ export async function POST(request: Request) {
         metadata: { orderId: order.id },
         receipt: {
           customer: { email },
-          items: [
-            ...items.map((item) => {
-              const p = productMap.get(item.productId)!
-              const unitRub = parseFloat((p.price_eur * rubRate).toFixed(2))
-              return {
-                description: p.name_ru ?? p.name_en ?? 'Антикварный предмет',
-                quantity: String(item.quantity),
-                amount: { value: unitRub.toFixed(2), currency: 'RUB' },
-                vat_code: 1,
-              }
-            }),
-            {
-              description: `Доставка (${deliveryMethod})`,
-              quantity: '1',
-              amount: { value: shippingCostRub.toFixed(2), currency: 'RUB' },
+          items: items.map((item) => {
+            const p = productMap.get(item.productId)!
+            const unitRub = parseFloat((p.price_eur * rubRate).toFixed(2))
+            return {
+              description: p.name_ru ?? p.name_en ?? 'Антикварный предмет',
+              quantity: String(item.quantity),
+              amount: { value: unitRub.toFixed(2), currency: 'RUB' },
               vat_code: 1,
-            },
-          ],
+            }
+          }),
         },
       }),
     })

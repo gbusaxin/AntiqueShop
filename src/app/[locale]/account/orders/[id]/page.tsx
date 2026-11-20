@@ -34,6 +34,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ l
   const t = await getTranslations({ locale, namespace: 'account.orders' })
   const statusT = await getTranslations({ locale, namespace: 'orders.status' })
   const commonT = await getTranslations({ locale, namespace: 'common' })
+  const shippingT = await getTranslations({ locale, namespace: 'checkout' })
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
   const address = order.shipping_address
   const addressLines = address ? [
@@ -50,18 +51,18 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ l
     <main className="min-h-screen px-4 pb-20 pt-28 text-[var(--fg)] sm:px-6">
       <div className="mx-auto max-w-4xl">
         <Link href="/account/orders" className="text-sm text-[var(--accent)] hover:underline">← {t('title')}</Link>
-        <h1 className="mt-6 font-serif text-3xl text-[var(--accent)]">{t('orderNumber')} #{order.id.slice(0, 8).toUpperCase()}</h1>
+        <h1 className="heading-display mt-6 text-4xl text-foreground sm:text-5xl">{t('orderNumber')} #{order.id.slice(0, 8).toUpperCase()}</h1>
         <div className="mt-6 flex flex-wrap gap-4 text-sm text-[var(--fg-muted)]">
           <span>{t('date')}: {new Intl.DateTimeFormat(localeStr, { dateStyle: 'long' }).format(new Date(order.created_at))}</span>
           <span>{t('status')}: {statusT.has(order.status) ? statusT(order.status) : t('unknownStatus')}</span>
         </div>
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           <section className="border border-[var(--border)] p-5 sm:p-7">
-            <h2 className="mb-5 font-serif text-xl">{t('details.items')}</h2>
+            <h2 className="heading-display mb-5 text-3xl">{t('details.items')}</h2>
             <ul className="divide-y divide-[var(--border)]">
               {order.items?.map((item) => (
                 <li key={item.id} className="flex gap-4 py-4">
-                  {item.product?.images?.[0] && <Image src={item.product.images[0]} alt="" width={64} height={80} className="h-20 w-16 shrink-0 bg-[#F5F1EA] object-contain dark:bg-[#1F1B17]" />}
+                  {item.product?.images?.[0] && <Image src={item.product.images[0]} alt="" width={64} height={80} className="h-20 w-16 shrink-0 bg-deep object-contain" />}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm">{(item.product && getLocalizedField(item.product as unknown as Record<string, string | null | undefined>, 'name', locale as Locale)) || item.product_snapshot?.name || commonT('item')}</p>
                     <p className="mt-1 text-sm text-[var(--fg-muted)]">{t('details.quantity')}: {item.quantity}</p>
@@ -70,6 +71,13 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ l
                 </li>
               ))}
             </ul>
+            {/* Orders placed before shipping moved to "agreed after the order" still carry a charged shipping cost */}
+            {Number(order.shipping_cost_eur) > 0 && (
+              <div className="mt-5 flex justify-between border-t border-[var(--border)] pt-4 text-sm text-[var(--fg-muted)]">
+                <span>{t('details.shippingCost')}</span>
+                <span>{formatPrice(Number(order.shipping_cost_eur), 'EUR', localeStr)}</span>
+              </div>
+            )}
             <div className="mt-5 flex justify-between border-t border-[var(--border)] pt-4 font-medium">
               <span>{t('total')}</span>
               <span>{formatPrice(order.total_eur, 'EUR', localeStr)}</span>
@@ -77,13 +85,13 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ l
           </section>
           <div className="space-y-8">
             <section className="border border-[var(--border)] p-5 sm:p-7">
-              <h2 className="mb-4 font-serif text-xl">{t('details.shippingAddress')}</h2>
+              <h2 className="heading-display mb-4 text-3xl">{t('details.shippingAddress')}</h2>
               {addressLines.length ? <address className="space-y-1 text-sm not-italic text-[var(--fg-muted)]">{addressLines.map((line, index) => <p key={index}>{line}</p>)}</address> : <p className="text-sm text-[var(--fg-muted)]">{t('details.noAddress')}</p>}
               {order.shipping_method && <p className="mt-4 text-sm">{t('details.shippingMethod')}: {order.shipping_method === 'standard' ? t('details.standard') : order.shipping_method === 'express' ? t('details.express') : order.shipping_method}</p>}
-              <p className="mt-2 text-sm">{t('details.shippingCost')}: {formatPrice(order.shipping_cost_eur, 'EUR', localeStr)}</p>
+              {!(Number(order.shipping_cost_eur) > 0) && <p className="mt-4 text-sm text-[var(--fg-muted)]">{shippingT('shipping_note')}</p>}
             </section>
             <section className="border border-[var(--border)] p-5 sm:p-7">
-              <h2 className="mb-4 font-serif text-xl">{t('details.payment')}</h2>
+              <h2 className="heading-display mb-4 text-3xl">{t('details.payment')}</h2>
               <p className="text-sm text-[var(--fg-muted)]">{order.payment_provider === 'stripe' ? 'Stripe' : order.payment_provider === 'yookassa' ? 'ЮKassa' : t('details.notSpecified')}</p>
             </section>
           </div>

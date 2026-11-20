@@ -37,10 +37,10 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           <span aria-hidden="true">/</span>
           <span aria-current="page">{t('title')}</span>
         </nav>
-        <h1 className="mb-10 font-serif text-3xl text-[var(--accent)] sm:text-4xl">{t('title')}</h1>
+        <h1 className="heading-display mb-10 text-5xl text-foreground sm:text-6xl">{t('title')}</h1>
         <div className="grid gap-8 lg:grid-cols-2">
           <section className="border border-[var(--border)] p-5 sm:p-8">
-            <h2 className="mb-6 font-serif text-2xl">{t('profile.title')}</h2>
+            <h2 className="heading-display mb-6 text-3xl">{t('profile.title')}</h2>
             <AccountProfileForm
               email={user.email ?? ''}
               name={profileResult.data?.full_name ?? (typeof user.user_metadata.full_name === 'string' ? user.user_metadata.full_name : '')}

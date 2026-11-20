@@ -96,7 +96,9 @@ export default async function AdminOrderDetail({
               )}
             </div>
             <div className="mt-4 border-t border-[var(--border)] pt-4 text-right">
-              <p className="text-xs text-[var(--fg-muted)]">Shipping: €{Number(order.shipping_cost_eur).toFixed(2)}</p>
+              {Number(order.shipping_cost_eur) > 0 && (
+                <p className="text-xs text-[var(--fg-muted)]">Shipping (legacy order): €{Number(order.shipping_cost_eur).toFixed(2)}</p>
+              )}
               <p className="mt-1 font-serif text-lg text-[var(--admin-accent-text)]">
                 Total: €{Number(order.total_eur).toFixed(2)}
               </p>

@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import * as Checkbox from '@radix-ui/react-checkbox'
-import { Check, ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react'
+import { Check, ChevronDown, SlidersHorizontal, X } from 'lucide-react'
 import type { Category, Locale } from '@/types'
 
 const MATERIALS = ['Porcelain', 'Crystal', 'Silver', 'Bronze', 'Copper', 'Glass', 'Wood', 'Ivory']
@@ -24,12 +24,16 @@ function FilterGroup({
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between py-3 text-xs uppercase tracking-[0.18em] text-gold/70 hover:text-gold-rich transition-colors"
+        className="flex w-full items-center justify-between py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-foreground transition-colors hover:text-gold"
       >
         {label}
-        {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        <ChevronDown size={13} aria-hidden="true" className={`text-gold transition-transform duration-500 ease-lux ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && <div className="mt-2">{children}</div>}
+      <div className={`grid transition-[grid-template-rows,opacity] duration-500 ease-lux ${open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+        <div className="overflow-hidden" inert={!open || undefined}>
+          <div className="pt-2">{children}</div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -50,13 +54,13 @@ function CheckItem({
         id={id}
         checked={checked}
         onCheckedChange={onCheckedChange}
-        className="flex h-4 w-4 shrink-0 items-center justify-center border border-gold/30 bg-transparent transition-colors data-[state=checked]:border-gold data-[state=checked]:bg-gold/15"
+        className="flex h-4 w-4 shrink-0 items-center justify-center border border-gold/40 bg-card transition-all duration-300 hover:border-gold data-[state=checked]:border-gold data-[state=checked]:bg-gold"
       >
         <Checkbox.Indicator>
-          <Check size={10} className="text-gold-rich" />
+          <Check size={10} strokeWidth={3} className="text-[var(--bg)]" />
         </Checkbox.Indicator>
       </Checkbox.Root>
-      <label htmlFor={id} className="cursor-pointer text-xs tracking-wide text-[#c8bfaa]/80 hover:text-[#f4ead1] transition-colors">
+      <label htmlFor={id} className="cursor-pointer text-[13px] tracking-wide text-muted-foreground transition-colors hover:text-foreground">
         {label}
       </label>
     </div>
@@ -138,7 +142,7 @@ export function FilterSidebar({
       {hasFilters && (
         <button
           onClick={clearAll}
-          className="mb-4 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-gold/60 hover:text-gold-rich transition-colors"
+          className="mb-4 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-gold transition-colors hover:text-gold-rich"
         >
           <X size={10} /> {t('clearAllFilters')}
         </button>
@@ -146,13 +150,13 @@ export function FilterSidebar({
 
       <FilterGroup label={common('search')}>
         <form onSubmit={(event) => { event.preventDefault(); updateParam('search', searchInput.trim() || null) }}>
-          <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder={t('searchPlaceholder')} aria-label={t('searchPlaceholder')} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
-          <button type="submit" className="mt-2 text-xs text-[#c8bfaa] hover:text-white">{common('search')}</button>
+          <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder={t('searchPlaceholder')} aria-label={t('searchPlaceholder')} className="field-lux" />
+          <button type="submit" className="link-lux mt-3 text-[11px] uppercase tracking-[0.2em] text-gold">{common('search')}</button>
         </form>
       </FilterGroup>
 
       <FilterGroup label={t('filters.category')}>
-        <select value={categorySlug} onChange={(event) => updateParam('category', event.target.value || null)} aria-label={t('filters.category')} className="w-full border border-gold/30 bg-[#0a1f18] px-2 py-2 text-xs text-white">
+        <select value={categorySlug} onChange={(event) => updateParam('category', event.target.value || null)} aria-label={t('filters.category')} className="field-lux cursor-pointer">
           <option value="">{t('allCategories')}</option>
           {categories.map((category) => <option key={category.id} value={category.slug}>{getLocalizedField(category as unknown as Record<string, string | null | undefined>, 'name', locale)}</option>)}
         </select>
@@ -171,8 +175,8 @@ export function FilterSidebar({
 
       <FilterGroup label={t('priceCurrency', { currency: 'EUR' })}>
         <div className="grid grid-cols-2 gap-2 pb-3">
-          <input type="number" min="0" aria-label={t('minimumPrice')} placeholder={t('min')} value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} onBlur={() => updateParam('price_min', priceFrom || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
-          <input type="number" min="0" aria-label={t('maximumPrice')} placeholder={t('max')} value={priceTo} onChange={(e) => setPriceTo(e.target.value)} onBlur={() => updateParam('price_max', priceTo || null)} className="w-full border border-gold/30 bg-transparent px-2 py-2 text-xs text-white" />
+          <input type="number" min="0" aria-label={t('minimumPrice')} placeholder={t('min')} value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} onBlur={() => updateParam('price_min', priceFrom || null)} className="field-lux" />
+          <input type="number" min="0" aria-label={t('maximumPrice')} placeholder={t('max')} value={priceTo} onChange={(e) => setPriceTo(e.target.value)} onBlur={() => updateParam('price_max', priceTo || null)} className="field-lux" />
         </div>
       </FilterGroup>
 
@@ -182,19 +186,19 @@ export function FilterSidebar({
             <div key={value} className="flex items-center gap-2.5 py-1.5">
               <button
                 onClick={() => setCondition(value)}
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
                   condition === value
-                    ? 'border-gold bg-gold/20'
-                    : 'border-gold/30 hover:border-gold/60'
+                    ? 'border-gold bg-gold/15'
+                    : 'border-gold/40 hover:border-gold'
                 }`}
                 aria-label={product(`condition.${value}`)}
                 aria-pressed={condition === value}
               >
                 {condition === value && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-gold-rich" />
+                  <div className="h-2 w-2 rounded-full bg-gold" />
                 )}
               </button>
-              <span className="cursor-pointer text-xs tracking-wide text-[#c8bfaa]/80">{product(`condition.${value}`)}</span>
+              <span className="text-[13px] tracking-wide text-muted-foreground">{product(`condition.${value}`)}</span>
             </div>
           ))}
         </div>
@@ -207,14 +211,14 @@ export function FilterSidebar({
       <button
         onClick={() => setMobileOpen((v) => !v)}
         aria-expanded={mobileOpen}
-        className="flex items-center gap-2 border border-gold/30 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-gold/70 transition-colors hover:border-gold hover:text-gold-rich lg:hidden"
+        className="btn-ghost !px-5 !py-3 lg:hidden"
       >
         <SlidersHorizontal size={14} />
         {hasFilters ? t('filterCount', { count: filterCount }) : t('filtersTitle')}
       </button>
 
       {mobileOpen && (
-        <div className="rounded border border-gold/15 bg-[#071a12] p-5 lg:hidden">
+        <div className="mt-3 border border-gold/20 bg-card p-5 shadow-[var(--shadow-lux)] lg:hidden">
           {FiltersContent}
         </div>
       )}

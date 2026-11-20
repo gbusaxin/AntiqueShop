@@ -26,7 +26,7 @@ export default function CheckoutFailedPage() {
           <XCircle size={64} className="text-red-400" strokeWidth={1.5} />
         </motion.div>
 
-        <h1 className="mb-4 font-serif text-3xl text-[var(--fg)]">{t('title')}</h1>
+        <h1 className="heading-display mb-4 text-5xl text-[var(--fg)]">{t('title')}</h1>
         <p className="mb-2 text-sm leading-relaxed text-[var(--fg-muted)]">
           {t('description')}
         </p>
@@ -37,13 +37,13 @@ export default function CheckoutFailedPage() {
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/checkout"
-            className="inline-block border border-[var(--accent)] px-8 py-3 text-xs uppercase tracking-[0.18em] text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--bg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            className="btn-lux"
           >
             {t('tryAgain')}
           </Link>
           <Link
             href="/cart"
-            className="px-8 py-3 text-xs uppercase tracking-[0.18em] text-[var(--fg-muted)] transition-colors hover:text-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            className="btn-ghost"
           >
             {t('backToCart')}
           </Link>

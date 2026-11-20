@@ -12,8 +12,6 @@ import { getLocalizedField } from '@/lib/getLocalizedField'
 import { getPaymentProvidersForRegion } from '@/lib/getPaymentProvidersForRegion'
 import type { Locale } from '@/types'
 
-const SHIPPING_EST = 35
-
 interface CartContentProps {
   locale: Locale
 }
@@ -39,14 +37,14 @@ export function CartContent({ locale }: CartContentProps) {
           <ShoppingBag size={56} className="text-gold/20" />
         </motion.div>
         <div className="text-center">
-          <p className="font-serif text-xl text-gold/50">{t('empty')}</p>
-          <p className="mt-2 text-xs tracking-wide text-[#c8bfaa]/40">
+          <p className="heading-display text-3xl italic text-muted-foreground">{t('empty')}</p>
+          <p className="mt-2 text-xs tracking-wide text-muted-foreground">
             {t('emptyDescription')}
           </p>
         </div>
         <Link
           href="/catalog"
-          className="border border-gold/40 px-8 py-3 text-xs uppercase tracking-[0.2em] text-gold/70 transition-colors hover:border-gold hover:text-gold-rich"
+          className="btn-ghost"
         >
           {t('continueShopping')}
         </Link>
@@ -75,7 +73,7 @@ export function CartContent({ locale }: CartContentProps) {
                 transition={{ duration: 0.3 }}
                 className="flex gap-5 border-b border-gold/10 py-6"
               >
-                <div className="relative h-28 w-20 shrink-0 overflow-hidden bg-emerald-dark/30">
+                <div className="relative h-28 w-20 shrink-0 overflow-hidden bg-deep">
                   {item.product.images?.[0] ? (
                     <Image
                       src={item.product.images[0]}
@@ -96,14 +94,14 @@ export function CartContent({ locale }: CartContentProps) {
                     <div>
                       <Link
                         href={`/catalog/${item.product.slug}`}
-                        className="font-serif text-sm leading-snug text-[#f4ead1] hover:text-gold-rich transition-colors"
+                        className="font-serif text-sm leading-snug text-foreground hover:text-gold-rich transition-colors"
                       >
                         {name}
                       </Link>
                     </div>
                     <button
                       onClick={() => removeItem(item.product.id)}
-                      className="shrink-0 text-gold/30 transition-colors hover:text-red-400"
+                      className="shrink-0 text-muted-foreground transition-colors hover:text-red-400"
                       aria-label={t('remove')}
                     >
                       <Trash2 size={14} />
@@ -119,15 +117,15 @@ export function CartContent({ locale }: CartContentProps) {
                             ? removeItem(item.product.id)
                             : updateQuantity(item.product.id, item.quantity - 1)
                         }
-                        className="flex h-8 w-8 items-center justify-center text-gold/50 transition-colors hover:text-gold-rich"
+                        className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-gold-rich"
                       >
                         <Minus size={12} />
                       </button>
-                      <span className="w-8 text-center text-xs text-[#f4ead1]">{item.quantity}</span>
+                      <span className="w-8 text-center text-xs text-foreground">{item.quantity}</span>
                       <button
                         aria-label={t('increaseQuantity')}
                         onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                        className="flex h-8 w-8 items-center justify-center text-gold/50 transition-colors hover:text-gold-rich"
+                        className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-gold-rich"
                       >
                         <Plus size={12} />
                       </button>
@@ -145,7 +143,7 @@ export function CartContent({ locale }: CartContentProps) {
         <div className="mt-6">
           <Link
             href="/catalog"
-            className="text-[10px] uppercase tracking-[0.18em] text-gold/50 hover:text-gold-rich transition-colors"
+            className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:text-gold-rich transition-colors"
           >
             ← {t('continueShopping')}
           </Link>
@@ -158,47 +156,41 @@ export function CartContent({ locale }: CartContentProps) {
 
           <div className="space-y-3 text-xs">
             <div className="flex justify-between tracking-wide">
-              <span className="text-[#c8bfaa]/70">{t('subtotal')}</span>
-              <span className="text-[#f4ead1]">{formatPrice(totalEur, 'EUR', localeStr)}</span>
-            </div>
-            <div className="flex justify-between tracking-wide">
-              <span className="text-[#c8bfaa]/70">{t('shipping')}</span>
-              <span className="text-[#c8bfaa]/50 text-[10px]">{t('calculatedAtCheckout')}</span>
+              <span className="text-muted-foreground">{t('subtotal')}</span>
+              <span className="text-foreground">{formatPrice(totalEur, 'EUR', localeStr)}</span>
             </div>
             <div className="border-t border-gold/10 pt-3">
               <div className="flex justify-between">
-                <span className="uppercase tracking-[0.15em] text-gold/70">{t('total')}</span>
-                <span className="font-serif text-lg text-gold-rich">{formatPrice(totalEur + SHIPPING_EST, 'EUR', localeStr)}</span>
+                <span className="uppercase tracking-[0.15em] text-gold">{t('total')}</span>
+                <span className="font-serif text-lg text-gold-rich">{formatPrice(totalEur, 'EUR', localeStr)}</span>
               </div>
-              <p className="mt-1 text-right text-[10px] text-gold/40">
-                {t('estimatedShipping', { amount: formatPrice(SHIPPING_EST, 'EUR', localeStr) })}
-              </p>
+              <p className="mt-3 text-sm text-muted-foreground">{checkoutT('shipping_note')}</p>
             </div>
           </div>
 
           <Link
             href="/checkout"
-            className="mt-6 flex w-full items-center justify-center border border-gold bg-gold/10 py-4 text-xs uppercase tracking-[0.2em] text-gold-rich transition-all duration-300 hover:bg-gold hover:text-emerald-dark"
+            className="btn-lux mt-6 w-full !py-5"
           >
             {t('checkout')}
           </Link>
 
           <div className="mt-6 border-t border-gold/10 pt-4">
-            <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-gold/40">{t('acceptedPayments')}</p>
+            <p className="mb-3 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('acceptedPayments')}</p>
             <div className="flex flex-wrap gap-2">
               {providers.includes('stripe') && (
                 <>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('card')}</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('applePay')}</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('googlePay')}</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('sepa')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('card')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('applePay')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('googlePay')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('sepa')}</span>
                 </>
               )}
               {providers.includes('yookassa') && (
                 <>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('mir')}</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('sbp')}</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-gold/50">{paymentT('yooMoney')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('mir')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('sbp')}</span>
+                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('yooMoney')}</span>
                 </>
               )}
             </div>

@@ -12,7 +12,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: Promi
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 text-center">
       <div className="w-full max-w-sm space-y-4">
-        <h1 className="font-serif text-2xl text-foreground">{confirmed ? t('successTitle') : t('title')}</h1>
+        <h1 className="heading-display text-4xl text-foreground">{confirmed ? t('successTitle') : t('title')}</h1>
         <p role={error ? 'alert' : 'status'} className="text-sm text-muted-foreground">{error ? t('invalidLink') : confirmed ? t('success') : t('checkEmail')}</p>
         <Link href={confirmed ? '/' : '/auth/login'} className="inline-block text-sm text-foreground underline">{confirmed ? t('goHome') : t('backToLogin')}</Link>
       </div>

@@ -61,7 +61,7 @@ export function LoginClient() {
         className="w-full max-w-sm"
       >
         <div className="mb-8 text-center">
-          <p className="font-serif text-2xl text-foreground tracking-wide">VintagEmpire</p>
+          <p className="heading-display text-4xl text-foreground tracking-wide">VintagEmpire</p>
           <p className="mt-2 text-sm uppercase tracking-[0.15em] text-muted-foreground">{t('title')}</p>
         </div>
 
@@ -73,9 +73,9 @@ export function LoginClient() {
               autoComplete="email"
               placeholder={t('emailPlaceholder')}
               {...register('email')}
-              className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="field-lux !px-4 !py-3 !text-sm"
             />
-            {errors.email && <p role="alert" className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
+            {errors.email && <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">{errors.email.message}</p>}
           </div>
 
           <div>
@@ -85,17 +85,17 @@ export function LoginClient() {
               autoComplete="current-password"
               placeholder={t('password')}
               {...register('password')}
-              className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="field-lux !px-4 !py-3 !text-sm"
             />
-            {errors.password && <p role="alert" className="mt-1 text-sm text-red-400">{errors.password.message}</p>}
+            {errors.password && <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">{errors.password.message}</p>}
           </div>
 
-          {serverError && <p role="alert" className="text-sm text-red-400">{serverError}</p>}
+          {serverError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{serverError}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
+            className="btn-lux mt-2"
           >
             {loading ? t('submitting') : t('submit')}
           </button>

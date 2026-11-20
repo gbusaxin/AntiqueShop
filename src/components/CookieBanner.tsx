@@ -61,7 +61,7 @@ export function CookieBanner() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="fixed bottom-0 left-0 right-0 z-[100] border-t border-input bg-background text-foreground"
+        className="fixed bottom-0 left-0 right-0 z-[100] border-t border-gold/25 bg-card text-foreground shadow-[0_-20px_40px_-30px_rgb(0_0_0/0.4)]"
       >
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -139,7 +139,7 @@ export function CookieBanner() {
               </button>
               <button
                 onClick={() => choose('accepted')}
-                className="border border-primary bg-primary px-5 py-2 text-sm uppercase tracking-wider text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="btn-lux !px-5 !py-2.5"
               >
                 {t('accept')}
               </button>

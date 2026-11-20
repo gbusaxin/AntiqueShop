@@ -90,27 +90,27 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <p className="font-serif text-2xl tracking-wide text-foreground">VintagEmpire</p>
-          <h1 className="mt-3 font-serif text-xl text-foreground">{t('title')}</h1>
+          <p className="font-display text-3xl font-medium tracking-wide text-foreground">Vintag<span className="italic text-gold">Empire</span></p>
+          <h1 className="heading-display mt-3 text-4xl text-foreground">{t('title')}</h1>
         </div>
         {status === 'checking' && <p role="status" className="text-sm text-muted-foreground">{t('checking')}</p>}
         {status === 'invalid' && (
-          <p role="alert" className="text-sm text-red-400">{t('invalidLink')} <Link href="/auth/forgot-password" className="underline">{t('requestAgain')}</Link></p>
+          <p role="alert" className="text-sm text-red-700 dark:text-red-400">{t('invalidLink')} <Link href="/auth/forgot-password" className="underline">{t('requestAgain')}</Link></p>
         )}
         {status === 'ready' && (
           <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div>
               <label htmlFor="new-password" className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('password')}</label>
-              <input id="new-password" type="password" autoComplete="new-password" {...register('password')} className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
-              {errors.password && <p role="alert" className="mt-1 text-sm text-red-400">{errors.password.message}</p>}
+              <input id="new-password" type="password" autoComplete="new-password" {...register('password')} className="field-lux !px-4 !py-3 !text-sm" />
+              {errors.password && <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">{errors.password.message}</p>}
             </div>
             <div>
               <label htmlFor="confirm-password" className="mb-1.5 block text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('confirmPassword')}</label>
-              <input id="confirm-password" type="password" autoComplete="new-password" {...register('confirmPassword')} className="w-full border border-input bg-background px-4 py-3 text-sm text-foreground focus:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
-              {errors.confirmPassword && <p role="alert" className="mt-1 text-sm text-red-400">{errors.confirmPassword.message}</p>}
+              <input id="confirm-password" type="password" autoComplete="new-password" {...register('confirmPassword')} className="field-lux !px-4 !py-3 !text-sm" />
+              {errors.confirmPassword && <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">{errors.confirmPassword.message}</p>}
             </div>
-            {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
-            <button type="submit" disabled={loading} className="border border-primary bg-primary py-3.5 text-sm uppercase tracking-[0.15em] text-primary-foreground disabled:opacity-50">{loading ? t('submitting') : t('submit')}</button>
+            {error && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-lux">{loading ? t('submitting') : t('submit')}</button>
           </form>
         )}
         <p className="text-center text-sm"><Link href="/auth/login" className="text-foreground underline">{t('backToLogin')}</Link></p>
