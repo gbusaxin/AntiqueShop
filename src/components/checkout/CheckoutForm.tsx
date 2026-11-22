@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Controller, useForm } from 'react-hook-form'
@@ -10,12 +10,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from '@/i18n/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useRegionStore } from '@/store/regionStore'
-import { getPaymentMethodsForRegion } from '@/lib/getPaymentProvidersForRegion'
+import {
+  getPaymentMethodsForRegion,
+  getPaymentProvider,
+  type ProviderAvailability,
+} from '@/lib/getPaymentProvidersForRegion'
 import { formatPrice } from '@/lib/getPriceForRegion'
 import { getRegionFromCountryCode } from '@/lib/region'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { CountryCombobox } from '@/components/checkout/CountryCombobox'
-import type { Locale } from '@/types'
+import type { Locale, PaymentMethod } from '@/types'
 
 const STATE_COUNTRIES = ['US', 'CA', 'AU']
 
@@ -43,9 +47,31 @@ function InputField({
 
 interface CheckoutFormProps {
   locale: Locale
+  paymentAvailability: ProviderAvailability
 }
 
-export function CheckoutForm({ locale }: CheckoutFormProps) {
+type WalletSupport = { apple_pay: boolean; google_pay: boolean }
+
+/** Wallets the browser can actually use: Apple Pay needs Safari / an Apple device, Google Pay doesn't run in Safari */
+function detectWallets(): WalletSupport {
+  const w = window as Window & { ApplePaySession?: { canMakePayments?: () => boolean } }
+  let apple = false
+  try {
+    apple = Boolean(w.ApplePaySession?.canMakePayments?.())
+  } catch {
+    apple = false
+  }
+  const isSafari = /^((?!chrome|chromium|crios|fxios|edg|android).)*safari/i.test(navigator.userAgent)
+  return { apple_pay: apple, google_pay: !isSafari }
+}
+
+const CHECKOUT_ERRORS = [
+  'invalid_request', 'method_unavailable', 'not_available', 'reserved', 'price_changed',
+  'not_configured', 'provider_error', 'server_error', 'rate_limited',
+] as const
+type CheckoutErrorCode = (typeof CHECKOUT_ERRORS)[number] | 'network'
+
+export function CheckoutForm({ locale, paymentAvailability }: CheckoutFormProps) {
   const t = useTranslations('checkout')
   const cartT = useTranslations('cart')
   const commonT = useTranslations('common')
@@ -76,8 +102,12 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
   type FormData = z.infer<typeof schema>
   const [step, setStep] = useState<1 | 2>(1)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<CheckoutErrorCode | null>(null)
+  const [wallets, setWallets] = useState<WalletSupport | null>(null)
+  const errorsT = useTranslations('checkout.errors')
+  const hintsT = useTranslations('checkout.methodHints')
   const router = useRouter()
-  const { items, totalEur, clearCart } = useCartStore()
+  const { items, totalEur } = useCartStore()
   const { region: storeRegion } = useRegionStore()
 
   const {
@@ -85,6 +115,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
     trigger,
   } = useForm<FormData>({
@@ -94,7 +125,23 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
 
   const watchedCountry = watch('country')
   const derivedRegion = watchedCountry ? getRegionFromCountryCode(watchedCountry) : storeRegion
-  const paymentMethods = getPaymentMethodsForRegion(derivedRegion)
+  const provider = getPaymentProvider(derivedRegion, paymentAvailability)
+  const paymentMethods = getPaymentMethodsForRegion(derivedRegion, paymentAvailability, watchedCountry).filter(
+    (m: PaymentMethod) => !m.wallet || Boolean(m.wallet === 'apple_pay' ? wallets?.apple_pay : wallets?.google_pay)
+  )
+  const selectedMethod = watch('paymentMethodId')
+  const methodIds = paymentMethods.map((m) => m.id).join(',')
+
+  useEffect(() => {
+    setWallets(detectWallets())
+  }, [])
+
+  // A new shipping country can rule out the method picked before (Klarna, SEPA, YooKassa)
+  useEffect(() => {
+    if (selectedMethod && !methodIds.split(',').includes(selectedMethod)) {
+      setValue('paymentMethodId', '', { shouldValidate: false })
+    }
+  }, [methodIds, selectedMethod, setValue])
   const showState = STATE_COUNTRIES.includes(watchedCountry)
 
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
@@ -112,7 +159,7 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
 
   const onSubmit = async (data: FormData) => {
     setSubmitting(true)
-    const provider = derivedRegion === 'CIS' ? 'yookassa' : 'stripe'
+    setSubmitError(null)
     try {
       const res = await fetch(`/api/checkout/${provider}`, {
         method: 'POST',
@@ -132,23 +179,24 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
           email: data.email,
           paymentMethodId: data.paymentMethodId,
           deliveryMethod: data.deliveryMethod,
-          region: derivedRegion,
           locale,
         }),
       })
 
-      const json = await res.json()
+      const json = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
 
-      if (json.url) {
-        clearCart()
+      if (res.ok && json.url) {
+        // The cart is cleared on the success page, so "back" from the payment page keeps it
         window.location.href = json.url
-      } else if (json.orderId) {
-        clearCart()
-        router.push(`/checkout/success?orderId=${json.orderId}`)
+        return
       }
+      const code = CHECKOUT_ERRORS.find((c) => c === json.error) ?? 'server_error'
+      setSubmitError(code)
+      if (code === 'price_changed' || code === 'not_available') router.refresh()
     } catch {
-      setSubmitting(false)
+      setSubmitError('network')
     }
+    setSubmitting(false)
   }
 
   return (
@@ -259,31 +307,57 @@ export function CheckoutForm({ locale }: CheckoutFormProps) {
             >
               <div data-testid="payment-section">
                 <p className="mb-4 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">{t('paymentMethod')}</p>
-                {derivedRegion === 'CIS' && (
+                {provider === 'yookassa' && (
                   <p className="mb-3 text-[10px] text-muted-foreground">
                     {t('yookassaNotice')}
                   </p>
                 )}
-                <div className="flex flex-col gap-3">
-                  {paymentMethods.map((method) => (
-                    <label
-                      key={method.id}
-                      className="flex cursor-pointer items-center gap-3 border border-primary/20 p-4 transition-colors hover:border-primary/40"
-                    >
-                      <input
-                        type="radio"
-                        value={method.id}
-                        {...register('paymentMethodId')}
-                        className="sr-only"
-                      />
-                      <div className="h-4 w-4 shrink-0 rounded-full border border-primary/40 flex items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-primary opacity-0 peer-checked:opacity-100" />
-                      </div>
-                      <span className="text-xs text-muted-foreground">{locale === 'ru' ? method.label.ru : locale === 'de' ? method.label.de : method.label.en}</span>
-                    </label>
-                  ))}
+                <div role="radiogroup" className="flex flex-col gap-3">
+                  {paymentMethods.map((method) => {
+                    const checked = selectedMethod === method.id
+                    const hintKey = method.wallet ? 'wallet' : method.id === 'sepa' ? 'sepa' : method.id === 'klarna' ? 'klarna' : null
+                    const hint = hintKey ? hintsT(hintKey) : null
+                    return (
+                      <label
+                        key={method.id}
+                        className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors duration-300 has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-gold ${
+                          checked ? 'border-gold/60 bg-gold/[0.04]' : 'border-primary/20 hover:border-primary/40'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          value={method.id}
+                          {...register('paymentMethodId')}
+                          className="sr-only"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                            checked ? 'border-gold-rich' : 'border-primary/40'
+                          }`}
+                        >
+                          <span
+                            className={`h-2 w-2 rounded-full bg-gold-rich transition-transform duration-300 ${checked ? 'scale-100' : 'scale-0'}`}
+                          />
+                        </span>
+                        <span className="flex flex-col gap-1">
+                          <span className={`text-xs ${checked ? 'text-foreground' : 'text-muted-foreground'}`}>
+                            {locale === 'ru' ? method.label.ru : locale === 'de' ? method.label.de : method.label.en}
+                          </span>
+                          {hint && checked && (
+                            <span className="text-[11px] leading-relaxed text-muted-foreground">{hint}</span>
+                          )}
+                        </span>
+                      </label>
+                    )
+                  })}
                 </div>
                 <FieldError message={errors.paymentMethodId?.message} />
+                {submitError && (
+                  <p role="alert" className="mt-4 border border-red-700/30 bg-red-400/5 p-3 text-[12px] leading-relaxed text-red-700 dark:border-red-400/30 dark:text-red-400">
+                    {errorsT(submitError)}
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-3">

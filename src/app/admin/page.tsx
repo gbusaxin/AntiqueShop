@@ -5,6 +5,7 @@ import type { OrderStatus } from '@/types'
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
   new: 'admin-status-blue',
+  awaiting_payment: 'admin-status-amber',
   paid: 'admin-status-green',
   shipped: 'admin-status-amber',
   completed: 'admin-status-green',
@@ -196,7 +197,7 @@ export default async function AdminDashboard() {
                     <span
                       className={`rounded px-2 py-0.5 text-[10px] uppercase tracking-wider ${STATUS_BADGE[order.status as OrderStatus] ?? ''}`}
                     >
-                      {order.status}
+                      {order.status.replace('_', ' ')}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-[var(--fg-muted)]">{order.region ?? '—'}</td>

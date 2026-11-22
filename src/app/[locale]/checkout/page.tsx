@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { CheckoutForm } from '@/components/checkout/CheckoutForm'
+import { getProviderAvailability } from '@/lib/paymentConfig'
 import type { Locale } from '@/types'
 import type { Metadata } from 'next'
 
@@ -28,7 +29,7 @@ export default async function CheckoutPage({
           <p className="eyebrow">{t('eyebrow')}</p>
           <h1 className="heading-display mt-4 text-5xl text-foreground md:text-6xl">{t('title')}</h1>
         </div>
-        <CheckoutForm locale={locale as Locale} />
+        <CheckoutForm locale={locale as Locale} paymentAvailability={getProviderAvailability()} />
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import type { OrderStatus } from '@/types'
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
   new: 'admin-status-blue',
+  awaiting_payment: 'admin-status-amber',
   paid: 'admin-status-green',
   shipped: 'admin-status-amber',
   completed: 'admin-status-green',
@@ -12,7 +13,7 @@ const STATUS_BADGE: Record<OrderStatus, string> = {
   refunded: 'admin-status-red',
 }
 
-const STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
+const STATUSES: OrderStatus[] = ['new', 'awaiting_payment', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
 
 export default async function AdminOrders({
   searchParams,
@@ -75,7 +76,7 @@ export default async function AdminOrders({
                 : 'border border-[var(--border)] text-[var(--fg-muted)] hover:border-[var(--accent)]/40'
             }`}
           >
-            {s}
+            {s.replace('_', ' ')}
           </Link>
         ))}
 
@@ -152,7 +153,7 @@ export default async function AdminOrders({
                   <span
                     className={`rounded px-2 py-0.5 text-[10px] uppercase tracking-wider ${STATUS_BADGE[order.status as OrderStatus] ?? ''}`}
                   >
-                    {order.status}
+                    {order.status.replace('_', ' ')}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-[var(--fg-muted)]">{order.region ?? '—'}</td>

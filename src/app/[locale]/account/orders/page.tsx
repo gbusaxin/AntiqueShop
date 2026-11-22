@@ -20,6 +20,7 @@ export async function generateMetadata({
 
 const STATUS_STYLES: Record<string, string> = {
   new: 'text-blue-700 dark:text-blue-400 border-blue-700/30 dark:border-blue-400/30 bg-blue-400/5',
+  awaiting_payment: 'text-amber-700 dark:text-amber-400 border-amber-700/30 dark:border-amber-400/30 bg-amber-400/5',
   paid: 'text-emerald-700 dark:text-emerald-400 border-emerald-700/30 dark:border-emerald-400/30 bg-emerald-400/5',
   shipped: 'text-amber-700 dark:text-amber-400 border-amber-700/30 dark:border-amber-400/30 bg-amber-400/5',
   completed: 'text-gold-rich border-gold/30 bg-gold/5',

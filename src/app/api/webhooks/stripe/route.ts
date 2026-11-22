@@ -1,27 +1,28 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabaseServer'
-import { sendOrderConfirmation, notifyAdminNewOrder } from '@/lib/email'
+import { cancelOrder, markAwaitingPayment, markOrderPaid } from '@/lib/orders'
+import { getStripe } from '@/lib/paymentProviders'
+
+function paymentIntentId(session: Stripe.Checkout.Session): string | null {
+  return typeof session.payment_intent === 'string' ? session.payment_intent : (session.payment_intent?.id ?? null)
+}
 
 export async function POST(request: Request) {
-  const stripeKey = process.env.STRIPE_SECRET_KEY
+  const stripe = getStripe()
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
-  if (!stripeKey || !webhookSecret) {
+  if (!stripe || !webhookSecret || !webhookSecret.startsWith('whsec_') || webhookSecret === 'whsec_...') {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: '2025-02-24.acacia' })
-
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
-
   if (!signature) {
     return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
   }
 
   let event: Stripe.Event
-
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
   } catch (err) {
@@ -43,106 +44,53 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'DB error' }, { status: 500 })
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const orderId = session.metadata?.orderId
+  try {
+    switch (event.type) {
+      // Cards, wallets and Klarna are paid here; SEPA is only confirmed and settles days later
+      case 'checkout.session.completed': {
+        const session = event.data.object
+        const orderId = session.metadata?.orderId
+        if (!orderId) break
+        if (session.payment_status === 'paid' || session.payment_status === 'no_payment_required') {
+          await markOrderPaid(supabase, orderId, paymentIntentId(session), 'en')
+        } else {
+          await markAwaitingPayment(supabase, orderId, paymentIntentId(session))
+        }
+        break
+      }
 
-    if (!orderId) {
-      console.error('[stripe webhook] no orderId in metadata')
-      return NextResponse.json({ error: 'Missing orderId' }, { status: 400 })
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object
+        const orderId = session.metadata?.orderId
+        if (orderId) await markOrderPaid(supabase, orderId, paymentIntentId(session), 'en')
+        break
+      }
+
+      // SEPA bounced, or the buyer never paid: the pieces go back on sale
+      case 'checkout.session.async_payment_failed':
+      case 'checkout.session.expired': {
+        const orderId = event.data.object.metadata?.orderId
+        if (orderId) await cancelOrder(supabase, orderId)
+        break
+      }
+
+      case 'charge.refunded': {
+        const pi = event.data.object.payment_intent
+        if (pi) {
+          await supabase
+            .from('orders')
+            .update({ status: 'refunded', updated_at: new Date().toISOString() })
+            .eq('payment_intent_id', typeof pi === 'string' ? pi : pi.id)
+            .in('status', ['paid', 'shipped', 'completed'])
+        }
+        break
+      }
     }
-
-    const { data: updatedOrder, error } = await supabase
-      .from('orders')
-      .update({
-        status: 'paid',
-        payment_intent_id:
-          typeof session.payment_intent === 'string'
-            ? session.payment_intent
-            : (session.payment_intent?.id ?? null),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', orderId)
-      .eq('status', 'new')
-      .select('id, email, total_eur, region, payment_provider, locale, order_items(quantity, price_eur, products(name_en, name_ru, name_de))')
-      .single()
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('[stripe webhook] failed to update order to paid', error)
-      // Forget the event so the provider's retry is processed instead of skipped as a duplicate
-      await supabase.from('webhook_events').delete().eq('id', event.id)
-      return NextResponse.json({ error: 'DB update failed' }, { status: 500 })
-    }
-
-    if (updatedOrder) {
-      const locale = (updatedOrder.locale as string | null) ?? 'en'
-      const items = ((updatedOrder.order_items ?? []) as {
-        quantity: number
-        price_eur: number
-        products: { name_en?: string; name_ru?: string; name_de?: string } | null
-      }[]).map((i) => ({
-        name: i.products?.name_en ?? i.products?.name_ru ?? i.products?.name_de ?? 'Item',
-        quantity: i.quantity,
-        priceEur: i.price_eur,
-      }))
-
-      await Promise.all([
-        sendOrderConfirmation({
-          to: updatedOrder.email as string,
-          orderNumber: updatedOrder.id as string,
-          items,
-          totalEur: updatedOrder.total_eur as number,
-          locale,
-        }),
-        notifyAdminNewOrder({
-          orderNumber: updatedOrder.id as string,
-          totalEur: updatedOrder.total_eur as number,
-          region: updatedOrder.region as string,
-          provider: updatedOrder.payment_provider as string,
-          customerEmail: updatedOrder.email as string,
-        }),
-      ])
-    }
-  }
-
-  if (event.type === 'checkout.session.expired') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const orderId = session.metadata?.orderId
-
-    if (orderId) {
-      await supabase
-        .from('orders')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-        .eq('id', orderId)
-        .eq('status', 'new')
-    }
-  }
-
-  if (event.type === 'payment_intent.payment_failed') {
-    const pi = event.data.object as Stripe.PaymentIntent
-    const orderId = pi.metadata?.orderId
-
-    if (orderId) {
-      await supabase
-        .from('orders')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-        .eq('id', orderId)
-        .eq('status', 'new')
-    }
-  }
-
-  if (event.type === 'charge.refunded') {
-    const charge = event.data.object as Stripe.Charge
-    const pi = charge.payment_intent
-
-    if (pi) {
-      const piId = typeof pi === 'string' ? pi : pi.id
-      await supabase
-        .from('orders')
-        .update({ status: 'refunded', updated_at: new Date().toISOString() })
-        .eq('payment_intent_id', piId)
-        .in('status', ['paid', 'shipped'])
-    }
+  } catch (err) {
+    console.error(`[stripe webhook] failed to handle ${event.type}`, err)
+    // Forget the event so Stripe's retry is processed instead of skipped as a duplicate
+    await supabase.from('webhook_events').delete().eq('id', event.id)
+    return NextResponse.json({ error: 'Handler failed' }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })

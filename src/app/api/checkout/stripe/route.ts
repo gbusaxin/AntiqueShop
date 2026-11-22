@@ -1,198 +1,77 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { cookies, headers } from 'next/headers'
-import { createAdminClient, createClient } from '@/lib/supabaseServer'
-import { getRegionFromCountryCode, getCookieRegion } from '@/lib/region'
-import { getPaymentProvidersForRegion } from '@/lib/getPaymentProvidersForRegion'
-import { isPositiveInteger, isValidEmail } from '@/lib/validation'
+import { prepareOrder, checkoutError } from '@/lib/checkout'
+import { cancelOrder, CHECKOUT_HOLD_MINUTES } from '@/lib/orders'
+import { STRIPE_METHOD_TYPES } from '@/lib/getPaymentProvidersForRegion'
+import { getStripe } from '@/lib/paymentProviders'
+import { getSiteOrigin } from '@/lib/siteOrigin'
 import { rateLimit, getClientIp } from '@/lib/rateLimit'
-import { routing } from '@/i18n/routing'
-import type { Region } from '@/types'
 
-interface CheckoutItem {
-  productId: string
-  quantity: number
-  priceEur: number
-}
-
-interface RequestBody {
-  items: CheckoutItem[]
-  shippingAddress: Record<string, string>
-  email: string
-  deliveryMethod: 'standard' | 'express'
-  locale: string
-}
-
-async function getServerRegion(): Promise<Region> {
-  const headerStore = await headers()
-  const cookieStore = await cookies()
-
-  const cookieRegion = getCookieRegion(cookieStore as Parameters<typeof getCookieRegion>[0])
-  if (cookieRegion) return cookieRegion
-
-  const countryCode = headerStore.get('x-vercel-ip-country')
-  if (countryCode) return getRegionFromCountryCode(countryCode)
-
-  return 'EU'
-}
+// Stripe Checkout locales for the shop's languages
+const STRIPE_LOCALES = new Map<string, Stripe.Checkout.SessionCreateParams.Locale>([
+  ['ru', 'ru'],
+  ['en', 'en'],
+  ['de', 'de'],
+])
 
 export async function POST(request: Request) {
   const ip = getClientIp(request)
   const { allowed, retryAfter } = await rateLimit(`checkout:stripe:${ip}`, 10, 60 * 60 * 1000)
-  if (!allowed) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
-    )
+  if (!allowed) return checkoutError('rate_limited', 429, { 'Retry-After': String(retryAfter) })
+
+  const stripe = getStripe()
+  if (!stripe) {
+    console.error('[stripe checkout] STRIPE_SECRET_KEY is not set')
+    return checkoutError('not_configured', 503)
   }
 
+  const prepared = await prepareOrder(request, 'stripe', 'EUR')
+  if (prepared instanceof NextResponse) return prepared
+  const { supabase, orderId, items, productMap, email, locale, paymentMethodId } = prepared
+
   try {
-    const stripeKey = process.env.STRIPE_SECRET_KEY
-    if (!stripeKey) {
-      return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
-    }
-    const stripe = new Stripe(stripeKey, { apiVersion: '2025-02-24.acacia' })
-
-    const body: RequestBody = await request.json()
-    const { items, shippingAddress, email, deliveryMethod, locale: rawLocale } = body
-    // Goes into the order (confirmation e-mail language) and the return URLs
-    const locale = (routing.locales as readonly string[]).includes(rawLocale) ? rawLocale : routing.defaultLocale
-
-    const region = await getServerRegion()
-    const allowedProviders = getPaymentProvidersForRegion(region)
-
-    if (!allowedProviders.includes('stripe')) {
-      return NextResponse.json(
-        { error: 'Stripe is not available for your region' },
-        { status: 403 }
-      )
+    const origin = getSiteOrigin(request)
+    const methodTypes = STRIPE_METHOD_TYPES.get(paymentMethodId) ?? ['card']
+    const nameOf = (id: string) => {
+      const p = productMap.get(id)!
+      return (locale === 'ru' ? p.name_ru : locale === 'de' ? p.name_de : p.name_en) ?? p.name_en ?? p.name_ru ?? 'Antique piece'
     }
 
-    if (!Array.isArray(items) || items.length === 0 || !isValidEmail(email) || !deliveryMethod) {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
-    }
-
-    for (const item of items) {
-      if (!isPositiveInteger(item.quantity)) {
-        return NextResponse.json({ error: 'Invalid item quantity' }, { status: 400 })
-      }
-    }
-
-    const supabase = createAdminClient()
-
-    const userClient = await createClient()
-    const { data: { user } } = await userClient.auth.getUser()
-    const userId = user?.id ?? null
-
-    const { data: dbProducts } = await supabase
-      .from('products')
-      .select('id, name_en, name_ru, price_eur, is_available')
-      .in(
-        'id',
-        items.map((i) => i.productId)
-      )
-
-    if (!dbProducts || dbProducts.length !== items.length) {
-      return NextResponse.json({ error: 'One or more products not found' }, { status: 400 })
-    }
-
-    const productMap = new Map(dbProducts.map((p) => [p.id, p]))
-
-    for (const item of items) {
-      const dbProduct = productMap.get(item.productId)
-      if (!dbProduct?.is_available) {
-        return NextResponse.json(
-          { error: `Product ${item.productId} is not available` },
-          { status: 409 }
-        )
-      }
-      const priceDiff = Math.abs(dbProduct.price_eur - item.priceEur) / dbProduct.price_eur
-      if (priceDiff > 0.02) {
-        return NextResponse.json(
-          { error: 'Price mismatch — please refresh the page and try again' },
-          { status: 409 }
-        )
-      }
-    }
-
-    const serverItemsTotal = items.reduce((sum, i) => {
-      const p = productMap.get(i.productId)!
-      return sum + p.price_eur * i.quantity
-    }, 0)
-
-    const totalEur = serverItemsTotal
-
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        status: 'new',
-        user_id: userId,
-        region,
-        payment_provider: 'stripe',
-        currency: 'EUR',
-        total_eur: totalEur,
-        shipping_address: shippingAddress,
-        shipping_method: deliveryMethod,
-        email,
-        locale,
-      })
-      .select('id')
-      .single()
-
-    if (orderError || !order) {
-      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
-    }
-
-    await supabase.from('order_items').insert(
-      items.map((item) => {
-        const p = productMap.get(item.productId)!
-        return {
-          order_id: order.id,
-          product_id: item.productId,
-          product_snapshot: {
-            name: p.name_en ?? p.name_ru ?? 'Antique Item',
-            price_eur: p.price_eur,
-          },
-          quantity: item.quantity,
-          price_eur: p.price_eur,
-        }
-      })
-    )
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer_email: email,
-      line_items: items.map((item) => {
-        const p = productMap.get(item.productId)!
-        return {
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: 'payment',
+        payment_method_types: methodTypes,
+        customer_email: email,
+        locale: STRIPE_LOCALES.get(locale) ?? 'auto',
+        // Klarna and SEPA need the buyer's address; for cards Stripe asks only when the bank requires it
+        billing_address_collection: methodTypes.includes('card') ? 'auto' : 'required',
+        line_items: items.map((item) => ({
           price_data: {
             currency: 'eur',
-            unit_amount: Math.round(p.price_eur * 100),
-            product_data: { name: p.name_en ?? p.name_ru ?? 'Antique Item' },
+            unit_amount: Math.round(productMap.get(item.productId)!.price_eur * 100),
+            product_data: { name: nameOf(item.productId) },
           },
           quantity: item.quantity,
-        }
-      }),
-      metadata: { orderId: order.id },
-      success_url: `${baseUrl}/${locale}/checkout/success?session_id={CHECKOUT_SESSION_ID}&orderId=${order.id}`,
-      cancel_url: `${baseUrl}/${locale}/checkout/failed`,
-    })
+        })),
+        metadata: { orderId },
+        payment_intent_data: { metadata: { orderId } },
+        // The pieces are held for CHECKOUT_HOLD_MINUTES; the session closes a little earlier
+        expires_at: Math.floor(Date.now() / 1000) + (CHECKOUT_HOLD_MINUTES - 5) * 60,
+        success_url: `${origin}/${locale}/checkout/success?orderId=${orderId}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/${locale}/checkout/failed?orderId=${orderId}&reason=cancelled`,
+      },
+      { idempotencyKey: `checkout-${orderId}` }
+    )
 
-    if (!session.url) {
-      await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id)
-      return NextResponse.json({ error: 'Failed to create Stripe session' }, { status: 500 })
-    }
+    if (!session.url) throw new Error('Stripe returned a session without a URL')
 
-    await supabase
-      .from('orders')
-      .update({ payment_session_id: session.id })
-      .eq('id', order.id)
-
+    await supabase.from('orders').update({ payment_session_id: session.id }).eq('id', orderId)
     return NextResponse.json({ url: session.url })
   } catch (err) {
     console.error('[stripe checkout]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    await cancelOrder(supabase, orderId)
+    // A method that is switched off in the Stripe dashboard comes back as invalid_request_error
+    const isMethodOff = err instanceof Stripe.errors.StripeInvalidRequestError && err.param === 'payment_method_types'
+    return checkoutError(isMethodOff ? 'method_unavailable' : 'provider_error', 502)
   }
 }

@@ -7,7 +7,7 @@ export type PaymentProvider = 'stripe' | 'yookassa' | 'cloudpayments'
 export type ProfileRole = 'customer' | 'admin'
 
 
-export type OrderStatus = 'new' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded'
+export type OrderStatus = 'new' | 'awaiting_payment' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded'
 
 export interface Profile {
   id: string
@@ -164,6 +164,12 @@ export interface PaymentMethod {
   label: Record<Locale, string>
   icon: string
   provider: PaymentProvider
+  /** Shown only where the device supports the wallet (Apple Pay needs Safari / an Apple device) */
+  wallet?: 'apple_pay' | 'google_pay'
+  /** Offered only for these regions of the shipping country */
+  regions?: Region[]
+  /** Offered only for these shipping countries (ISO 3166-1 alpha-2) */
+  countries?: string[]
 }
 
 export interface PriceInfo {

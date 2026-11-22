@@ -9,20 +9,21 @@ import { useCartStore } from '@/store/cartStore'
 import { useRegionStore } from '@/store/regionStore'
 import { formatPrice } from '@/lib/getPriceForRegion'
 import { getLocalizedField } from '@/lib/getLocalizedField'
-import { getPaymentProvidersForRegion } from '@/lib/getPaymentProvidersForRegion'
+import { getPaymentProvidersForRegion, type ProviderAvailability } from '@/lib/getPaymentProvidersForRegion'
 import type { Locale } from '@/types'
 
 interface CartContentProps {
   locale: Locale
+  paymentAvailability: ProviderAvailability
 }
 
-export function CartContent({ locale }: CartContentProps) {
+export function CartContent({ locale, paymentAvailability }: CartContentProps) {
   const t = useTranslations('cart')
   const checkoutT = useTranslations('checkout')
   const paymentT = useTranslations('payment')
   const { items, totalEur, removeItem, updateQuantity } = useCartStore()
   const { region } = useRegionStore()
-  const providers = getPaymentProvidersForRegion(region)
+  const providers = getPaymentProvidersForRegion(region, paymentAvailability)
 
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
 
@@ -183,7 +184,12 @@ export function CartContent({ locale }: CartContentProps) {
                   <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('card')}</span>
                   <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('applePay')}</span>
                   <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('googlePay')}</span>
-                  <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('sepa')}</span>
+                  {region === 'EU' && (
+                    <>
+                      <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('sepa')}</span>
+                      <span className="border border-gold/15 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground">{paymentT('klarna')}</span>
+                    </>
+                  )}
                 </>
               )}
               {providers.includes('yookassa') && (

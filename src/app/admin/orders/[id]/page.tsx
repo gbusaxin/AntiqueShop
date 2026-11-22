@@ -8,6 +8,7 @@ import type { OrderStatus } from '@/types'
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
   new: 'admin-status-blue',
+  awaiting_payment: 'admin-status-amber',
   paid: 'admin-status-green',
   shipped: 'admin-status-amber',
   completed: 'admin-status-green',
@@ -55,7 +56,7 @@ export default async function AdminOrderDetail({
           Order #{id.slice(0, 8).toUpperCase()}
         </h1>
         <span className={`text-xs font-medium uppercase ${STATUS_COLORS[order.status as OrderStatus]}`}>
-          {order.status}
+          {order.status.replace('_', ' ')}
         </span>
       </div>
 
@@ -133,6 +134,10 @@ export default async function AdminOrderDetail({
               <p>
                 <span className="text-[var(--fg-muted)]">Provider:</span>{' '}
                 <span className="capitalize text-[var(--fg)]">{order.payment_provider ?? '—'}</span>
+              </p>
+              <p>
+                <span className="text-[var(--fg-muted)]">Method:</span>{' '}
+                <span className="text-[var(--fg)]">{(order.payment_method as string | null)?.replace('_', ' ') ?? '—'}</span>
               </p>
               <p>
                 <span className="text-[var(--fg-muted)]">Region:</span>{' '}

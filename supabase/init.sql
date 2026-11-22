@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   status TEXT NOT NULL DEFAULT 'new' CONSTRAINT orders_status_check
-    CHECK (status IN ('new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded')),
+    CHECK (status IN ('new', 'awaiting_payment', 'paid', 'shipped', 'completed', 'cancelled', 'refunded')),
   region TEXT NOT NULL,
   payment_provider TEXT CHECK (payment_provider IN ('stripe', 'yookassa', 'cloudpayments')),
   payment_session_id TEXT,
@@ -150,6 +150,11 @@ CREATE TABLE IF NOT EXISTS public.orders (
 -- Для уже существующей базы: колонки, которых не было в первой версии схемы.
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS locale TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_method TEXT;
+-- awaiting_payment: покупатель подтвердил оплату, деньги ещё в пути (SEPA Direct Debit)
+ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS orders_status_check;
+ALTER TABLE public.orders ADD CONSTRAINT orders_status_check
+  CHECK (status IN ('new', 'awaiting_payment', 'paid', 'shipped', 'completed', 'cancelled', 'refunded'));
 
 -- The "condition" attribute was removed from the shop (2026-11-22)
 ALTER TABLE public.products DROP COLUMN IF EXISTS condition;
@@ -168,6 +173,15 @@ CREATE TABLE IF NOT EXISTS public.webhook_events (
   provider TEXT NOT NULL,
   processed_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Резерв уникального предмета на время оплаты, чтобы его не купили дважды.
+CREATE TABLE IF NOT EXISTS public.product_reservations (
+  product_id UUID PRIMARY KEY REFERENCES public.products(id) ON DELETE CASCADE,
+  order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_product_reservations_order ON public.product_reservations(order_id);
 
 -- Индексы для каталога, фильтров, заказов и очистки webhook_events.
 CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category_id);
@@ -224,6 +238,36 @@ BEGIN
 END;
 $$;
 
+-- Резервирует все предметы заказа или ни одного; false, если что-то уже зарезервировано.
+CREATE OR REPLACE FUNCTION public.reserve_products(
+  p_order_id UUID,
+  p_product_ids UUID[],
+  p_expires_at TIMESTAMPTZ
+) RETURNS BOOLEAN
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+  wanted INT;
+  reserved INT;
+BEGIN
+  SELECT count(DISTINCT pid) INTO wanted FROM unnest(p_product_ids) AS pid;
+
+  DELETE FROM product_reservations
+  WHERE product_id = ANY (p_product_ids) AND expires_at < now();
+
+  INSERT INTO product_reservations (product_id, order_id, expires_at)
+  SELECT DISTINCT pid, p_order_id, p_expires_at FROM unnest(p_product_ids) AS pid
+  ON CONFLICT (product_id) DO NOTHING;
+  GET DIAGNOSTICS reserved = ROW_COUNT;
+
+  IF reserved < wanted THEN
+    DELETE FROM product_reservations WHERE order_id = p_order_id;
+    RETURN FALSE;
+  END IF;
+  RETURN TRUE;
+END;
+$$;
+
 REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION public.handle_new_user() FROM PUBLIC;
@@ -231,6 +275,9 @@ REVOKE ALL ON FUNCTION public.increment_views(TEXT) FROM PUBLIC;
 -- Счётчик просмотров вызывается только сервером (с лимитом по IP), не напрямую через API.
 REVOKE ALL ON FUNCTION public.increment_views(TEXT) FROM anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.increment_views(TEXT) TO service_role;
+REVOKE ALL ON FUNCTION public.reserve_products(UUID, UUID[], TIMESTAMPTZ) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.reserve_products(UUID, UUID[], TIMESTAMPTZ) FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.reserve_products(UUID, UUID[], TIMESTAMPTZ) TO service_role;
 
 CREATE OR REPLACE TRIGGER on_auth_user_created AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
@@ -293,6 +340,8 @@ ALTER TABLE public.exchange_rates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.webhook_events ENABLE ROW LEVEL SECURITY;
+-- Без политик: резервы читает и пишет только сервер (service_role).
+ALTER TABLE public.product_reservations ENABLE ROW LEVEL SECURITY;
 
 -- Профиль создаётся только через Auth-триггер. Из клиента разрешены только безопасные поля.
 DROP POLICY IF EXISTS profiles_read ON public.profiles;

@@ -183,7 +183,13 @@
       "heading": "Thank You!",
       "orderReference": "Order #{orderId}",
       "processingDescription": "Your order will be processed within 24 hours. We will contact you with shipping details and to confirm any provenance documentation.",
-      "viewOrders": "View My Orders"
+      "viewOrders": "View My Orders",
+      "checking": "Confirming your payment…",
+      "checkingDescription": "This takes a few seconds. Please keep this page open.",
+      "awaitingTitle": "Order received",
+      "awaitingHeading": "Awaiting your payment",
+      "awaitingDescription": "Your bank is processing the payment — this usually takes a few business days. The piece is reserved for you; we’ll write as soon as the funds arrive and prepare shipping.",
+      "pendingDescription": "Your payment is still being processed. We’ll e-mail a confirmation as soon as it arrives."
     },
     "eyebrow": "Secure Purchase",
     "paymentStep": "Payment",
@@ -231,7 +237,26 @@
       "instructions": "Please check your payment details and try again, or contact your bank if the problem persists.",
       "tryAgain": "Try Again",
       "backToCart": "Back to Cart",
-      "needHelp": "Need help?"
+      "needHelp": "Need help?",
+      "cancelledTitle": "Payment interrupted",
+      "cancelledDescription": "You left the payment page. Nothing was charged and your cart is saved."
+    },
+    "errors": {
+      "invalid_request": "Please check your order details and try again.",
+      "method_unavailable": "This payment method isn’t available for the selected country. Please choose another.",
+      "not_available": "One of the pieces has just been sold. Please review your cart.",
+      "reserved": "Another collector is checking out this piece right now. Please try again in half an hour or contact us.",
+      "price_changed": "The price has changed. Please refresh the page and review your order.",
+      "not_configured": "Online payment is temporarily unavailable. Write to us and we’ll arrange the order personally.",
+      "provider_error": "The payment provider didn’t respond. Please try again or choose another method.",
+      "server_error": "Something went wrong. Please try again in a minute.",
+      "rate_limited": "Too many attempts. Please wait a little and try again.",
+      "network": "No connection. Check your internet and try again."
+    },
+    "methodHints": {
+      "sepa": "Direct debit from your bank account (IBAN). Funds arrive within 2–14 banking days; we’ll keep the piece aside for you and ship once payment is received.",
+      "klarna": "Pay now, in 30 days or in instalments — Klarna shows the options on its page.",
+      "wallet": "The wallet button appears on Stripe’s secure payment page."
     }
   },
   "auth": {
@@ -366,6 +391,7 @@
   "orders": {
     "status": {
       "new": "New",
+      "awaiting_payment": "Awaiting payment",
       "paid": "Paid",
       "shipped": "Shipped",
       "completed": "Completed",

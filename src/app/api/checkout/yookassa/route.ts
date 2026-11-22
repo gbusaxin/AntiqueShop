@@ -1,228 +1,74 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient, createClient } from '@/lib/supabaseServer'
-import { randomUUID } from 'crypto'
-import { cookies, headers } from 'next/headers'
-import { getRegionFromCountryCode, getCookieRegion } from '@/lib/region'
-import { getPaymentProvidersForRegion } from '@/lib/getPaymentProvidersForRegion'
-import { isPositiveInteger, isValidEmail } from '@/lib/validation'
+import { prepareOrder, checkoutError } from '@/lib/checkout'
+import { cancelOrder } from '@/lib/orders'
+import { YOOKASSA_METHOD_TYPES } from '@/lib/getPaymentProvidersForRegion'
+import { getProviderAvailability } from '@/lib/paymentConfig'
+import { getSiteOrigin } from '@/lib/siteOrigin'
 import { rateLimit, getClientIp } from '@/lib/rateLimit'
-import { routing } from '@/i18n/routing'
-import type { Region } from '@/types'
 
 const YOOKASSA_API = 'https://api.yookassa.ru/v3/payments'
-
-interface CheckoutItem {
-  productId: string
-  quantity: number
-  priceEur: number
-}
-
-interface RequestBody {
-  items: CheckoutItem[]
-  shippingAddress: Record<string, string>
-  email: string
-  paymentMethodId: string
-  deliveryMethod: 'standard' | 'express'
-  locale: string
-}
-
-async function getServerRegion(): Promise<Region> {
-  const headerStore = await headers()
-  const cookieStore = await cookies()
-
-  const cookieRegion = getCookieRegion(cookieStore as Parameters<typeof getCookieRegion>[0])
-  if (cookieRegion) return cookieRegion
-
-  const countryCode = headerStore.get('x-vercel-ip-country')
-  if (countryCode) return getRegionFromCountryCode(countryCode)
-
-  return 'EU'
-}
+// Used only when no fresh rate has been cached by the exchange-rates job
+const FALLBACK_RUB_RATE = 95
 
 export async function POST(request: Request) {
   const ip = getClientIp(request)
   const { allowed, retryAfter } = await rateLimit(`checkout:yk:${ip}`, 10, 60 * 60 * 1000)
-  if (!allowed) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
-    )
+  if (!allowed) return checkoutError('rate_limited', 429, { 'Retry-After': String(retryAfter) })
+
+  if (!getProviderAvailability().yookassa) {
+    console.error('[yookassa checkout] YOOKASSA_SHOP_ID / YOOKASSA_SECRET_KEY are not set')
+    return checkoutError('not_configured', 503)
   }
+  const shopId = process.env.YOOKASSA_SHOP_ID as string
+  const secretKey = process.env.YOOKASSA_SECRET_KEY as string
+
+  const prepared = await prepareOrder(request, 'yookassa', 'RUB')
+  if (prepared instanceof NextResponse) return prepared
+  const { supabase, orderId, items, productMap, email, locale, paymentMethodId } = prepared
 
   try {
-    const body: RequestBody = await request.json()
-    const { items, shippingAddress, email, paymentMethodId, deliveryMethod, locale: rawLocale } = body
-    // Goes into the order (confirmation e-mail language) and the return URLs
-    const locale = (routing.locales as readonly string[]).includes(rawLocale) ? rawLocale : routing.defaultLocale
-
-    const region = await getServerRegion()
-    const allowedProviders = getPaymentProvidersForRegion(region)
-
-    if (!allowedProviders.includes('yookassa')) {
-      return NextResponse.json(
-        { error: 'YooKassa is not available for your region' },
-        { status: 403 }
-      )
-    }
-
-    const shopId = process.env.YOOKASSA_SHOP_ID!
-    const secretKey = process.env.YOOKASSA_SECRET_KEY!
-
-    if (!shopId || !secretKey) {
-      return NextResponse.json({ error: 'YooKassa not configured' }, { status: 500 })
-    }
-
-    if (!Array.isArray(items) || items.length === 0 || !isValidEmail(email) || !deliveryMethod) {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
-    }
-
-    for (const item of items) {
-      if (!isPositiveInteger(item.quantity)) {
-        return NextResponse.json({ error: 'Invalid item quantity' }, { status: 400 })
-      }
-    }
-
-    const supabase = createAdminClient()
-
-    const userClient = await createClient()
-    const { data: { user } } = await userClient.auth.getUser()
-    const userId = user?.id ?? null
-
-    const { data: dbProducts } = await supabase
-      .from('products')
-      .select('id, name_ru, name_en, price_eur, is_available')
-      .in(
-        'id',
-        items.map((i) => i.productId)
-      )
-
-    if (!dbProducts || dbProducts.length !== items.length) {
-      return NextResponse.json({ error: 'One or more products not found' }, { status: 400 })
-    }
-
-    const productMap = new Map(dbProducts.map((p) => [p.id, p]))
-
-    for (const item of items) {
-      const dbProduct = productMap.get(item.productId)
-      if (!dbProduct?.is_available) {
-        return NextResponse.json(
-          { error: `Product ${item.productId} is not available` },
-          { status: 409 }
-        )
-      }
-      const priceDiff = Math.abs(dbProduct.price_eur - item.priceEur) / dbProduct.price_eur
-      if (priceDiff > 0.02) {
-        return NextResponse.json(
-          { error: 'Price mismatch — please refresh the page and try again' },
-          { status: 409 }
-        )
-      }
-    }
-
-    const exchangeRates = await supabase
+    const { data: rates } = await supabase
       .from('exchange_rates')
       .select('rates')
       .gte('expires_at', new Date().toISOString())
       .order('fetched_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
+    const rubRate: number = (rates?.rates as Record<string, number> | undefined)?.RUB ?? FALLBACK_RUB_RATE
 
-    const rubRate: number = (exchangeRates.data?.rates as Record<string, number>)?.RUB ?? 95
+    // Each line is rounded first: YooKassa rejects receipts whose lines don't add up to the amount
+    const unitRub = (productId: string) => Math.round(productMap.get(productId)!.price_eur * rubRate * 100) / 100
+    const totalRub = Math.round(items.reduce((sum, i) => sum + unitRub(i.productId) * 100 * i.quantity, 0)) / 100
 
-    const serverItemsTotal = items.reduce((sum, i) => {
-      const p = productMap.get(i.productId)!
-      return sum + p.price_eur * i.quantity
-    }, 0)
-
-    const totalEur = serverItemsTotal
-    const totalRub = items.reduce((sum, item) => {
-      const unitRub = Math.round(productMap.get(item.productId)!.price_eur * rubRate * 100)
-      return sum + unitRub * item.quantity
-    }, 0) / 100
-
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        status: 'new',
-        user_id: userId,
-        region,
-        payment_provider: 'yookassa',
-        currency: 'RUB',
-        total_eur: totalEur,
-        total_local: totalRub,
-        exchange_rate: rubRate,
-        shipping_address: shippingAddress,
-        shipping_method: deliveryMethod,
-        email,
-        locale,
-      })
-      .select('id')
-      .single()
-
-    if (orderError || !order) {
-      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
-    }
-
-    await supabase.from('order_items').insert(
-      items.map((item) => {
-        const p = productMap.get(item.productId)!
-        return {
-          order_id: order.id,
-          product_id: item.productId,
-          product_snapshot: {
-            name: p.name_ru ?? p.name_en ?? 'Антикварный предмет',
-            price_eur: p.price_eur,
-          },
-          quantity: item.quantity,
-          price_eur: p.price_eur,
-        }
-      })
-    )
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    if (!baseUrl) {
-      console.error('[yookassa checkout] NEXT_PUBLIC_BASE_URL is not set')
-      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
-    }
-    const idempotenceKey = randomUUID()
-
-    const ykMethodMap = new Map<string, string>([
-      ['bank_card', 'bank_card'],
-      ['sbp', 'sbp'],
-      ['yoo_money', 'yoo_money'],
-      ['mir', 'bank_card'],
-    ])
-
-    const ykPaymentType = ykMethodMap.get(paymentMethodId) ?? 'bank_card'
+    await supabase.from('orders').update({ total_local: totalRub, exchange_rate: rubRate }).eq('id', orderId)
 
     const ykResponse = await fetch(YOOKASSA_API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${Buffer.from(`${shopId}:${secretKey}`).toString('base64')}`,
-        'Idempotence-Key': idempotenceKey,
+        // One payment per order even if the request is retried
+        'Idempotence-Key': `order-${orderId}`,
       },
       body: JSON.stringify({
         amount: { value: totalRub.toFixed(2), currency: 'RUB' },
         confirmation: {
           type: 'redirect',
-          return_url: `${baseUrl}/${locale}/checkout/success?orderId=${order.id}`,
+          // YooKassa returns here after success and after cancellation alike; the page asks for the real status
+          return_url: `${getSiteOrigin(request)}/${locale}/checkout/success?orderId=${orderId}`,
         },
-        payment_method_data: { type: ykPaymentType },
+        payment_method_data: { type: YOOKASSA_METHOD_TYPES.get(paymentMethodId) ?? 'bank_card' },
         capture: true,
-        // TODO: update YooKassa payment description
-        description: `Заказ Belle Époque #${order.id.slice(0, 8).toUpperCase()}`,
-        metadata: { orderId: order.id },
+        description: `Заказ VintagEmpire №${orderId.slice(0, 8).toUpperCase()}`,
+        metadata: { orderId },
         receipt: {
           customer: { email },
           items: items.map((item) => {
             const p = productMap.get(item.productId)!
-            // Same rounding as totalRub: YooKassa rejects receipts whose lines don't sum to amount
-            const unitRub = Math.round(p.price_eur * rubRate * 100) / 100
             return {
-              description: p.name_ru ?? p.name_en ?? 'Антикварный предмет',
+              description: (p.name_ru ?? p.name_en ?? 'Антикварный предмет').slice(0, 128),
               quantity: String(item.quantity),
-              amount: { value: unitRub.toFixed(2), currency: 'RUB' },
+              amount: { value: unitRub(item.productId).toFixed(2), currency: 'RUB' },
               vat_code: 1,
             }
           }),
@@ -231,24 +77,17 @@ export async function POST(request: Request) {
     })
 
     const ykData = await ykResponse.json()
-
-    if (!ykResponse.ok) {
-      console.error('[yookassa]', ykData)
-      await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id)
-      return NextResponse.json({ error: 'Payment provider error' }, { status: 502 })
+    if (!ykResponse.ok || !ykData.confirmation?.confirmation_url) {
+      console.error('[yookassa checkout]', ykResponse.status, ykData)
+      await cancelOrder(supabase, orderId)
+      return checkoutError('provider_error', 502)
     }
 
-    await supabase
-      .from('orders')
-      .update({ payment_session_id: ykData.id })
-      .eq('id', order.id)
-
-    return NextResponse.json({
-      url: ykData.confirmation?.confirmation_url ?? null,
-      orderId: order.id,
-    })
+    await supabase.from('orders').update({ payment_session_id: ykData.id }).eq('id', orderId)
+    return NextResponse.json({ url: ykData.confirmation.confirmation_url })
   } catch (err) {
     console.error('[yookassa checkout]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    await cancelOrder(supabase, orderId)
+    return checkoutError('server_error', 500)
   }
 }

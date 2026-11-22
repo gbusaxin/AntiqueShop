@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { OrderStatus } from '@/types'
 
-const STATUSES: OrderStatus[] = ['new', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
+const STATUSES: OrderStatus[] = ['new', 'awaiting_payment', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
 
 export function OrderStatusForm({
   orderId,
@@ -51,7 +51,7 @@ export function OrderStatusForm({
       >
         {STATUSES.map((s) => (
           <option key={s} value={s} className="bg-[var(--admin-card)] text-[var(--fg)]">
-            {s.charAt(0).toUpperCase() + s.slice(1)}
+            {(s.charAt(0).toUpperCase() + s.slice(1)).replace('_', ' ')}
           </option>
         ))}
       </select>
