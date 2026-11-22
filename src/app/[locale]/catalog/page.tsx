@@ -121,7 +121,7 @@ export default async function CatalogPage({
 
         {categories.length > 0 && (
           <nav aria-label={t('filters.category')} className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <ul className="mask-fade-x flex items-center gap-8 overflow-x-auto border-y border-gold/20 py-4 md:justify-center [scrollbar-width:none]">
+            <ul className="mask-fade-x flex items-center gap-8 overflow-x-auto border-y border-gold/20 px-10 py-4 md:justify-center [scrollbar-width:none]">
               <li className="shrink-0">
                 <TransitionLink
                   href="/catalog"
