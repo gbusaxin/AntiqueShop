@@ -6,6 +6,7 @@ import { getRegionFromCountryCode, getCookieRegion } from '@/lib/region'
 import { getPaymentProvidersForRegion } from '@/lib/getPaymentProvidersForRegion'
 import { isPositiveInteger, isValidEmail } from '@/lib/validation'
 import { rateLimit, getClientIp } from '@/lib/rateLimit'
+import { routing } from '@/i18n/routing'
 import type { Region } from '@/types'
 
 interface CheckoutItem {
@@ -53,7 +54,9 @@ export async function POST(request: Request) {
     const stripe = new Stripe(stripeKey, { apiVersion: '2025-02-24.acacia' })
 
     const body: RequestBody = await request.json()
-    const { items, shippingAddress, email, deliveryMethod, locale } = body
+    const { items, shippingAddress, email, deliveryMethod, locale: rawLocale } = body
+    // Goes into the order (confirmation e-mail language) and the return URLs
+    const locale = (routing.locales as readonly string[]).includes(rawLocale) ? rawLocale : routing.defaultLocale
 
     const region = await getServerRegion()
     const allowedProviders = getPaymentProvidersForRegion(region)
@@ -130,6 +133,8 @@ export async function POST(request: Request) {
         total_eur: totalEur,
         shipping_address: shippingAddress,
         shipping_method: deliveryMethod,
+        email,
+        locale,
       })
       .select('id')
       .single()
