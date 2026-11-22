@@ -38,7 +38,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     material: z.string().trim().min(1).max(200),
     size: z.string().trim().min(1).max(200),
     country_of_origin: z.string().max(100).optional().nullable(),
-    condition: z.enum(['excellent', 'good', 'fair', 'poor']),
     year_circa: z.string().max(20).optional().nullable(),
     price_eur: z.coerce.number().positive().max(10_000_000),
     category_id: z.string().uuid(),
@@ -72,7 +71,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (input.description_ru !== undefined) update.description_ru = input.description_ru
   if (input.material !== undefined) update.material = input.material
   if (input.size !== undefined) update.size = input.size
-  if (input.condition !== undefined) update.condition = input.condition
   if (input.price_eur !== undefined) update.price_eur = input.price_eur
   if (input.category_id !== undefined) update.category_id = input.category_id
   if (input.sku !== undefined) update.sku = input.sku

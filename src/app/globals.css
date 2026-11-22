@@ -524,3 +524,57 @@ body {
 .dark .admin-theme .admin-status-amber { color: #F3D18C; background: #483821; }
 .dark .admin-theme .admin-status-red { color: #F3B5A9; background: #462B27; }
 .admin-theme .admin-status-text, .dark .admin-theme .admin-status-text { background: transparent; }
+
+/* ───────────── Page transitions (View Transitions API, see ViewTransitions.tsx) ───────────── */
+
+@keyframes vt-leaf-out {
+  to {
+    opacity: 0;
+    transform: translateY(-14px) scale(.992);
+    filter: blur(3px);
+  }
+}
+
+@keyframes vt-leaf-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+    clip-path: inset(8% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: vt-leaf-out 420ms cubic-bezier(.4, 0, .2, 1) both;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-leaf-in 900ms cubic-bezier(.22, 1, .36, 1) 140ms both;
+  }
+
+  /* The photo of the chosen piece travels from its card into the gallery */
+  ::view-transition-group(vt-photo) {
+    z-index: 60;
+    animation-duration: 900ms;
+    animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+  }
+
+  ::view-transition-old(vt-photo),
+  ::view-transition-new(vt-photo) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation-duration: 900ms;
+    animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+  }
+}
+
+/* The header is captured on its own, so it stays put above the page that changes beneath it */
+::view-transition-group(site-header) {
+  z-index: 70;
+}

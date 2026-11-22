@@ -26,7 +26,6 @@ export function toCardItem(item: ProductCardItem): ProductCardItem {
     name_en: item.name_en,
     name_de: item.name_de,
     images: (item.images ?? []).slice(0, 2),
-    condition: item.condition,
     year_circa: item.year_circa,
     price_eur: item.price_eur,
   }

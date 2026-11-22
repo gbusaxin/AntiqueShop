@@ -14,7 +14,7 @@ import { useCollectionStore } from '@/store/collectionStore'
 import { useCollectionHydrated } from '@/store/useStoreHydrated'
 import type { Locale } from '@/types'
 
-const CARD_FIELDS = 'id, slug, name_ru, name_en, name_de, images, condition, year_circa, price_eur'
+const CARD_FIELDS = 'id, slug, name_ru, name_en, name_de, images, year_circa, price_eur'
 const EASE = [0.22, 1, 0.36, 1] as const
 
 export function FavoritesClient({ locale }: { locale: Locale }) {

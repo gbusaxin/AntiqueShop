@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { Link, usePathname, useRouter } from '@/i18n/navigation'
+import { usePathname, useRouter } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { useCartStore } from '@/store/cartStore'
 import { useTheme } from 'next-themes'
 import { ShoppingBag, Heart, Menu, X, Sun, Moon } from 'lucide-react'
@@ -88,22 +89,22 @@ export function Navbar({ locale, user }: NavbarProps) {
       className={`fixed top-0 z-50 w-full border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ${
         solid ? 'border-gold/15 shadow-[0_8px_30px_-20px_rgb(0_0_0/0.35)] backdrop-blur-xl' : 'border-transparent'
       }`}
-      style={{ backgroundColor: solid ? 'color-mix(in srgb, var(--bg) 86%, transparent)' : 'transparent' }}
+      style={{ backgroundColor: solid ? 'color-mix(in srgb, var(--bg) 86%, transparent)' : 'transparent', viewTransitionName: 'site-header' }}
     >
       <div
         className={`mx-auto flex max-w-7xl items-center justify-between px-4 transition-[padding] duration-500 ease-lux sm:px-6 lg:px-8 ${
           scrolled ? 'py-3' : 'py-5'
         }`}
       >
-        <Link href="/" className="group" aria-label="VintagEmpire">
+        <TransitionLink href="/" className="group" aria-label="VintagEmpire">
           <Wordmark />
-        </Link>
+        </TransitionLink>
 
         <nav className="hidden items-center gap-9 md:flex">
           {navLinks.map(({ href, label }) => {
             const active = isActive(href)
             return (
-              <Link
+              <TransitionLink
                 key={href}
                 href={href}
                 aria-current={active ? 'page' : undefined}
@@ -119,7 +120,7 @@ export function Navbar({ locale, user }: NavbarProps) {
                     className="absolute -bottom-0.5 left-0 right-0 h-px bg-gold"
                   />
                 )}
-              </Link>
+              </TransitionLink>
             )
           })}
         </nav>
@@ -168,7 +169,7 @@ export function Navbar({ locale, user }: NavbarProps) {
             </AnimatePresence>
           </button>
 
-          <Link
+          <TransitionLink
             href="/favorites"
             data-testid="favorites-link"
             aria-label={t('favorites')}
@@ -190,9 +191,9 @@ export function Navbar({ locale, user }: NavbarProps) {
                 </motion.span>
               )}
             </AnimatePresence>
-          </Link>
+          </TransitionLink>
 
-          <Link
+          <TransitionLink
             href="/cart"
             data-testid="cart-link"
             aria-label={t('cart')}
@@ -213,19 +214,19 @@ export function Navbar({ locale, user }: NavbarProps) {
                 </motion.span>
               )}
             </AnimatePresence>
-          </Link>
+          </TransitionLink>
 
           {user ? (
             <div className="ml-1">
               <UserMenu user={user} locale={locale} />
             </div>
           ) : (
-            <Link
+            <TransitionLink
               href="/auth/login"
               className="btn-ghost ml-2 hidden !px-4 !py-2 !text-[10px] md:inline-flex"
             >
               {t('login')}
-            </Link>
+            </TransitionLink>
           )}
 
           <button
@@ -260,7 +261,7 @@ export function Navbar({ locale, user }: NavbarProps) {
                   key={href}
                   variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } } }}
                 >
-                  <Link
+                  <TransitionLink
                     href={href}
                     onClick={() => setOpen(false)}
                     aria-current={isActive(href) ? 'page' : undefined}
@@ -268,7 +269,7 @@ export function Navbar({ locale, user }: NavbarProps) {
                   >
                     <span className="text-[10px] tracking-[0.3em] text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>
                     <span className="heading-display text-4xl">{label}</span>
-                  </Link>
+                  </TransitionLink>
                 </motion.div>
               ))}
               <motion.div
@@ -276,9 +277,9 @@ export function Navbar({ locale, user }: NavbarProps) {
                 className="mt-8 flex flex-wrap items-center justify-between gap-6"
               >
                 {!user && (
-                  <Link href="/auth/login" onClick={() => setOpen(false)} className="btn-lux">
+                  <TransitionLink href="/auth/login" onClick={() => setOpen(false)} className="btn-lux">
                     {t('login')}
-                  </Link>
+                  </TransitionLink>
                 )}
                 <div className="flex items-center gap-4">
                   {LOCALES.map((l) => (

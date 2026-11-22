@@ -6,6 +6,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { CookieBanner } from '@/components/CookieBanner'
 import { MotionProvider } from '@/components/providers/MotionProvider'
+import { ViewTransitionsProvider } from '@/components/transitions/ViewTransitions'
 import { ScrollProgress } from '@/components/ui/ScrollProgress'
 import { createClient } from '@/lib/supabaseServer'
 import { Analytics } from '@vercel/analytics/react'
@@ -46,21 +47,23 @@ export default async function LocaleLayout({
       <RegionProvider>
         <CartProvider>
           <MotionProvider>
-            <div className="storefront relative flex min-h-screen flex-col">
-              <ScrollProgress />
-              <Navbar locale={locale} user={navUser} />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <CookieBanner />
-              <Toaster
-                position="bottom-right"
-                toastOptions={{
-                  className: '!rounded-none !border !border-gold/30 !bg-card !text-foreground !font-sans !shadow-[var(--shadow-lux)]',
-                }}
-              />
-              <Analytics />
-              <SpeedInsights />
-            </div>
+            <ViewTransitionsProvider>
+              <div className="storefront relative flex min-h-screen flex-col">
+                <ScrollProgress />
+                <Navbar locale={locale} user={navUser} />
+                <main className="flex-1">{children}</main>
+                <Footer />
+                <CookieBanner />
+                <Toaster
+                  position="bottom-right"
+                  toastOptions={{
+                    className: '!rounded-none !border !border-gold/30 !bg-card !text-foreground !font-sans !shadow-[var(--shadow-lux)]',
+                  }}
+                />
+                <Analytics />
+                <SpeedInsights />
+              </div>
+            </ViewTransitionsProvider>
           </MotionProvider>
         </CartProvider>
       </RegionProvider>

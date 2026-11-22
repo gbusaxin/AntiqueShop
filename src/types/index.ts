@@ -6,7 +6,6 @@ export type PaymentProvider = 'stripe' | 'yookassa' | 'cloudpayments'
 
 export type ProfileRole = 'customer' | 'admin'
 
-export type ProductCondition = 'excellent' | 'good' | 'fair' | 'poor'
 
 export type OrderStatus = 'new' | 'paid' | 'shipped' | 'completed' | 'cancelled' | 'refunded'
 
@@ -63,7 +62,6 @@ export interface Product {
   material: string
   size: string
   country_of_origin: string | null
-  condition: ProductCondition | null
   year_circa: string | null
   price_eur: number
   price_override: PriceOverride | null

@@ -25,7 +25,6 @@ const schema = z.object({
   material: requiredText,
   size: requiredText,
   country_of_origin: z.string().optional(),
-  condition: z.enum(['excellent', 'good', 'fair', 'poor'], { required_error: 'Это поле обязательно', invalid_type_error: 'Это поле обязательно' }),
   year_circa: z.string().optional(),
   price_eur: z.coerce.number({ invalid_type_error: 'Это поле обязательно' }).positive('Цена должна быть больше нуля'),
   category_id: z.string().uuid('Это поле обязательно'),
@@ -43,7 +42,6 @@ const requiredFields: { name: FieldName; label: string; getValue: (values: FormD
   { name: 'size', label: 'Size', getValue: (values) => values.size },
   { name: 'category_id', label: 'Category', getValue: (values) => values.category_id },
   { name: 'price_eur', label: 'Price EUR', getValue: (values) => values.price_eur },
-  { name: 'condition', label: 'Condition', getValue: (values) => values.condition },
 ]
 
 interface ProductFormProps {
@@ -102,7 +100,6 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
       material: initialData?.material ?? '',
       size: initialData?.size ?? '',
       country_of_origin: initialData?.country_of_origin ?? '',
-      condition: initialData?.condition,
       year_circa: initialData?.year_circa ?? '',
       price_eur: initialData?.price_eur ?? undefined,
       category_id: initialData?.category_id ?? '',
@@ -235,15 +232,6 @@ export function ProductForm({ categories, initialData, mode }: ProductFormProps)
           </Field>
           <Field label="Price EUR" required error={errors.price_eur?.message}>
             <input {...register('price_eur')} type="number" min="0.01" step="0.01" className={`${inputCls} ${errors.price_eur ? invalidCls : ''}`} aria-invalid={!!errors.price_eur} />
-          </Field>
-          <Field label="Condition" required error={errors.condition?.message}>
-            <select {...register('condition')} className={`${inputCls} ${errors.condition ? invalidCls : ''}`} aria-invalid={!!errors.condition}>
-              <option value="">— Select —</option>
-              <option value="excellent">Excellent</option>
-              <option value="good">Good</option>
-              <option value="fair">Fair</option>
-              <option value="poor">Poor</option>
-            </select>
           </Field>
           <Field label="Country of Origin"><input {...register('country_of_origin')} className={inputCls} placeholder="France" /></Field>
           <Field label="Year / Circa"><input {...register('year_circa')} className={inputCls} placeholder="1920s" /></Field>

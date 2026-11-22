@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 
 const MATERIALS = ['Porcelain', 'Crystal', 'Pewter', 'Faience', 'Silver', 'Glass', 'Ceramic', 'Wood'] as const
 
@@ -24,7 +24,7 @@ export function MaterialsMarquee() {
     >
       {MATERIALS.map((material, i) => (
         <li key={material} className="flex items-center gap-10 md:gap-14">
-          <Link
+          <TransitionLink
             href={`/catalog?material=${material}`}
             tabIndex={hidden ? -1 : undefined}
             className={`heading-display whitespace-nowrap text-4xl italic transition-colors duration-500 md:text-6xl ${
@@ -34,7 +34,7 @@ export function MaterialsMarquee() {
             }`}
           >
             {t(`materials.${material}`)}
-          </Link>
+          </TransitionLink>
           <Ornament />
         </li>
       ))}

@@ -5,7 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { useTranslations } from 'next-intl'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { Link } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { ProductCard } from '@/components/ProductCard'
 import type { Product } from '@/types'
 import type { Locale } from '@/types'
@@ -82,10 +82,10 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
             <h2 className="heading-display mt-5 text-4xl text-foreground md:text-6xl">{title}</h2>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/catalog" className="group hidden items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-foreground sm:flex">
+            <TransitionLink href="/catalog" className="group hidden items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-foreground sm:flex">
               <span className="link-lux">{t('footerFullCatalog')}</span>
               <ArrowRight size={13} aria-hidden="true" className="text-gold transition-transform duration-500 ease-lux group-hover:translate-x-1" />
-            </Link>
+            </TransitionLink>
             <div className={`flex items-center gap-2 ${scrollable ? '' : 'hidden'}`}>
               <button type="button" onClick={scrollPrev} className={navButton} aria-label={t('carouselPrevious')}>
                 <ChevronLeft size={16} className="transition-transform duration-500 ease-lux group-hover:-translate-x-0.5" />

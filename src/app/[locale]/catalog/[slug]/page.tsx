@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { Link } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { MessageCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabaseServer'
 import { getLocalizedField } from '@/lib/getLocalizedField'
@@ -17,15 +17,8 @@ import { ProductCard, type ProductCardItem } from '@/components/ProductCard'
 import { AnimatedSection } from '@/components/ui/AnimatedSection'
 import { JsonLd } from '@/components/JsonLd'
 import { cookies, headers } from 'next/headers'
-import type { Product, Locale, ProductCondition, Region } from '@/types'
+import type { Product, Locale, Region } from '@/types'
 import type { Metadata } from 'next'
-
-const CONDITION_DOT: Record<ProductCondition, string> = {
-  excellent: 'bg-emerald-500',
-  good: 'bg-amber-500',
-  fair: 'bg-orange-500',
-  poor: 'bg-rose-500',
-}
 
 export const dynamic = 'force-dynamic'
 
@@ -46,7 +39,7 @@ const getProduct = cache(async (slug: string) => {
   const supabase = await createClient()
   const { data } = await supabase
     .from('products')
-    .select('id, slug, sku, category_id, name_ru, name_en, name_de, description_ru, description_en, description_de, provenance_ru, provenance_en, provenance_de, material, size, country_of_origin, condition, year_circa, price_eur, price_override, images, is_available')
+    .select('id, slug, sku, category_id, name_ru, name_en, name_de, description_ru, description_en, description_de, provenance_ru, provenance_en, provenance_de, material, size, country_of_origin, year_circa, price_eur, price_override, images, is_available')
     .eq('slug', slug)
     .eq('is_available', true)
     .maybeSingle()
@@ -118,7 +111,7 @@ export default async function ProductPage({
 
   const relatedPromise = createClient().then((supabase) => supabase
     .from('products')
-    .select('id, slug, sku, name_ru, name_en, name_de, images, condition, year_circa, price_eur')
+    .select('id, slug, sku, name_ru, name_en, name_de, images, year_circa, price_eur')
     .eq('is_available', true)
     .eq('category_id', product.category_id)
     .neq('id', product.id)
@@ -172,7 +165,6 @@ export default async function ProductPage({
     name_en: product.name_en,
     name_de: product.name_de,
     images: product.images ?? [],
-    condition: product.condition,
     year_circa: product.year_circa,
     price_eur: product.price_eur,
   }
@@ -180,9 +172,11 @@ export default async function ProductPage({
   const specs = [
     { label: t('material'), value: product.material ? material : null },
     { label: t('size'), value: product.size },
-    { label: t('country'), value: countryName(product.country_of_origin, locale) },
-    { label: t('year'), value: product.year_circa ? t('circa', { year: product.year_circa }) : null },
   ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value))
+
+  const country = countryName(product.country_of_origin, locale)
+  const subtitle = [product.year_circa ? t('circa', { year: product.year_circa }) : null, country].filter(Boolean).join(' · ')
+  const [leadParagraph, ...restParagraphs] = (description ?? '').split('\n').map((para) => para.trim()).filter(Boolean)
 
   return (
     <div className="min-h-screen bg-background pt-20 text-foreground">
@@ -190,35 +184,39 @@ export default async function ProductPage({
       <ViewTracker slug={slug} />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-14 lg:px-8">
         <nav aria-label={t('breadcrumbs')} className="mb-10 flex min-w-0 items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-          <Link href="/" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('home')}</Link>
+          <TransitionLink href="/" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('home')}</TransitionLink>
           <span aria-hidden="true" className="h-px w-4 shrink-0 bg-gold/40" />
-          <Link href="/catalog" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('catalog')}</Link>
+          <TransitionLink href="/catalog" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('catalog')}</TransitionLink>
           <span aria-hidden="true" className="h-px w-4 shrink-0 bg-gold/40" />
           <span className="truncate text-gold">{name}</span>
         </nav>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="animate-page-in lg:sticky lg:top-28 lg:col-span-7 lg:self-start">
-            <PhotoGallery images={product.images ?? []} alt={name} />
+          {/* No entrance animation here: the photo arrives through the shared-element page transition */}
+          <div className="lg:sticky lg:top-28 lg:col-span-7 lg:self-start">
+            <PhotoGallery images={product.images ?? []} alt={name} productId={product.id} />
           </div>
 
-          <div className="flex flex-col gap-8 lg:col-span-5">
-            <div className="animate-page-in [animation-delay:120ms]">
-              {product.condition && (
-                <span className="mb-5 inline-flex items-center gap-2 border border-gold/25 bg-card px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-foreground">
-                  <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${CONDITION_DOT[product.condition]}`} />
-                  {t(`condition.${product.condition}`)}
-                </span>
-              )}
-              <div className="flex items-start justify-between gap-4">
-                <h1 className="heading-display text-4xl text-foreground md:text-5xl">{name}</h1>
-                <FavoriteButton item={cardItem} className="mt-1 h-11 w-11 shrink-0 border border-gold/25" />
+          {/* Catalogue entry */}
+          <article className="flex flex-col lg:col-span-5">
+            <header className="animate-page-in [animation-delay:200ms]">
+              <div className="flex items-center justify-between gap-4">
+                <p className="font-display text-lg italic text-gold">{t('lotNumber', { sku: product.sku })}</p>
+                <FavoriteButton item={cardItem} className="h-11 w-11 shrink-0 border border-gold/25" />
               </div>
-              <p className="mt-4 font-mono text-[11px] tracking-wider text-muted-foreground">{t('sku', { sku: product.sku })}</p>
+              <h1 className="heading-display mt-4 text-4xl text-foreground md:text-[3.4rem]">{name}</h1>
+              {subtitle && <p className="mt-4 font-display text-xl italic text-muted-foreground">{subtitle}</p>}
+            </header>
+
+            {/* Double rule, as in a printed auction catalogue */}
+            <div aria-hidden="true" className="my-8 animate-page-in space-y-[3px] [animation-delay:280ms]">
+              <div className="h-px bg-gold/40" />
+              <div className="h-px bg-gold/20" />
             </div>
 
-            <div className="animate-page-in border-y border-gold/20 py-6 [animation-delay:200ms]">
-              <p className="heading-display text-5xl text-gold-rich">
+            <div className="animate-page-in [animation-delay:340ms]">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">{t('priceLabel')}</p>
+              <p className="heading-display mt-2 text-5xl text-gold-rich">
                 {formatPrice(priceInfo.amount, priceInfo.currency, localeStr)}
               </p>
               {priceInfo.isConverted && priceInfo.originalEur && (
@@ -228,56 +226,61 @@ export default async function ProductPage({
               )}
             </div>
 
-            <div className="animate-page-in [animation-delay:280ms]">
+            <div className="mt-8 animate-page-in [animation-delay:400ms]">
               <AddToCartButton
                 product={product}
                 label={t('addToCart')}
                 inCartLabel={t('inCart')}
               />
-              <Link
+              <TransitionLink
                 href={`/contacts?item=${encodeURIComponent(product.sku)}#contact-form`}
                 className="btn-ghost group mt-3 w-full"
               >
                 <MessageCircle size={14} aria-hidden="true" className="text-gold transition-transform duration-500 ease-lux group-hover:-rotate-12" />
                 {t('askAboutItem')}
-              </Link>
+              </TransitionLink>
             </div>
 
+            {leadParagraph && (
+              <section className="reveal mt-14">
+                <h2 className="eyebrow mb-5">{t('descriptionTitle')}</h2>
+                <div className="space-y-4 text-[15px] leading-[1.85] text-muted-foreground">
+                  <p className="first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[3.6rem] first-letter:leading-[0.8] first-letter:text-gold-rich">{leadParagraph}</p>
+                  {restParagraphs.map((para, i) => <p key={i}>{para}</p>)}
+                </div>
+              </section>
+            )}
+
             {specs.length > 0 && (
-              <dl className="flex flex-col">
-                {specs.map((spec) => (
-                  <div key={spec.label} className="reveal flex items-baseline gap-3 border-b border-gold/10 py-3 text-sm">
-                    <dt className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{spec.label}</dt>
-                    <span aria-hidden="true" className="reveal-line mb-1 flex-1 border-b border-dotted border-gold/30" />
-                    <dd className="text-right text-foreground">{spec.value}</dd>
-                  </div>
-                ))}
-              </dl>
+              <section className="mt-12">
+                <h2 className="eyebrow mb-3">{t('detailsTitle')}</h2>
+                <dl className="flex flex-col">
+                  {specs.map((spec) => (
+                    <div key={spec.label} className="reveal flex items-baseline gap-3 border-b border-gold/10 py-3 text-sm">
+                      <dt className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{spec.label}</dt>
+                      <span aria-hidden="true" className="reveal-line mb-1 flex-1 border-b border-dotted border-gold/30" />
+                      <dd className="text-right text-foreground">{spec.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
             )}
 
             {provenance && (
-              <figure className="reveal relative bg-deep/70 px-6 py-6">
+              <figure className="reveal relative mt-12 bg-deep/70 px-6 py-6">
                 <span aria-hidden="true" className="heading-display absolute -top-5 left-4 text-6xl leading-none text-gold/40">“</span>
                 <figcaption className="eyebrow mb-3">{t('provenance')}</figcaption>
                 <blockquote className="font-display text-lg italic leading-relaxed text-foreground/90">{provenance}</blockquote>
               </figure>
             )}
-
-            {description && (
-              <div className="reveal space-y-4 text-[15px] leading-[1.8] text-muted-foreground">
-                {description.split('\n').filter(Boolean).map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
-              </div>
-            )}
-          </div>
+          </article>
         </div>
 
         {related.length > 0 && (
           <AnimatedSection className="mt-28 border-t border-gold/15 pt-20">
             <div className="mb-12 flex items-end justify-between gap-6">
               <h2 className="heading-display text-4xl text-foreground md:text-5xl">{t('similarItems')}</h2>
-              <Link href="/catalog" className="link-lux hidden text-[11px] uppercase tracking-[0.22em] text-gold sm:inline">{nav('catalog')}</Link>
+              <TransitionLink href="/catalog" className="link-lux hidden text-[11px] uppercase tracking-[0.22em] text-gold sm:inline">{nav('catalog')}</TransitionLink>
             </div>
             <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((p) => (

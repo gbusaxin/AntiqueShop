@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-import { Link } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 
 export interface HeroItem {
   src: string
@@ -149,13 +149,13 @@ export function HeroSection({
             transition={{ duration: 0.9, delay: 1.0, ease: EASE }}
             className="mt-10 flex flex-wrap items-center gap-4"
           >
-            <Link href="/catalog" className="btn-lux group">
+            <TransitionLink href="/catalog" className="btn-lux group">
               {ctaLabel}
               <ArrowRight size={14} aria-hidden="true" className="transition-transform duration-500 ease-lux group-hover:translate-x-1" />
-            </Link>
-            <Link href="/about" className="btn-ghost">
+            </TransitionLink>
+            <TransitionLink href="/about" className="btn-ghost">
               {secondaryLabel}
-            </Link>
+            </TransitionLink>
           </motion.div>
 
           <motion.div
@@ -215,7 +215,7 @@ export function HeroSection({
               transition={{ duration: 1.1, delay: 1.0, ease: EASE }}
               className="absolute -left-6 bottom-16 hidden sm:block lg:-left-14"
             >
-              <Link
+              <TransitionLink
                 href={`/catalog/${secondary.slug}`}
                 aria-label={secondary.name}
                 className="group relative block h-32 w-32 overflow-hidden rounded-full border-[5px] border-[var(--bg)] bg-deep shadow-[var(--shadow-lux)] lg:h-40 lg:w-40"
@@ -227,7 +227,7 @@ export function HeroSection({
                   sizes="160px"
                   className="object-cover transition-transform duration-700 ease-lux group-hover:scale-110"
                 />
-              </Link>
+              </TransitionLink>
             </motion.div>
           )}
 
@@ -247,7 +247,7 @@ export function HeroSection({
               transition={{ duration: 0.9, delay: 1.4, ease: EASE }}
               className="absolute -bottom-6 right-4 max-w-[15rem] sm:right-8"
             >
-              <Link
+              <TransitionLink
                 href={`/catalog/${main.slug}`}
                 data-visual="dynamic"
                 className="group flex items-center gap-4 border border-gold/20 bg-card/95 px-4 py-3 shadow-[var(--shadow-lux)] backdrop-blur-sm transition-colors hover:border-gold/50"
@@ -257,7 +257,7 @@ export function HeroSection({
                   <span className="link-lux">{main.name}</span>
                 </span>
                 <ArrowRight size={12} aria-hidden="true" className="shrink-0 text-gold transition-transform duration-500 ease-lux group-hover:translate-x-1" />
-              </Link>
+              </TransitionLink>
             </motion.div>
           )}
         </div>

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { ArrowUpRight } from 'lucide-react'
-import { Link } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { FavoriteButton } from '@/components/favorites/FavoriteButton'
 import { VitrineFrame } from '@/components/ui/VitrineFrame'
 import { getLocalizedField } from '@/lib/getLocalizedField'
@@ -9,71 +9,60 @@ import { formatPrice } from '@/lib/getPriceForRegion'
 import type { Product } from '@/types'
 import type { Locale } from '@/types'
 
-export type ProductCardItem = Pick<Product, 'id' | 'slug' | 'name_ru' | 'name_en' | 'name_de' | 'images' | 'condition' | 'year_circa' | 'price_eur'>
+export type ProductCardItem = Pick<Product, 'id' | 'slug' | 'name_ru' | 'name_en' | 'name_de' | 'images' | 'year_circa' | 'price_eur'>
 
 interface ProductCardProps {
   product: ProductCardItem
   locale: Locale
+  /** Position in the listing, shown as an auction-style lot number */
+  lot?: number
 }
 
-/** Small status dot — colour carries meaning, the label carries the text (readable in both themes). */
-const CONDITION_DOT: Record<string, string> = {
-  excellent: 'bg-emerald-500',
-  good: 'bg-amber-500',
-  fair: 'bg-orange-500',
-  poor: 'bg-rose-500',
-}
-
-export function ProductCard({ product, locale }: ProductCardProps) {
-  const t = useTranslations('product')
+export function ProductCard({ product, locale, lot }: ProductCardProps) {
+  const tCatalog = useTranslations('catalog')
   const name = getLocalizedField(product as unknown as Record<string, string | null | undefined>, 'name', locale)
-  const conditionLabel = product.condition ? t(`condition.${product.condition}`) : ''
   const [cover, alternate] = product.images ?? []
 
   return (
     <div className="group relative h-full">
-      <Link
+      <TransitionLink
         href={`/catalog/${product.slug}`}
         locale={locale}
         data-testid="product-card"
         className="group relative flex h-full flex-col outline-offset-4"
       >
         <VitrineFrame className="frame-gilt relative aspect-[4/5] overflow-hidden bg-deep group-hover:shadow-[var(--shadow-lux)]">
-          {cover ? (
-            <>
-              <Image
-                src={cover}
-                alt={name}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className={`object-cover transition-[transform,opacity] duration-[1200ms] ease-lux group-hover:scale-[1.06] ${alternate ? 'group-hover:opacity-0' : ''}`}
-              />
-              {alternate && (
+          {/* Travels into the product gallery during the page transition */}
+          <div data-vt-photo={product.id} className="absolute inset-0 overflow-hidden">
+            {cover ? (
+              <>
                 <Image
-                  src={alternate}
-                  alt=""
+                  src={cover}
+                  alt={name}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="scale-[1.06] object-cover opacity-0 transition-[transform,opacity] duration-[1200ms] ease-lux group-hover:scale-100 group-hover:opacity-100"
+                  className={`object-cover transition-[transform,opacity] duration-[1200ms] ease-lux group-hover:scale-[1.06] ${alternate ? 'group-hover:opacity-0' : ''}`}
                 />
-              )}
-            </>
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(ellipse_at_top,rgb(var(--gold-rgb)/0.14),transparent_70%)]">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-muted-foreground" aria-hidden="true">
-                <rect x="8" y="8" width="32" height="32" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                <circle cx="24" cy="22" r="6" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M8 36l8-8 6 6 8-10 10 12" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-              </svg>
-            </div>
-          )}
-
-          {product.condition && (
-            <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 bg-card/90 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.16em] text-foreground backdrop-blur-sm">
-              <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${CONDITION_DOT[product.condition] ?? 'bg-gold'}`} />
-              {conditionLabel}
-            </span>
-          )}
+                {alternate && (
+                  <Image
+                    src={alternate}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="scale-[1.06] object-cover opacity-0 transition-[transform,opacity] duration-[1200ms] ease-lux group-hover:scale-100 group-hover:opacity-100"
+                  />
+                )}
+              </>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(ellipse_at_top,rgb(var(--gold-rgb)/0.14),transparent_70%)]">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-muted-foreground" aria-hidden="true">
+                  <rect x="8" y="8" width="32" height="32" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="24" cy="22" r="6" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M8 36l8-8 6 6 8-10 10 12" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+              </div>
+            )}
+          </div>
 
           <span
             aria-hidden="true"
@@ -84,10 +73,19 @@ export function ProductCard({ product, locale }: ProductCardProps) {
         </VitrineFrame>
 
         <div className="flex flex-1 flex-col pt-5">
-          {product.year_circa && (
-            <p className="text-[10px] uppercase tracking-[0.24em] text-gold">{product.year_circa}</p>
+          {(lot !== undefined || product.year_circa) && (
+            <div className="flex items-baseline justify-between gap-3 border-b border-gold/15 pb-2">
+              {lot !== undefined && (
+                <span className="font-display text-[15px] italic text-gold">
+                  {tCatalog('lot')} {String(lot).padStart(3, '0')}
+                </span>
+              )}
+              {product.year_circa && (
+                <span className="ml-auto text-[10px] uppercase tracking-[0.24em] text-muted-foreground">{product.year_circa}</span>
+              )}
+            </div>
           )}
-          <p className="mt-1.5 line-clamp-2 font-display text-xl font-medium leading-snug text-foreground transition-colors duration-500 group-hover:text-gold-rich">
+          <p className="mt-3 line-clamp-2 font-display text-[1.35rem] font-medium leading-snug text-foreground transition-colors duration-500 group-hover:text-gold-rich">
             {name}
           </p>
           <div className="mt-auto flex items-center gap-3 pt-4">
@@ -97,7 +95,7 @@ export function ProductCard({ product, locale }: ProductCardProps) {
             </p>
           </div>
         </div>
-      </Link>
+      </TransitionLink>
       {/* Sibling of the link (a button must not live inside an <a>) */}
       {/* Wrapper positions it: the button itself stays `relative` for its heart-burst animation */}
       <div className="absolute right-4 top-4 z-20">

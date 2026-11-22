@@ -13,7 +13,7 @@ export default async function AdminProducts({
 
   let query = supabase
     .from('products')
-    .select('id, slug, sku, name_ru, name_en, name_de, material, size, price_eur, condition, is_available, created_at, images, categories(name_en)')
+    .select('id, slug, sku, name_ru, name_en, name_de, material, size, price_eur, is_available, created_at, images, categories(name_en)')
     .order('created_at', { ascending: false })
 
   const safeQuery = q?.trim().replace(/[^\p{L}\p{N}\s-]/gu, '').slice(0, 80)

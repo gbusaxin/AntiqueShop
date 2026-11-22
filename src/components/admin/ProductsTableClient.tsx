@@ -6,14 +6,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Pencil, Package, Trash2, EyeOff, Eye, CheckSquare, MinusSquare, Square } from 'lucide-react'
 import { toast } from 'sonner'
-import type { ProductCondition } from '@/types'
-
-const CONDITION_BADGE: Record<ProductCondition, string> = {
-  excellent: 'admin-status-green',
-  poor: 'admin-status-red',
-  good: 'admin-status-amber',
-  fair: 'admin-status-amber',
-}
 
 interface Product {
   id: string
@@ -25,7 +17,6 @@ interface Product {
   name_en: string | null
   name_de: string | null
   price_eur: number
-  condition: string | null
   is_available: boolean
   created_at: string
   images: string[] | null
@@ -152,7 +143,6 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
               <th className="px-4 py-3 text-left">Size</th>
               <th className="px-4 py-3 text-left">Category</th>
               <th className="px-4 py-3 text-left">Price</th>
-              <th className="px-4 py-3 text-left">Condition</th>
               <th className="px-4 py-3 text-left">Locales</th>
               <th className="px-4 py-3 text-left">Status</th>
               <th className="px-4 py-3 text-left">Actions</th>
@@ -208,19 +198,6 @@ export function ProductsTableClient({ products }: { products: Product[] }) {
                     {product.categories?.name_en ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-[var(--admin-accent-text)]">€{product.price_eur}</td>
-                  <td className="px-4 py-3">
-                    {product.condition ? (
-                      <span
-                        className={`rounded px-2 py-0.5 text-[10px] uppercase tracking-wider ${
-                          CONDITION_BADGE[product.condition as ProductCondition]
-                        }`}
-                      >
-                        {product.condition.replace('_', ' ')}
-                      </span>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={`admin-status-text text-[11px] font-medium ${

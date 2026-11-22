@@ -55,7 +55,6 @@ CREATE TABLE IF NOT EXISTS public.products (
   category_id UUID NOT NULL REFERENCES public.categories(id) ON DELETE RESTRICT,
   country_of_origin TEXT,
   year_circa TEXT,
-  condition TEXT NOT NULL CHECK (condition IN ('excellent', 'good', 'fair', 'poor')),
   provenance_ru TEXT,
   provenance_en TEXT,
   provenance_de TEXT,
@@ -151,6 +150,9 @@ CREATE TABLE IF NOT EXISTS public.orders (
 -- Для уже существующей базы: колонки, которых не было в первой версии схемы.
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS locale TEXT;
+
+-- The "condition" attribute was removed from the shop (2026-11-22)
+ALTER TABLE public.products DROP COLUMN IF EXISTS condition;
 
 CREATE TABLE IF NOT EXISTS public.order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

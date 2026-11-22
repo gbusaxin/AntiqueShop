@@ -11,10 +11,14 @@ const LOUPE_ZOOM = 2.6
 interface PhotoGalleryProps {
   images: string[]
   alt: string
+  /** Links the main photo to the product card photo for the page transition */
+  productId?: string
 }
 
-export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
+export function PhotoGallery({ images, alt, productId }: PhotoGalleryProps) {
   const [selected, setSelected] = useState(0)
+  // Crossfade only when the visitor switches photos — the first photo arrives via the page transition
+  const [switched, setSwitched] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const imageButtonRef = useRef<HTMLButtonElement>(null)
   const loupeRef = useRef<HTMLDivElement>(null)
@@ -67,15 +71,17 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
 
   return (
     <>
-      <div className="grid min-w-0 gap-4">
+      <div className="flex min-w-0 flex-col gap-4 lg:flex-row-reverse lg:items-start">
         <button
           ref={imageButtonRef}
           type="button"
+          data-vt-photo={productId}
+          data-vt-primary={productId ? '' : undefined}
           onClick={() => setLightboxOpen(true)}
           onPointerMove={moveLoupe}
           onPointerLeave={hideLoupe}
           aria-label={t('galleryZoom')}
-          className="group frame-gilt relative aspect-[4/5] max-h-[min(70vh,40rem)] w-full cursor-zoom-in overflow-hidden bg-deep [@media(hover:hover)_and_(pointer:fine)]:data-[loupe=on]:cursor-none"
+          className="group frame-gilt relative aspect-[4/5] max-h-[min(72vh,42rem)] w-full min-w-0 flex-1 cursor-zoom-in overflow-hidden bg-deep [@media(hover:hover)_and_(pointer:fine)]:data-[loupe=on]:cursor-none"
         >
           <Image
             key={selected}
@@ -83,7 +89,7 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
             alt={t('galleryView', { name: alt, number: selected + 1 })}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="animate-fade-in object-contain p-6"
+            className={`object-contain p-6 ${switched ? 'animate-fade-in' : ''}`}
             priority={selected === 0}
           />
           <div
@@ -109,12 +115,15 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
         </button>
 
         {images.length > 1 && (
-          <div className="flex min-w-0 gap-2 overflow-x-auto pb-2">
+          <div className="flex min-w-0 gap-2 overflow-x-auto pb-2 lg:max-h-[min(72vh,42rem)] lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-0 lg:pr-1">
             {images.map((img, i) => (
               <button
                 key={i}
                 type="button"
-                onClick={() => setSelected(i)}
+                onClick={() => {
+                  setSwitched(true)
+                  setSelected(i)
+                }}
                 aria-label={t('galleryThumbnail', { number: i + 1 })}
                 aria-pressed={i === selected}
                 className={`relative h-20 w-20 shrink-0 overflow-hidden bg-deep transition-[opacity,outline-color] duration-500 ease-lux ${
@@ -134,7 +143,10 @@ export function PhotoGallery({ images, alt }: PhotoGalleryProps) {
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
         triggerRef={imageButtonRef}
-        onSelect={setSelected}
+        onSelect={(index) => {
+          setSwitched(true)
+          setSelected(index)
+        }}
       />
     </>
   )

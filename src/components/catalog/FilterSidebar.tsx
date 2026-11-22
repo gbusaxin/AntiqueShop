@@ -9,7 +9,6 @@ import { Check, ChevronDown, SlidersHorizontal, X } from 'lucide-react'
 import type { Category, Locale } from '@/types'
 
 const MATERIALS = ['Porcelain', 'Crystal', 'Glass', 'Pewter', 'Ceramic', 'Faience', 'Silver', 'Bronze', 'Brass', 'Copper', 'Wood', 'Ivory']
-const CONDITIONS = ['excellent', 'good', 'fair', 'poor'] as const
 
 function FilterGroup({
   label,
@@ -71,7 +70,6 @@ interface FilterSidebarProps {
   selectedMaterials: string[]
   priceMin: number
   priceMax: number
-  condition: string
   categories: Category[]
   categorySlug: string
   search: string
@@ -81,14 +79,12 @@ export function FilterSidebar({
   selectedMaterials,
   priceMin,
   priceMax,
-  condition,
   categories,
   categorySlug,
   search,
 }: FilterSidebarProps) {
   const t = useTranslations('catalog')
   const common = useTranslations('common')
-  const product = useTranslations('product')
   const locale = useLocale() as Locale
   const router = useRouter()
   const pathname = usePathname()
@@ -121,12 +117,8 @@ export function FilterSidebar({
     updateParam('material', next.length ? next : null)
   }
 
-  const setCondition = (value: string) => {
-    updateParam('condition', value === condition ? null : value)
-  }
-
   const filterCount = selectedMaterials.length +
-    (condition ? 1 : 0) + (priceMin > 0 || priceMax > 0 ? 1 : 0) +
+    (priceMin > 0 || priceMax > 0 ? 1 : 0) +
     (categorySlug ? 1 : 0) + (search ? 1 : 0)
   const hasFilters = filterCount > 0
 
@@ -177,30 +169,6 @@ export function FilterSidebar({
         <div className="grid grid-cols-2 gap-2 pb-3">
           <input type="number" min="0" aria-label={t('minimumPrice')} placeholder={t('min')} value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} onBlur={() => updateParam('price_min', priceFrom || null)} className="field-lux" />
           <input type="number" min="0" aria-label={t('maximumPrice')} placeholder={t('max')} value={priceTo} onChange={(e) => setPriceTo(e.target.value)} onBlur={() => updateParam('price_max', priceTo || null)} className="field-lux" />
-        </div>
-      </FilterGroup>
-
-      <FilterGroup label={t('filters.condition')}>
-        <div className="flex flex-col gap-0">
-          {CONDITIONS.map((value) => (
-            <div key={value} className="flex items-center gap-2.5 py-1.5">
-              <button
-                onClick={() => setCondition(value)}
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
-                  condition === value
-                    ? 'border-gold bg-gold/15'
-                    : 'border-gold/40 hover:border-gold'
-                }`}
-                aria-label={product(`condition.${value}`)}
-                aria-pressed={condition === value}
-              >
-                {condition === value && (
-                  <div className="h-2 w-2 rounded-full bg-gold" />
-                )}
-              </button>
-              <span className="text-[13px] tracking-wide text-muted-foreground">{product(`condition.${value}`)}</span>
-            </div>
-          ))}
         </div>
       </FilterGroup>
     </div>

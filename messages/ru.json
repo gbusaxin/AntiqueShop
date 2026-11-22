@@ -60,7 +60,6 @@
       "material": "Материал",
       "country": "Страна",
       "price": "Цена",
-      "condition": "Состояние",
       "category": "Категория"
     },
     "sort": "Сортировать",
@@ -107,16 +106,11 @@
       "Brass": "Латунь",
       "Enamel": "Эмаль",
       "Polyresin": "Полирезин"
-    }
+    },
+    "lot": "Лот"
   },
   "product": {
     "addToCart": "Добавить в корзину",
-    "condition": {
-      "excellent": "Отличное",
-      "poor": "Плохое",
-      "good": "Хорошее",
-      "fair": "Удовлетворительное"
-    },
     "material": "Материал",
     "size": "Размер",
     "country": "Страна",
@@ -139,7 +133,12 @@
     "galleryCloseZoom": "Закрыть увеличенное фото",
     "galleryPrevious": "Предыдущее фото",
     "galleryNext": "Следующее фото",
-    "askAboutItem": "Задать вопрос о предмете"
+    "askAboutItem": "Задать вопрос о предмете",
+    "lotNumber": "Лот № {sku}",
+    "priceLabel": "Цена",
+    "descriptionTitle": "Описание",
+    "detailsTitle": "Характеристики",
+    "viewPiece": "Смотреть предмет"
   },
   "cart": {
     "title": "Корзина",

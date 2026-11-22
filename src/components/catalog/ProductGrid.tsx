@@ -11,9 +11,11 @@ interface ProductGridProps {
   locale: Locale
   total: number
   loading?: boolean
+  /** Index of the first product on this page, for lot numbers */
+  offset?: number
 }
 
-export function ProductGrid({ products, locale, total, loading }: ProductGridProps) {
+export function ProductGrid({ products, locale, total, loading, offset = 0 }: ProductGridProps) {
   const t = useTranslations('catalog')
   if (loading) {
     return (
@@ -39,10 +41,8 @@ export function ProductGrid({ products, locale, total, loading }: ProductGridPro
 
   return (
     <div>
-      <p data-visual="dynamic" className="mb-8 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-        {t('itemCount', { count: total })}
-      </p>
-      <div data-testid="products-grid" className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">
+      <p data-visual="dynamic" className="sr-only">{t('itemCount', { count: total })}</p>
+      <div data-testid="products-grid" className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((product, i) => (
           <motion.div
             key={product.id}
@@ -51,7 +51,7 @@ export function ProductGrid({ products, locale, total, loading }: ProductGridPro
             viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.8, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
           >
-            <ProductCard product={product} locale={locale} />
+            <ProductCard product={product} locale={locale} lot={offset + i + 1} />
           </motion.div>
         ))}
       </div>

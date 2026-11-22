@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server'
-import { Link } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { createClient } from '@/lib/supabaseServer'
 import { FilterSidebar } from '@/components/catalog/FilterSidebar'
@@ -41,7 +41,6 @@ export default async function CatalogPage({
   const t = await getTranslations({ locale, namespace: 'catalog' })
 
   const materials = toArray(sp.material)
-  const condition = typeof sp.condition === 'string' ? sp.condition : ''
   const priceMin = Number(sp.price_min ?? sp.priceMin ?? 0)
   const priceMax = Number(sp.price_max ?? sp.priceMax ?? 0)
   const categorySlug = typeof sp.category === 'string' ? sp.category : ''
@@ -63,7 +62,7 @@ export default async function CatalogPage({
   }
   let query = supabase
     .from('products')
-    .select('id, slug, name_ru, name_en, name_de, images, condition, year_circa, price_eur', { count: 'exact' })
+    .select('id, slug, name_ru, name_en, name_de, images, year_circa, price_eur', { count: 'exact' })
     .eq('is_available', true)
 
   if (selectedCategory) query = query.eq('category_id', selectedCategory.id)
@@ -75,7 +74,6 @@ export default async function CatalogPage({
   }
 
   if (materials.length) query = query.in('material', materials)
-  if (condition) query = query.eq('condition', condition)
 
   switch (sort) {
     case 'price_asc':
@@ -108,13 +106,49 @@ export default async function CatalogPage({
 
   return (
     <div className="min-h-screen bg-background pt-20 text-foreground">
-      <header data-testid="catalog-header" className="relative overflow-hidden border-b border-gold/15">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(closest-side,rgb(var(--gold-rgb)/0.14),transparent)]" />
-        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6 md:pb-20 md:pt-24 lg:px-8">
-          <p className="eyebrow animate-page-in">{t('eyebrow')}</p>
-          <h1 className="heading-display mt-6 max-w-4xl animate-page-in text-5xl text-foreground [animation-delay:120ms] md:text-7xl">{t('title')}</h1>
-          <p className="mt-6 max-w-xl animate-page-in text-[15px] leading-relaxed text-muted-foreground [animation-delay:240ms]">{t('description')}</p>
+      <header data-testid="catalog-header" className="relative overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-[30rem] w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(var(--gold-rgb)/0.12),transparent)]" />
+        <div className="relative mx-auto max-w-5xl px-4 pb-12 pt-16 text-center sm:px-6 md:pb-16 md:pt-24 lg:px-8">
+          <svg aria-hidden="true" viewBox="0 0 120 24" className="mx-auto w-28 text-gold/70" fill="none">
+            <path d="M0 12h44M76 12h44" stroke="currentColor" strokeWidth=".8" />
+            <path d="M60 3l3.2 6.3L70 12l-6.8 2.7L60 21l-3.2-6.3L50 12l6.8-2.7z" fill="currentColor" />
+          </svg>
+          <p className="eyebrow eyebrow-center mt-6 justify-center">{t('eyebrow')}</p>
+          <h1 className="heading-display mx-auto mt-5 max-w-3xl text-5xl text-foreground md:text-7xl">{t('title')}</h1>
+          <p className="mx-auto mt-6 max-w-xl font-display text-lg italic leading-relaxed text-muted-foreground">{t('description')}</p>
+          <p data-visual="dynamic" className="mt-8 text-[10px] uppercase tracking-[0.32em] text-gold">{t('itemCount', { count: total })}</p>
         </div>
+
+        {categories.length > 0 && (
+          <nav aria-label={t('filters.category')} className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <ul className="mask-fade-x flex items-center gap-8 overflow-x-auto border-y border-gold/20 py-4 md:justify-center [scrollbar-width:none]">
+              <li className="shrink-0">
+                <TransitionLink
+                  href="/catalog"
+                  aria-current={!categorySlug ? 'page' : undefined}
+                  className={`link-lux text-[11px] uppercase tracking-[0.24em] transition-colors ${!categorySlug ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  {t('allCategories')}
+                </TransitionLink>
+              </li>
+              {categories.map((category) => {
+                const active = category.slug === categorySlug
+                return (
+                  <li key={category.id} className="shrink-0">
+                    <TransitionLink
+                      href={`/catalog?category=${encodeURIComponent(category.slug)}`}
+                      aria-current={active ? 'page' : undefined}
+                      className={`link-lux text-[11px] uppercase tracking-[0.24em] transition-colors ${active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                      {getLocalizedField(category as unknown as Record<string, string | null | undefined>, 'name', locale as Locale)}
+                    </TransitionLink>
+                  </li>
+                )
+              })}
+            </ul>
+            <div aria-hidden="true" className="mt-[3px] h-px bg-gold/15" />
+          </nav>
+        )}
       </header>
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-14">
@@ -123,7 +157,6 @@ export default async function CatalogPage({
               selectedMaterials={materials}
               priceMin={priceMin}
               priceMax={priceMax}
-              condition={condition}
               categories={categories}
               categorySlug={categorySlug}
               search={search}
@@ -134,7 +167,7 @@ export default async function CatalogPage({
             {categorySlug && (
               <div className="mb-6 inline-flex items-center gap-3 border border-gold/30 bg-card px-4 py-2 text-sm text-foreground">
                 <span>{categoryNotFound ? t('categoryNotFound') : t('selectedCategory', { name: getLocalizedField(selectedCategory as unknown as Record<string, string | null | undefined>, 'name', locale as Locale) })}</span>
-                <Link href={`/catalog${remainingParams.size ? `?${remainingParams.toString()}` : ''}`} className="inline-block text-gold transition-transform duration-300 hover:rotate-90" aria-label={t('clearCategoryFilter')}>✕</Link>
+                <TransitionLink href={`/catalog${remainingParams.size ? `?${remainingParams.toString()}` : ''}`} className="inline-block text-gold transition-transform duration-300 hover:rotate-90" aria-label={t('clearCategoryFilter')}>✕</TransitionLink>
               </div>
             )}
             <div className="mb-8 flex items-center justify-end border-b border-gold/10 pb-6">
@@ -144,12 +177,13 @@ export default async function CatalogPage({
               products={products}
               locale={locale as Locale}
               total={total}
+              offset={(page - 1) * PAGE_SIZE}
             />
             {totalPages > 1 && (
               <nav aria-label={t('pagination')} className="mt-16 flex items-center justify-center gap-6 border-t border-gold/15 pt-10">
-                {page > 1 && <Link href={pageHref(page - 1)} className="btn-ghost !px-6 !py-3">{t('previous')}</Link>}
+                {page > 1 && <TransitionLink href={pageHref(page - 1)} className="btn-ghost !px-6 !py-3">{t('previous')}</TransitionLink>}
                 <span className="heading-display text-lg italic text-muted-foreground">{t('pageOf', { page, total: totalPages })}</span>
-                {page < totalPages && <Link href={pageHref(page + 1)} className="btn-ghost !px-6 !py-3">{t('next')}</Link>}
+                {page < totalPages && <TransitionLink href={pageHref(page + 1)} className="btn-ghost !px-6 !py-3">{t('next')}</TransitionLink>}
               </nav>
             )}
           </div>

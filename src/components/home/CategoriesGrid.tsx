@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
-import { Link } from '@/i18n/navigation'
+import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Category } from '@/types'
 import type { Locale } from '@/types'
@@ -40,10 +40,10 @@ export function CategoriesGrid({ categories, locale, title }: CategoriesGridProp
             <p className="eyebrow">VintagEmpire</p>
             <h2 className="heading-display mt-5 text-4xl text-foreground md:text-6xl">{title}</h2>
           </div>
-          <Link href="/catalog" className="group flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-foreground">
+          <TransitionLink href="/catalog" className="group flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-foreground">
             <span className="link-lux">{t('footerFullCatalog')}</span>
             <ArrowRight size={13} aria-hidden="true" className="text-gold transition-transform duration-500 ease-lux group-hover:translate-x-1" />
-          </Link>
+          </TransitionLink>
         </motion.div>
 
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:auto-rows-[17rem] lg:grid-cols-4">
@@ -62,7 +62,7 @@ export function CategoriesGrid({ categories, locale, title }: CategoriesGridProp
                 transition={{ duration: 0.9, delay: (i % 4) * 0.08, ease: EASE }}
                 className={featured ? 'col-span-2 lg:row-span-2' : ''}
               >
-                <Link
+                <TransitionLink
                   href={`/catalog?category=${encodeURIComponent(cat.slug)}`}
                   className={`group relative flex h-full items-end overflow-hidden bg-[#1a140e] ${
                     featured ? 'aspect-[2/1] lg:aspect-auto' : 'aspect-square lg:aspect-auto'
@@ -113,7 +113,7 @@ export function CategoriesGrid({ categories, locale, title }: CategoriesGridProp
                       </p>
                     )}
                   </div>
-                </Link>
+                </TransitionLink>
               </motion.div>
             )
           })}
