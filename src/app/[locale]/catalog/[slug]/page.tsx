@@ -245,7 +245,7 @@ export default async function ProductPage({
               <section className="reveal mt-14">
                 <h2 className="eyebrow mb-5">{t('descriptionTitle')}</h2>
                 <div className="space-y-4 text-[15px] leading-[1.85] text-muted-foreground">
-                  <p className="first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[3.6rem] first-letter:leading-[0.8] first-letter:text-gold-rich">{leadParagraph}</p>
+                  <p className="flow-root first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[3.6rem] first-letter:leading-[0.8] first-letter:text-gold-rich">{leadParagraph}</p>
                   {restParagraphs.map((para, i) => <p key={i}>{para}</p>)}
                 </div>
               </section>
