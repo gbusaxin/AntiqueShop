@@ -1,7 +1,7 @@
 // Server-only: reads secrets. Never import from a client component.
 import type { ProviderAvailability } from '@/lib/getPaymentProvidersForRegion'
 
-/** A value copied from .env.example (`your-shop-id`, `sk_live_...`) is not a real credential */
+/** A placeholder copied from .env.example (`your-shop-id`, a key ending in `...`) is not a real credential */
 function isRealSecret(value: string | undefined): value is string {
   return Boolean(value) && !/^your[-_]|\.\.\.$/i.test(value as string)
 }
