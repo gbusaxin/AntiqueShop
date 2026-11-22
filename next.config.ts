@@ -8,12 +8,12 @@ const isDev = process.env.NODE_ENV === 'development'
 const cspDirectives = [
   "default-src 'self'",
   isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://yookassa.ru https://browser.sentry-cdn.com"
-    : "script-src 'self' 'unsafe-inline' https://js.stripe.com https://yookassa.ru https://browser.sentry-cdn.com",
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://yookassa.ru https://browser.sentry-cdn.com https://eu-assets.i.posthog.com https://us-assets.i.posthog.com"
+    : "script-src 'self' 'unsafe-inline' https://js.stripe.com https://yookassa.ru https://browser.sentry-cdn.com https://eu-assets.i.posthog.com https://us-assets.i.posthog.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://*.supabase.co https://*.basemaps.cartocdn.com",
-  "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.yookassa.ru https://*.sentry.io https://o*.ingest.sentry.io https://eu.i.posthog.com https://us.i.posthog.com https://app.posthog.com",
+  "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.yookassa.ru https://*.sentry.io https://o*.ingest.sentry.io https://eu.i.posthog.com https://us.i.posthog.com https://eu-assets.i.posthog.com https://us-assets.i.posthog.com https://app.posthog.com",
   "frame-src https://js.stripe.com https://hooks.stripe.com https://yookassa.ru",
   "frame-ancestors 'none'",
   "worker-src 'self' blob:",

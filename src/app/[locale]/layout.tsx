@@ -9,8 +9,6 @@ import { MotionProvider } from '@/components/providers/MotionProvider'
 import { ViewTransitionsProvider } from '@/components/transitions/ViewTransitions'
 import { ScrollProgress } from '@/components/ui/ScrollProgress'
 import { createClient } from '@/lib/supabaseServer'
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Toaster } from 'sonner'
 
 export default async function LocaleLayout({
@@ -60,8 +58,6 @@ export default async function LocaleLayout({
                     className: '!rounded-none !border !border-gold/30 !bg-card !text-foreground !font-sans !shadow-[var(--shadow-lux)]',
                   }}
                 />
-                <Analytics />
-                <SpeedInsights />
               </div>
             </ViewTransitionsProvider>
           </MotionProvider>
