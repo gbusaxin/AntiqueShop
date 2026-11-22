@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
 import { Link, useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase'
+import { authRedirectUrl } from '@/lib/authRedirect'
 
 export function LoginClient() {
   const t = useTranslations('auth.login')
@@ -23,7 +24,10 @@ export function LoginClient() {
   })
   type FormData = z.infer<typeof schema>
   const router = useRouter()
+  const locale = useLocale()
   const [serverError, setServerError] = useState('')
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState('')
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [loading, setLoading] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
@@ -33,6 +37,8 @@ export function LoginClient() {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     setServerError('')
+    setUnconfirmedEmail('')
+    setResendState('idle')
     try {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({
@@ -40,7 +46,8 @@ export function LoginClient() {
         password: data.password,
       })
       if (error) {
-        setServerError(t('invalidCredentials'))
+        if (error.code === 'email_not_confirmed') setUnconfirmedEmail(data.email)
+        else setServerError(t('invalidCredentials'))
         return
       }
       router.replace('/')
@@ -91,6 +98,32 @@ export function LoginClient() {
           </div>
 
           {serverError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{serverError}</p>}
+          {unconfirmedEmail && (
+            <div role="alert" className="border border-gold/30 bg-card p-4 text-sm text-foreground">
+              <p>{t('emailNotConfirmed')}</p>
+              {resendState === 'sent' ? (
+                <p role="status" className="mt-3 text-muted-foreground">{t('confirmationResent')}</p>
+              ) : (
+                <button
+                  type="button"
+                  disabled={resendState === 'sending'}
+                  onClick={async () => {
+                    setResendState('sending')
+                    const { error } = await createClient().auth.resend({
+                      type: 'signup',
+                      email: unconfirmedEmail,
+                      options: { emailRedirectTo: authRedirectUrl(locale, 'signup') },
+                    })
+                    setResendState(error ? 'error' : 'sent')
+                  }}
+                  className="link-lux mt-3 text-gold disabled:opacity-50"
+                >
+                  {t('resendConfirmation')}
+                </button>
+              )}
+              {resendState === 'error' && <p className="mt-2 text-red-700 dark:text-red-400">{t('resendError')}</p>}
+            </div>
+          )}
 
           <button
             type="submit"

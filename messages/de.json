@@ -246,7 +246,11 @@
       "emailPlaceholder": "E-Mail-Adresse",
       "invalidCredentials": "E-Mail-Adresse oder Passwort ungültig",
       "error": "Die Anmeldung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
-      "submitting": "Anmeldung läuft…"
+      "submitting": "Anmeldung läuft…",
+      "emailNotConfirmed": "Ihre E-Mail-Adresse ist noch nicht bestätigt. Nutzen Sie den Link aus der E-Mail, die wir bei der Registrierung gesendet haben.",
+      "resendConfirmation": "E-Mail erneut senden",
+      "confirmationResent": "E-Mail gesendet. Bitte prüfen Sie auch den Spam-Ordner.",
+      "resendError": "Die E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es in einer Minute erneut."
     },
     "register": {
       "title": "Konto erstellen",
@@ -260,7 +264,8 @@
       "error": "Die Registrierung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "submitting": "Konto wird erstellt…",
       "successTitle": "Konto erstellt",
-      "successDescription": "Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in der Nachricht."
+      "successDescription": "Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in der Nachricht.",
+      "emailTaken": "Mit dieser E-Mail-Adresse gibt es bereits ein Konto. Melden Sie sich an oder setzen Sie Ihr Passwort zurück."
     },
     "forgotPassword": {
       "title": "Passwort zurücksetzen",
@@ -345,6 +350,18 @@
         "notSpecified": "Nicht angegeben",
         "shippingCost": "Versandkosten"
       }
+    },
+    "password": {
+      "title": "Passwort",
+      "new": "Neues Passwort",
+      "confirm": "Passwort wiederholen",
+      "save": "Passwort ändern",
+      "saving": "Wird gespeichert…",
+      "saved": "Passwort geändert",
+      "error": "Das Passwort konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+      "mismatch": "Die Passwörter stimmen nicht überein",
+      "minLength": "Mindestens 8 Zeichen",
+      "samePassword": "Das neue Passwort muss sich vom aktuellen unterscheiden"
     }
   },
   "orders": {

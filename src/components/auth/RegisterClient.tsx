@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { motion } from 'framer-motion'
 import { Link, useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase'
+import { authRedirectUrl } from '@/lib/authRedirect'
 
 export function RegisterClient() {
   const t = useTranslations('auth.register')
@@ -27,6 +28,7 @@ export function RegisterClient() {
   type FormData = z.infer<typeof schema>
   const router = useRouter()
   const [serverError, setServerError] = useState('')
+  const [emailTaken, setEmailTaken] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [confirmationRequired, setConfirmationRequired] = useState(false)
@@ -40,8 +42,9 @@ export function RegisterClient() {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     setServerError('')
+    setEmailTaken(false)
     try {
-      const emailRedirectTo = `${window.location.origin}/${locale}/auth/callback?next=${encodeURIComponent('/auth/verify')}`
+      const emailRedirectTo = authRedirectUrl(locale, 'signup')
       const supabase = createClient()
       const { data: result, error } = await supabase.auth.signUp({
         email: data.email,
@@ -49,7 +52,14 @@ export function RegisterClient() {
         options: { data: { full_name: data.name, terms_accepted_at: new Date().toISOString() }, emailRedirectTo },
       })
       if (error) {
-        setServerError(t('error'))
+        if (error.code === 'user_already_exists' || /already registered/i.test(error.message)) setEmailTaken(true)
+        else setServerError(t('error'))
+        return
+      }
+      // With email confirmation on, Supabase answers an existing address with a user that has
+      // no identities (and sends no email) instead of an error — treat it as "already registered".
+      if (result.user && Array.isArray(result.user.identities) && result.user.identities.length === 0) {
+        setEmailTaken(true)
         return
       }
       setConfirmationRequired(!result.session)
@@ -152,6 +162,15 @@ export function RegisterClient() {
           </div>
 
           {serverError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{serverError}</p>}
+          {emailTaken && (
+            <div role="alert" className="border border-gold/30 bg-card p-4 text-sm text-foreground">
+              <p>{t('emailTaken')}</p>
+              <div className="mt-3 flex flex-wrap gap-4">
+                <Link href="/auth/login" className="link-lux text-gold">{loginT('submit')}</Link>
+                <Link href="/auth/forgot-password" className="link-lux text-gold">{loginT('forgotPassword')}</Link>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

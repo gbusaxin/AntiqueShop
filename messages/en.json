@@ -246,7 +246,11 @@
       "emailPlaceholder": "Email address",
       "invalidCredentials": "Invalid email or password",
       "error": "Unable to sign in. Please try again.",
-      "submitting": "Signing in…"
+      "submitting": "Signing in…",
+      "emailNotConfirmed": "Your email is not confirmed yet. Use the link in the email we sent when you signed up.",
+      "resendConfirmation": "Send the email again",
+      "confirmationResent": "Email sent. Check your inbox, including the spam folder.",
+      "resendError": "Could not send the email. Please try again in a minute."
     },
     "register": {
       "title": "Create an Account",
@@ -260,7 +264,8 @@
       "error": "Registration failed. Please try again.",
       "submitting": "Creating…",
       "successTitle": "Account Created",
-      "successDescription": "Check your email to confirm your address."
+      "successDescription": "Check your email to confirm your address.",
+      "emailTaken": "An account with this email already exists. Sign in or reset your password."
     },
     "forgotPassword": {
       "title": "Reset your password",
@@ -345,6 +350,18 @@
         "notSpecified": "Not specified",
         "shippingCost": "Delivery cost"
       }
+    },
+    "password": {
+      "title": "Password",
+      "new": "New password",
+      "confirm": "Repeat password",
+      "save": "Change password",
+      "saving": "Saving…",
+      "saved": "Password changed",
+      "error": "Could not change the password. Please try again.",
+      "mismatch": "Passwords do not match",
+      "minLength": "At least 8 characters",
+      "samePassword": "The new password must differ from the current one"
     }
   },
   "orders": {

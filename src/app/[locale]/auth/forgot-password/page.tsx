@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase'
+import { authRedirectUrl } from '@/lib/authRedirect'
 
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth.forgotPassword')
@@ -25,7 +26,7 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     setError('')
     try {
-      const redirectTo = `${window.location.origin}/${locale}/auth/callback?next=${encodeURIComponent('/auth/reset-password')}`
+      const redirectTo = authRedirectUrl(locale, 'recovery')
       const { error: failure } = await createClient().auth.resetPasswordForEmail(email, { redirectTo })
       if (failure) setError(t('error'))
       else setSent(true)

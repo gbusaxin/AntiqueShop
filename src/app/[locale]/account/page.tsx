@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabaseServer'
 import { formatPrice } from '@/lib/getPriceForRegion'
 import { AccountProfileForm } from '@/components/AccountProfileForm'
+import { ChangePasswordForm } from '@/components/ChangePasswordForm'
 import type { Metadata } from 'next'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -47,8 +48,12 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
               phone={profileResult.data?.phone ?? ''}
               locale={locale}
             />
+            <div className="mt-10 border-t border-[var(--border)] pt-8">
+              <h2 className="heading-display mb-6 text-3xl">{t('password.title')}</h2>
+              <ChangePasswordForm />
+            </div>
           </section>
-          <section className="border border-[var(--border)] p-5 sm:p-8">
+          <section className="border border-[var(--border)] p-5 sm:p-8 lg:self-start">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
               <h2 className="font-serif text-2xl">{t('orders.title')}</h2>
               <Link href="/account/orders" className="text-sm text-[var(--accent)] underline underline-offset-4">{t('allOrders')} →</Link>
