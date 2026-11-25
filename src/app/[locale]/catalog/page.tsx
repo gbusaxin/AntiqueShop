@@ -72,6 +72,7 @@ export async function generateMetadata({
     title,
     description,
     noindex: hasVariations,
+    follow: true,
   })
 }
 

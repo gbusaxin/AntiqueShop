@@ -90,6 +90,8 @@ export interface PageSeo {
   /** Title used as is, without the "— VintagEmpire" suffix (home page) */
   absoluteTitle?: boolean
   noindex?: boolean
+  /** With noindex: still let crawlers follow the page's links (filtered catalog views) */
+  follow?: boolean
   /** Extra Open Graph fields (article dates, tags) */
   openGraph?: Record<string, unknown>
 }
@@ -104,7 +106,11 @@ export function pageMetadata(seo: PageSeo): Metadata {
     title: seo.absoluteTitle ? { absolute: seo.title } : seo.title,
     description,
     alternates: seo.noindex ? { canonical: url } : localizedAlternates(seo.locale, seo.path, seo.query ?? ''),
-    robots: seo.noindex ? NO_INDEX : undefined,
+    robots: seo.noindex
+      ? seo.follow
+        ? { index: false, follow: true, googleBot: { index: false, follow: true } }
+        : NO_INDEX
+      : undefined,
     openGraph: {
       type: seo.type ?? 'website',
       url,
