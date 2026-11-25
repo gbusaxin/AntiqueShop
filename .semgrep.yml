@@ -4,7 +4,7 @@ rules:
       - pattern: |
           <$EL dangerouslySetInnerHTML={{ __html: $X }} />
       - pattern-not: |
-          <$EL dangerouslySetInnerHTML={{ __html: safeJsonLd($X) }} />
+          <$EL dangerouslySetInnerHTML={{ __html: safeJsonLd($DATA) }} />
     message: >
       dangerouslySetInnerHTML without sanitization detected at $X.
       Use safeJsonLd() for JSON-LD or DOMPurify.sanitize() for HTML.
