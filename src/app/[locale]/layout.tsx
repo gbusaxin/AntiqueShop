@@ -10,6 +10,9 @@ import { ViewTransitionsProvider } from '@/components/transitions/ViewTransition
 import { ScrollProgress } from '@/components/ui/ScrollProgress'
 import { createClient } from '@/lib/supabaseServer'
 import { Toaster } from 'sonner'
+import { DocumentShell } from '@/components/DocumentShell'
+import { notFound } from 'next/navigation'
+import { routing } from '@/i18n/routing'
 import { Suspense } from 'react'
 import { MarketingTags } from '@/components/analytics/MarketingTags'
 
@@ -21,6 +24,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
+  if (!(routing.locales as readonly string[]).includes(locale)) notFound()
   setRequestLocale(locale)
   const supabasePromise = createClient()
   const [messages, { data: { user: authUser } }] = await Promise.all([
@@ -43,6 +47,7 @@ export default async function LocaleLayout({
   }
 
   return (
+    <DocumentShell lang={locale}>
     <NextIntlClientProvider messages={messages} locale={locale}>
       <RegionProvider>
         <CartProvider>
@@ -69,5 +74,6 @@ export default async function LocaleLayout({
         </CartProvider>
       </RegionProvider>
     </NextIntlClientProvider>
+    </DocumentShell>
   )
 }

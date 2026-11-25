@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabaseServer'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import { AdminTopbar } from '@/components/admin/AdminTopbar'
 import { Toaster } from 'sonner'
+import { DocumentShell } from '@/components/DocumentShell'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -27,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq('is_read', false)
 
   return (
+    <DocumentShell lang="en">
     <div className="admin-theme flex min-h-screen flex-col bg-[var(--bg)] text-[var(--fg)] md:flex-row">
       <AdminSidebar email={user.email ?? ''} />
       <div className="flex min-w-0 flex-1 flex-col md:ml-56">
@@ -44,5 +46,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         }}
       />
     </div>
+    </DocumentShell>
   )
 }

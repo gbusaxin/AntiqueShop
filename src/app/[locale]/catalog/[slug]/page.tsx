@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { MessageCircle } from 'lucide-react'
 import { createAdminClient, createClient } from '@/lib/supabaseServer'
-import { NO_INDEX, pageMetadata } from '@/lib/seo'
+import { localizedUrl, NO_INDEX, pageMetadata } from '@/lib/seo'
 import { breadcrumbJsonLd, productJsonLd } from '@/lib/structuredData'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice, getPriceForRegion } from '@/lib/getPriceForRegion'
@@ -84,17 +84,17 @@ export async function generateMetadata({
   const material = product.material && catalog.has(`materials.${product.material}`) ? catalog(`materials.${product.material}`) : product.material
   const details = [product.year_circa ? t('circa', { year: product.year_circa }) : null, material].filter(Boolean).join(', ')
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
-  const description =
-    getLocalizedField(record, 'description', locale as Locale) ||
-    seo('productDescription', { name, details: details ? ` — ${details}` : '', price: formatPrice(product.price_eur ?? 0, 'EUR', localeStr) })
+  // Snippet leads with what searchers compare (piece, age, material, price), then the shop's own text
+  const summary = seo('productDescription', { name, details: details ? ` — ${details}` : '', price: formatPrice(product.price_eur ?? 0, 'EUR', localeStr) })
+  const description = `${summary} ${getLocalizedField(record, 'description', locale as Locale)}`.trim()
 
   return pageMetadata({
     locale,
     path: `/catalog/${product.slug}`,
     title: sold ? seo('soldTitle', { name }) : name,
     description,
-    // The share card comes from opengraph-image.tsx; the first photo is the fallback for Twitter/X
-    images: product.images?.[0] ? [{ url: product.images[0], alt: name }] : undefined,
+    // Branded share card with photo and price (opengraph-image.tsx); PNG works in every messenger
+    images: [{ url: localizedUrl(locale, `/catalog/${product.slug}/opengraph-image`), width: 1200, height: 630, alt: name }],
     // A sold piece stays reachable for visitors but leaves the index
     noindex: sold,
   })
