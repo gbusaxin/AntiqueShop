@@ -91,6 +91,8 @@ export function PhotoGallery({ images, alt, productId }: PhotoGalleryProps) {
             sizes="(max-width: 768px) 100vw, 50vw"
             className={`object-contain p-6 ${switched ? 'animate-fade-in' : ''}`}
             priority={selected === 0}
+            // The first photo is the page's LCP element: fetch it ahead of scripts and other images
+            fetchPriority={selected === 0 ? 'high' : 'auto'}
           />
           <div
             ref={loupeRef}
