@@ -41,7 +41,11 @@ jobs:
           data = json.load(sys.stdin)
           vulns = data.get('vulnerabilities', {})
           blocking = []
-          accepted = {'postcss', 'dompurify'}  # build-time tools
+          # postcss, dompurify: build-time tools.
+          # zod <4.6.6 (memory exhaustion on oversized constrained arrays): zod parses input only in
+          # admin-only API routes behind the admin session check; public routes don't use it.
+          # Accepted until the zod 4 + @hookform/resolvers 5 migration.
+          accepted = {'postcss', 'dompurify', 'zod'}
           for pkg, info in vulns.items():
               if pkg in accepted:
                   continue

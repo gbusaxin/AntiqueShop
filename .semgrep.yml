@@ -148,9 +148,6 @@ rules:
       - metavariable-regex:
           metavariable: $X
           regex: ".*(password|secret|token|key|auth|credential).*"
-        metavariable-comparison:
-          metavariable: $X
-          comparison: "True"
     message: Possible sensitive data in console.log. Remove before production.
     languages: [typescript, javascript]
     severity: WARNING
