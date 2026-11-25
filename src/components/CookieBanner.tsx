@@ -10,16 +10,20 @@ const COOKIE_KEY = 'cookie_consent'
 
 type ConsentState = 'accepted' | 'declined' | null
 
-export function CookieBanner() {
+/**
+ * `initialConsent` comes from the cookie on the server, so the banner is in the first HTML paint
+ * (with a CSS entrance) instead of popping in after hydration — on phones it is often the largest
+ * element on screen, and a late banner made LCP several seconds slower.
+ */
+export function CookieBanner({ initialConsent = null }: { initialConsent?: ConsentState }) {
   const t = useTranslations('cookie')
   const tCommon = useTranslations('common')
-  const [consent, setConsent] = useState<ConsentState>(null)
+  const [consent, setConsent] = useState<ConsentState>(initialConsent)
   const [showDetails, setShowDetails] = useState(false)
   const [showChoices, setShowChoices] = useState(false)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    // localStorage is the source of truth in the browser (the cookie may be missing on old visits)
     const stored = localStorage.getItem(COOKIE_KEY)
     setConsent(stored === 'accepted' || stored === 'declined' ? stored : null)
 
@@ -40,8 +44,6 @@ export function CookieBanner() {
     window.dispatchEvent(new CustomEvent('cookie-consent-changed', { detail: { consent } }))
   }
 
-  if (!mounted) return null
-
   if (consent !== null && !showChoices) {
     return (
       <button
@@ -55,13 +57,8 @@ export function CookieBanner() {
   }
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="fixed bottom-0 left-0 right-0 z-[100] border-t border-gold/25 bg-card text-foreground shadow-[0_-20px_40px_-30px_rgb(0_0_0/0.4)]"
+      <div
+        className="hero-rise fixed bottom-0 left-0 right-0 z-[100] border-t border-gold/25 bg-card text-foreground shadow-[0_-20px_40px_-30px_rgb(0_0_0/0.4)]"
       >
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -153,7 +150,6 @@ export function CookieBanner() {
             </div>
           </div>
         </div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
   )
 }

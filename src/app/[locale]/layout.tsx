@@ -10,6 +10,7 @@ import { ViewTransitionsProvider } from '@/components/transitions/ViewTransition
 import { ScrollProgress } from '@/components/ui/ScrollProgress'
 import { createClient } from '@/lib/supabaseServer'
 import { Toaster } from 'sonner'
+import { cookies } from 'next/headers'
 import { DocumentShell } from '@/components/DocumentShell'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
@@ -32,6 +33,7 @@ export default async function LocaleLayout({
     supabasePromise.then((supabase) => supabase.auth.getUser()),
   ])
   const supabase = await supabasePromise
+  const consentCookie = (await cookies()).get('cookie_consent')?.value
 
   let navUser: { email: string; isAdmin: boolean } | null = null
   if (authUser) {
@@ -58,7 +60,7 @@ export default async function LocaleLayout({
                 <Navbar locale={locale} user={navUser} />
                 <main className="flex-1">{children}</main>
                 <Footer />
-                <CookieBanner />
+                <CookieBanner initialConsent={consentCookie === 'accepted' || consentCookie === 'declined' ? consentCookie : null} />
                 <Suspense fallback={null}>
                   <MarketingTags />
                 </Suspense>
