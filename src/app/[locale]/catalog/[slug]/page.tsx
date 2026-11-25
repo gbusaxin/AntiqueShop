@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { TransitionLink } from '@/components/transitions/ViewTransitions'
 import { MessageCircle } from 'lucide-react'
-import { createClient } from '@/lib/supabaseServer'
+import { createAdminClient, createClient } from '@/lib/supabaseServer'
+import { NO_INDEX, pageMetadata } from '@/lib/seo'
+import { breadcrumbJsonLd, productJsonLd } from '@/lib/structuredData'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice, getPriceForRegion } from '@/lib/getPriceForRegion'
 import { getExchangeRates } from '@/lib/exchangeRates'
@@ -11,6 +13,7 @@ import { getCookieRegion, getRegionFromCountryCode, REGION_CURRENCIES } from '@/
 import { PhotoGallery } from '@/components/product/PhotoGallery'
 import { AddToCartButton } from '@/components/product/AddToCartButton'
 import { ViewTracker } from '@/components/product/ViewTracker'
+import { ProductViewEvent } from '@/components/analytics/ProductViewEvent'
 import { RecentlyViewed } from '@/components/favorites/RecentlyViewed'
 import { FavoriteButton } from '@/components/favorites/FavoriteButton'
 import { ProductCard, type ProductCardItem } from '@/components/ProductCard'
@@ -32,18 +35,33 @@ function countryName(value: string | null, locale: string): string | null {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 const regionCurrencies = new Map(Object.entries(REGION_CURRENCIES))
 
-const getProduct = cache(async (slug: string) => {
-  const supabase = await createClient()
+type ProductWithCategory = Product & {
+  categories: { slug: string; name_ru: string | null; name_en: string | null; name_de: string | null } | null
+}
+
+/**
+ * A listed piece, or a sold one (its page stays reachable for old links and ads, marked as sold).
+ * Pieces hidden by the shop for other reasons are not shown.
+ */
+const getProduct = cache(async (slug: string): Promise<{ product: ProductWithCategory; sold: boolean } | null> => {
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from('products')
-    .select('id, slug, sku, category_id, name_ru, name_en, name_de, description_ru, description_en, description_de, provenance_ru, provenance_en, provenance_de, material, size, country_of_origin, year_circa, price_eur, price_override, images, is_available')
+    .select('id, slug, sku, category_id, name_ru, name_en, name_de, description_ru, description_en, description_de, provenance_ru, provenance_en, provenance_de, material, size, country_of_origin, year_circa, price_eur, price_override, images, is_available, categories(slug, name_ru, name_en, name_de)')
     .eq('slug', slug)
-    .eq('is_available', true)
     .maybeSingle()
-  return data as Product | null
+  if (!data) return null
+  const product = data as unknown as ProductWithCategory
+  if (product.is_available) return { product, sold: false }
+
+  const { count } = await supabase
+    .from('order_items')
+    .select('id, orders!inner(status)', { count: 'exact', head: true })
+    .eq('product_id', product.id)
+    .in('orders.status', ['paid', 'shipped', 'completed'])
+  return count ? { product, sold: true } : null
 })
 
 export async function generateMetadata({
@@ -52,41 +70,36 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
   const { locale, slug } = await params
-  const t = await getTranslations({ locale, namespace: 'product' })
-  try {
-    const data = await getProduct(slug)
+  const [t, seo, catalog] = await Promise.all([
+    getTranslations({ locale, namespace: 'product' }),
+    getTranslations({ locale, namespace: 'seo' }),
+    getTranslations({ locale, namespace: 'catalog' }),
+  ])
+  const found = await getProduct(slug)
+  if (!found) return { title: t('title'), robots: NO_INDEX }
 
-    if (!data) return { title: `${t('title')} — VintagEmpire` }
+  const { product, sold } = found
+  const record = product as unknown as Record<string, string | null | undefined>
+  const name = getLocalizedField(record, 'name', locale as Locale)
+  const material = product.material && catalog.has(`materials.${product.material}`) ? catalog(`materials.${product.material}`) : product.material
+  const details = [product.year_circa ? t('circa', { year: product.year_circa }) : null, material].filter(Boolean).join(', ')
+  const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
+  const description =
+    getLocalizedField(record, 'description', locale as Locale) ||
+    seo('productDescription', { name, details: details ? ` — ${details}` : '', price: formatPrice(product.price_eur ?? 0, 'EUR', localeStr) })
 
-    const name = getLocalizedField(data as unknown as Record<string, string | null | undefined>, 'name', locale as Locale)
-    const description = getLocalizedField(data as unknown as Record<string, string | null | undefined>, 'description', locale as Locale).slice(0, 160)
-    const ogImage = Array.isArray(data.images) && data.images[0] ? data.images[0] : undefined
-
-    return {
-      title: `${name} — VintagEmpire`,
-      description,
-      alternates: {
-        canonical: `${BASE_URL}/${locale}/catalog/${slug}`,
-        languages: {
-          en: `${BASE_URL}/en/catalog/${slug}`,
-          ru: `${BASE_URL}/ru/catalog/${slug}`,
-          de: `${BASE_URL}/de/catalog/${slug}`,
-          'x-default': `${BASE_URL}/en/catalog/${slug}`,
-        },
-      },
-      openGraph: {
-        type: 'website',
-        url: `${BASE_URL}/${locale}/catalog/${slug}`,
-        title: `${name} — VintagEmpire`,
-        description,
-        siteName: 'VintagEmpire',
-        ...(ogImage ? { images: [{ url: ogImage, width: 1200, height: 800, alt: name }] } : {}),
-      },
-    }
-  } catch {
-    return { title: `${t('title')} — VintagEmpire` }
-  }
+  return pageMetadata({
+    locale,
+    path: `/catalog/${product.slug}`,
+    title: sold ? seo('soldTitle', { name }) : name,
+    description,
+    // The share card comes from opengraph-image.tsx; the first photo is the fallback for Twitter/X
+    images: product.images?.[0] ? [{ url: product.images[0], alt: name }] : undefined,
+    // A sold piece stays reachable for visitors but leaves the index
+    noindex: sold,
+  })
 }
+
 
 export default async function ProductPage({
   params,
@@ -94,15 +107,17 @@ export default async function ProductPage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params
-  const [t, nav, currency, catalog, product] = await Promise.all([
+  const [t, nav, currency, catalog, found, seo] = await Promise.all([
     getTranslations({ locale, namespace: 'product' }),
     getTranslations({ locale, namespace: 'nav' }),
     getTranslations({ locale, namespace: 'currency' }),
     getTranslations({ locale, namespace: 'catalog' }),
     getProduct(slug),
+    getTranslations({ locale, namespace: 'seo' }),
   ])
 
-  if (!product) notFound()
+  if (!found) notFound()
+  const { product, sold } = found
   const productRecord = product as unknown as Record<string, string | null | undefined>
   const name = getLocalizedField(productRecord, 'name', locale as Locale)
   const description = getLocalizedField(productRecord, 'description', locale as Locale)
@@ -137,26 +152,28 @@ export default async function ProductPage({
     exchangeRates
   )
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
+  const categoryRecord = product.categories as unknown as Record<string, string | null | undefined> | null
+  const categoryName = categoryRecord ? getLocalizedField(categoryRecord, 'name', locale as Locale) : ''
+  const productLd = productJsonLd({
+    locale,
+    slug: product.slug,
     name,
-    description: description ?? '',
-    image: product.images ?? [],
+    description: description || name,
+    images: (product.images ?? []).filter((src) => /^https:\/\//.test(src)),
     sku: product.sku,
-    material: product.material,
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: priceInfo.currency,
-      price: priceInfo.amount,
-      availability: 'https://schema.org/InStock',
-      url: `${BASE_URL}/${locale}/catalog/${slug}`,
-    },
-    brand: {
-      '@type': 'Organization',
-      name: 'VintagEmpire',
-    },
-  }
+    priceEur: product.price_eur ?? 0,
+    available: !sold,
+    category: categoryName || null,
+    material: material || null,
+    countryOfOrigin: countryName(product.country_of_origin, 'en'),
+    year: product.year_circa,
+  })
+  const breadcrumbLd = breadcrumbJsonLd(locale, [
+    { name: seo('breadcrumbHome'), path: '/' },
+    { name: nav('catalog'), path: '/catalog' },
+    ...(product.categories ? [{ name: categoryName, path: '/catalog', query: `?category=${encodeURIComponent(product.categories.slug)}` }] : []),
+    { name },
+  ])
 
   const cardItem: ProductCardItem = {
     id: product.id,
@@ -180,14 +197,24 @@ export default async function ProductPage({
 
   return (
     <div className="min-h-screen bg-background pt-20 text-foreground">
-      <JsonLd data={jsonLd} />
+      <JsonLd data={productLd} />
+      <JsonLd data={breadcrumbLd} />
       <ViewTracker slug={slug} />
+      {!sold && (
+        <ProductViewEvent item={{ id: product.sku || product.id, name, price: product.price_eur ?? 0, category: categoryName || null }} />
+      )}
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-14 lg:px-8">
         <nav aria-label={t('breadcrumbs')} className="mb-10 flex min-w-0 items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
           <TransitionLink href="/" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('home')}</TransitionLink>
           <span aria-hidden="true" className="h-px w-4 shrink-0 bg-gold/40" />
           <TransitionLink href="/catalog" className="link-lux shrink-0 transition-colors hover:text-foreground">{nav('catalog')}</TransitionLink>
           <span aria-hidden="true" className="h-px w-4 shrink-0 bg-gold/40" />
+          {product.categories && (
+            <>
+              <TransitionLink href={`/catalog?category=${encodeURIComponent(product.categories.slug)}`} className="link-lux hidden shrink-0 transition-colors hover:text-foreground sm:inline">{categoryName}</TransitionLink>
+              <span aria-hidden="true" className="hidden h-px w-4 shrink-0 bg-gold/40 sm:inline-block" />
+            </>
+          )}
           <span className="truncate text-gold">{name}</span>
         </nav>
 
@@ -215,8 +242,8 @@ export default async function ProductPage({
             </div>
 
             <div className="animate-page-in [animation-delay:340ms]">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">{t('priceLabel')}</p>
-              <p className="heading-display mt-2 text-5xl text-gold-rich">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">{sold ? t('soldLabel') : t('priceLabel')}</p>
+              <p className={`heading-display mt-2 text-5xl ${sold ? 'text-muted-foreground line-through decoration-1' : 'text-gold-rich'}`}>
                 {formatPrice(priceInfo.amount, priceInfo.currency, localeStr)}
               </p>
               {priceInfo.isConverted && priceInfo.originalEur && (
@@ -227,11 +254,23 @@ export default async function ProductPage({
             </div>
 
             <div className="mt-8 animate-page-in [animation-delay:400ms]">
-              <AddToCartButton
-                product={product}
-                label={t('addToCart')}
-                inCartLabel={t('inCart')}
-              />
+              {sold ? (
+                <>
+                  <p className="border border-gold/25 bg-gold/[0.04] p-4 text-sm leading-relaxed text-muted-foreground">{t('soldNotice')}</p>
+                  <TransitionLink
+                    href={product.categories ? `/catalog?category=${encodeURIComponent(product.categories.slug)}` : '/catalog'}
+                    className="btn-lux mt-3 w-full"
+                  >
+                    {t('soldBrowse')}
+                  </TransitionLink>
+                </>
+              ) : (
+                <AddToCartButton
+                  product={product}
+                  label={t('addToCart')}
+                  inCartLabel={t('inCart')}
+                />
+              )}
               <TransitionLink
                 href={`/contacts?item=${encodeURIComponent(product.sku)}#contact-form`}
                 className="btn-ghost group mt-3 w-full"

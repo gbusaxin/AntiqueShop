@@ -36,8 +36,33 @@ export async function GET(request: Request) {
   }
 
   const { data: fresh } = await load()
+  const status = fresh?.status ?? order.status
+
+  // What the conversion tags need once the order is placed: total and the pieces (feed ids)
+  let conversion: { value: number; currency: string; items: { id: string; price: number; quantity: number }[] } | null = null
+  if (status === 'paid' || status === 'awaiting_payment') {
+    const { data: details } = await supabase
+      .from('orders')
+      .select('total_eur, order_items(quantity, price_eur, product_id, products(sku))')
+      .eq('id', orderId)
+      .maybeSingle()
+    if (details) {
+      const items = (details.order_items ?? []) as unknown as {
+        quantity: number
+        price_eur: number
+        product_id: string | null
+        products: { sku: string | null } | null
+      }[]
+      conversion = {
+        value: Number(details.total_eur),
+        currency: 'EUR',
+        items: items.map((i) => ({ id: i.products?.sku || i.product_id || 'item', price: Number(i.price_eur), quantity: i.quantity })),
+      }
+    }
+  }
+
   return NextResponse.json(
-    { status: fresh?.status ?? order.status, paymentMethod: fresh?.payment_method ?? null },
+    { status, paymentMethod: fresh?.payment_method ?? null, conversion },
     { headers: { 'Cache-Control': 'no-store' } }
   )
 }

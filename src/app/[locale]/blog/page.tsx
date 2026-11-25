@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { BlogCard } from '@/components/blog/BlogCard'
-import { blogAlternates, blogListHref, blogUrl } from '@/components/blog/metadata'
+import { blogListHref } from '@/components/blog/metadata'
 import { getBlogListing, parseBlogFilters, type BlogSearchParams } from '@/components/blog/queries'
 
 interface BlogPageProps {
@@ -14,23 +15,22 @@ export async function generateMetadata({ params, searchParams }: BlogPageProps):
   const { locale } = await params
   const { page: requestedPage, tag } = parseBlogFilters(await searchParams)
   const { page } = await getBlogListing(requestedPage, tag)
-  const t = await getTranslations({ locale, namespace: 'blog' })
+  const [t, seo] = await Promise.all([
+    getTranslations({ locale, namespace: 'blog' }),
+    getTranslations({ locale, namespace: 'seo' }),
+  ])
   const href = blogListHref(page, tag)
   const query = href.slice('/blog'.length)
-  const url = blogUrl(locale)
-  return {
-    title: `${t('title')} — VintagEmpire`,
+  const base = tag ? `${t('title')}: ${tag}` : t('title')
+  return pageMetadata({
+    locale,
+    path: '/blog',
+    query,
+    title: page > 1 ? `${base}, ${seo('pageSuffix', { page })}` : base,
     description: t('description'),
-    alternates: blogAlternates(locale, '/blog', query),
-    openGraph: {
-      type: 'website',
-      title: t('title'),
-      description: t('description'),
-      siteName: 'VintagEmpire',
-      ...(url ? { url: url + query } : {}),
-    },
-  }
+  })
 }
+
 
 export default async function BlogPage({ params, searchParams }: BlogPageProps) {
   const { locale } = await params

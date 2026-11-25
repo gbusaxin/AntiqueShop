@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice } from '@/lib/getPriceForRegion'
 import { OG_SIZE, renderProductOgImage } from '@/lib/og/productOgImage'
+import { getSiteUrl } from '@/lib/seo'
 import type { Locale } from '@/types'
 
 export const runtime = 'nodejs'
@@ -37,7 +38,6 @@ export default async function ProductOgImage({ params }: { params: Promise<{ loc
       .from('products')
       .select('name_ru, name_en, name_de, images, price_eur, year_circa, material')
       .eq('slug', slug)
-      .eq('is_available', true)
       .maybeSingle(),
     getTranslations({ locale, namespace: 'product' }),
     getTranslations({ locale, namespace: 'catalog' }),
@@ -45,9 +45,10 @@ export default async function ProductOgImage({ params }: { params: Promise<{ loc
 
   const localeStr = locale === 'ru' ? 'ru-RU' : locale === 'de' ? 'de-DE' : 'en-GB'
   const eyebrow = catalog('eyebrow')
+  const footnote = new URL(getSiteUrl()).host
 
   if (!data) {
-    return renderProductOgImage({ name: 'VintagEmpire', price: '', eyebrow })
+    return renderProductOgImage({ name: 'VintagEmpire', price: '', eyebrow, footnote })
   }
 
   const name = getLocalizedField(data as unknown as Record<string, string | null | undefined>, 'name', locale as Locale)
@@ -60,5 +61,6 @@ export default async function ProductOgImage({ params }: { params: Promise<{ loc
     details: details || undefined,
     price: formatPrice(data.price_eur, 'EUR', localeStr),
     image: await toDataUri(Array.isArray(data.images) ? data.images[0] : undefined),
+    footnote,
   })
 }

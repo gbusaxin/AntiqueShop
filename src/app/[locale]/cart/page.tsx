@@ -3,6 +3,7 @@ import { CartContent } from '@/components/cart/CartContent'
 import { getProviderAvailability } from '@/lib/paymentConfig'
 import type { Locale } from '@/types'
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateMetadata({
   params,
@@ -11,7 +12,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'cart' })
-  return { title: `${t('title')} — VintagEmpire` }
+  return pageMetadata({ locale, path: '/cart', title: t('title'), noindex: true })
 }
 
 export default async function CartPage({

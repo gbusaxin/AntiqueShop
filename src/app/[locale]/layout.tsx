@@ -10,6 +10,8 @@ import { ViewTransitionsProvider } from '@/components/transitions/ViewTransition
 import { ScrollProgress } from '@/components/ui/ScrollProgress'
 import { createClient } from '@/lib/supabaseServer'
 import { Toaster } from 'sonner'
+import { Suspense } from 'react'
+import { MarketingTags } from '@/components/analytics/MarketingTags'
 
 export default async function LocaleLayout({
   children,
@@ -52,6 +54,9 @@ export default async function LocaleLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
                 <CookieBanner />
+                <Suspense fallback={null}>
+                  <MarketingTags />
+                </Suspense>
                 <Toaster
                   position="bottom-right"
                   toastOptions={{

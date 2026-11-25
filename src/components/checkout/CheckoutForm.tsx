@@ -19,6 +19,7 @@ import { formatPrice } from '@/lib/getPriceForRegion'
 import { getRegionFromCountryCode } from '@/lib/region'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { CountryCombobox } from '@/components/checkout/CountryCombobox'
+import { trackEcommerce } from '@/lib/analytics'
 import type { Locale, PaymentMethod } from '@/types'
 
 const STATE_COUNTRIES = ['US', 'CA', 'AU']
@@ -134,6 +135,21 @@ export function CheckoutForm({ locale, paymentAvailability }: CheckoutFormProps)
 
   useEffect(() => {
     setWallets(detectWallets())
+  }, [])
+
+  // Once per visit to the checkout page
+  useEffect(() => {
+    const { items: cartItems, totalEur: cartTotal } = useCartStore.getState()
+    if (!cartItems.length) return
+    trackEcommerce('begin_checkout', {
+      value: cartTotal,
+      items: cartItems.map((i) => ({
+        id: i.product.sku || i.product.id,
+        name: i.product.name_en ?? i.product.name_ru ?? i.product.slug,
+        price: i.priceEur,
+        quantity: i.quantity,
+      })),
+    })
   }, [])
 
   // A new shipping country can rule out the method picked before (Klarna, SEPA, YooKassa)

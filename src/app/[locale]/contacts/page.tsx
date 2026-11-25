@@ -6,8 +6,8 @@ import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Locale } from '@/types'
 import { getSiteContent } from '@/components/SiteContentPage'
 import { ContentText, contentPlaceholder, localizedContent } from '@/components/admin/MarkdownEditor'
+import { pageMetadata } from '@/lib/seo'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 
 export async function generateMetadata({
   params,
@@ -15,38 +15,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
-
-  const titles: Record<string, string> = {
-    en: 'Contact Us — VintagEmpire',
-    ru: 'Контакты — VintagEmpire',
-    de: 'Kontakt — VintagEmpire',
-  }
-  const descs: Record<string, string> = {
-    en: 'Visit our galleries in Vienna and Berlin or send us a message. Our specialists are happy to assist.',
-    ru: 'Посетите наши галереи в Вене и Берлине или напишите нам. Наши специалисты всегда рады помочь.',
-    de: 'Besuchen Sie unsere Galerien in Wien und Berlin oder schreiben Sie uns. Unsere Spezialisten helfen gerne.',
-  }
-
-  return {
-    title: locale === 'ru' ? titles.ru : locale === 'de' ? titles.de : titles.en,
-    description: locale === 'ru' ? descs.ru : locale === 'de' ? descs.de : descs.en,
-    alternates: {
-      canonical: `${BASE_URL}/${locale}/contacts`,
-      languages: {
-        en: `${BASE_URL}/en/contacts`,
-        ru: `${BASE_URL}/ru/contacts`,
-        de: `${BASE_URL}/de/contacts`,
-        'x-default': `${BASE_URL}/en/contacts`,
-      },
-    },
-    openGraph: {
-      type: 'website',
-      url: `${BASE_URL}/${locale}/contacts`,
-      title: locale === 'ru' ? titles.ru : locale === 'de' ? titles.de : titles.en,
-      description: locale === 'ru' ? descs.ru : locale === 'de' ? descs.de : descs.en,
-      siteName: 'VintagEmpire',
-    },
-  }
+  const [nav, seo] = await Promise.all([
+    getTranslations({ locale, namespace: 'nav' }),
+    getTranslations({ locale, namespace: 'seo' }),
+  ])
+  return pageMetadata({ locale, path: '/contacts', title: nav('contacts'), description: seo('contactsDescription') })
 }
 
 /** "Ask about this piece" deep link: /contacts?item=<SKU> pre-fills the message with the product name. */

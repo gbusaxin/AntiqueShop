@@ -6,11 +6,12 @@ import { formatPrice } from '@/lib/getPriceForRegion'
 import { AccountProfileForm } from '@/components/AccountProfileForm'
 import { ChangePasswordForm } from '@/components/ChangePasswordForm'
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'account' })
-  return { title: `${t('title')} — VintagEmpire`, robots: { index: false, follow: false } }
+  return pageMetadata({ locale, path: '/account', title: t('title'), noindex: true })
 }
 
 export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {

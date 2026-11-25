@@ -6,8 +6,14 @@ import { motion } from 'framer-motion'
 import { Link, useRouter } from '@/i18n/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useSearchParams } from 'next/navigation'
+import { trackPurchaseOnce } from '@/lib/analytics'
 
 type PaymentState = 'checking' | 'paid' | 'awaiting' | 'pending'
+
+interface StatusResponse {
+  status?: string
+  conversion?: { value: number; currency: string; items: { id: string; price: number; quantity: number }[] } | null
+}
 
 // The provider redirects the buyer here before (or without) its webhook: ask the server a few times
 const POLL_INTERVAL_MS = 2000
@@ -29,13 +35,26 @@ export default function CheckoutSuccessPage() {
 
     const check = async (attempt: number) => {
       let status: string | null = null
+      let conversion: StatusResponse['conversion'] = null
       try {
         const res = await fetch(`/api/checkout/status?orderId=${encodeURIComponent(orderId)}`, { cache: 'no-store' })
-        if (res.ok) status = ((await res.json()) as { status?: string }).status ?? null
+        if (res.ok) {
+          const json = (await res.json()) as StatusResponse
+          status = json.status ?? null
+          conversion = json.conversion ?? null
+        }
       } catch {
         status = null
       }
       if (cancelled) return
+
+      if (conversion && (status === 'paid' || status === 'awaiting_payment')) {
+        trackPurchaseOnce(orderId, {
+          value: conversion.value,
+          currency: conversion.currency,
+          items: conversion.items.map((i) => ({ id: i.id, name: i.id, price: i.price, quantity: i.quantity })),
+        })
+      }
 
       if (status === 'paid' || status === 'shipped' || status === 'completed') {
         clearCart()

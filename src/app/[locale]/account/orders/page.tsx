@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/getPriceForRegion'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Locale, Order } from '@/types'
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateMetadata({
   params,
@@ -15,7 +16,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'account.orders' })
-  return { title: `${t('title')} — VintagEmpire`, robots: { index: false, follow: false } }
+  return pageMetadata({ locale, path: '/account/orders', title: t('title'), noindex: true })
 }
 
 const STATUS_STYLES: Record<string, string> = {

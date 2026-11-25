@@ -7,11 +7,12 @@ import { formatPrice } from '@/lib/getPriceForRegion'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Locale, Order } from '@/types'
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
-  const { locale } = await params
+  const { locale, id } = await params
   const t = await getTranslations({ locale, namespace: 'account.orders' })
-  return { title: `${t('title')} — VintagEmpire`, robots: { index: false, follow: false } }
+  return pageMetadata({ locale, path: `/account/orders/${id}`, title: t('title'), noindex: true })
 }
 
 export default async function OrderDetailsPage({ params }: { params: Promise<{ locale: string; id: string }> }) {

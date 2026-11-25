@@ -1,28 +1,12 @@
 import type { Metadata } from 'next'
-import { routing } from '@/i18n/routing'
+import { localizedAlternates, localizedUrl } from '@/lib/seo'
 
 export function blogUrl(locale: string, path = '/blog') {
-  const configured = process.env.NEXT_PUBLIC_BASE_URL
-  if (!configured) return undefined
-  try {
-    const base = new URL(configured)
-    if (!['http:', 'https:'].includes(base.protocol)) return undefined
-    return new URL(`/${locale}${path}`, base).toString()
-  } catch {
-    return undefined
-  }
+  return localizedUrl(locale, path)
 }
 
 export function blogAlternates(locale: string, path = '/blog', query = ''): Metadata['alternates'] {
-  const canonical = blogUrl(locale, path)
-  if (!canonical) return undefined
-  return {
-    canonical: canonical + query,
-    languages: Object.fromEntries([
-      ...routing.locales.map((language) => [language, blogUrl(language, path)! + query]),
-      ['x-default', blogUrl(routing.defaultLocale, path)! + query],
-    ]),
-  }
+  return localizedAlternates(locale, path, query)
 }
 
 export function blogListHref(page = 1, tag = '') {

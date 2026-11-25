@@ -9,18 +9,9 @@ import { JsonLd } from '@/components/JsonLd'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import type { Product, Category, Locale } from '@/types'
 import type { Metadata } from 'next'
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
-const LOCALE_LABELS: Record<string, string> = {
-  en: 'VintagEmpire — Antique Shop',
-  ru: 'VintagEmpire — Антикварный магазин',
-  de: 'VintagEmpire — Antiquitätengeschäft',
-}
-const LOCALE_DESCS: Record<string, string> = {
-  en: 'Rare antique porcelain, crystal, silver and art objects from around the world.',
-  ru: 'Редкий антикварный фарфор, хрусталь, серебро и предметы искусства со всего мира.',
-  de: 'Seltenes antikes Porzellan, Kristall, Silber und Kunstobjekte aus aller Welt.',
-}
+import { pageMetadata } from '@/lib/seo'
+import { organizationJsonLd, websiteJsonLd } from '@/lib/structuredData'
+import { getSiteContent } from '@/components/SiteContentPage'
 
 export async function generateMetadata({
   params,
@@ -28,27 +19,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
-
-  return {
-    title: locale === 'ru' ? LOCALE_LABELS.ru : locale === 'de' ? LOCALE_LABELS.de : LOCALE_LABELS.en,
-    description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
-    alternates: {
-      canonical: `${BASE_URL}/${locale}`,
-      languages: {
-        en: `${BASE_URL}/en`,
-        ru: `${BASE_URL}/ru`,
-        de: `${BASE_URL}/de`,
-        'x-default': `${BASE_URL}/en`,
-      },
-    },
-    openGraph: {
-      type: 'website',
-      url: `${BASE_URL}/${locale}`,
-      title: locale === 'ru' ? LOCALE_LABELS.ru : locale === 'de' ? LOCALE_LABELS.de : LOCALE_LABELS.en,
-      description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
-      siteName: 'VintagEmpire',
-    },
-  }
+  const seo = await getTranslations({ locale, namespace: 'seo' })
+  return pageMetadata({
+    locale,
+    path: '/',
+    title: seo('homeTitle'),
+    description: seo('homeDescription'),
+    absoluteTitle: true,
+  })
 }
 
 export default async function HomePage({
@@ -76,45 +54,12 @@ export default async function HomePage({
   const products = (rawProducts ?? []) as Product[]
   const categories = (rawCategories ?? []) as Category[]
 
-  const organizationJsonLd: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'VintagEmpire',
-    url: BASE_URL,
-    logo: `${BASE_URL}/brand-icon.png`,
-    description: locale === 'ru' ? LOCALE_DESCS.ru : locale === 'de' ? LOCALE_DESCS.de : LOCALE_DESCS.en,
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+43-1-512-44-20',
-      email: 'gbusaxin@gmail.com',
-      contactType: 'customer service',
-      areaServed: ['AT', 'DE', 'RU', 'EU'],
-      availableLanguage: ['English', 'Russian', 'German'],
-    },
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'Kärntner Ring 14',
-      addressLocality: 'Vienna',
-      postalCode: '1010',
-      addressCountry: 'AT',
-    },
-    // TODO: restore Instagram link when account ready
-  }
-
-  const websiteJsonLd: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'VintagEmpire',
-    url: BASE_URL,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${BASE_URL}/${locale}/catalog?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
-  }
+  const [seo, contacts] = await Promise.all([
+    getTranslations({ locale, namespace: 'seo' }),
+    getSiteContent('contacts'),
+  ])
+  const organization = organizationJsonLd(seo('homeDescription'), contacts?.metadata ?? {})
+  const website = websiteJsonLd(locale)
 
   const heroItems: HeroItem[] = products
     .filter((product) => Boolean(product.images?.[0]))
@@ -127,8 +72,8 @@ export default async function HomePage({
 
   return (
     <div className="bg-background text-foreground">
-      <JsonLd data={organizationJsonLd} />
-      <JsonLd data={websiteJsonLd} />
+      <JsonLd data={organization} />
+      <JsonLd data={website} />
       <HeroSection
         title={t('title')}
         subtitle={t('subtitle')}

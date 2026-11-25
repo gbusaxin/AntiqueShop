@@ -2,11 +2,12 @@ import { getTranslations } from 'next-intl/server'
 import { FavoritesClient } from '@/components/favorites/FavoritesClient'
 import type { Locale } from '@/types'
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'favorites' })
-  return { title: `${t('title')} — VintagEmpire`, robots: { index: false, follow: true } }
+  return pageMetadata({ locale, path: '/favorites', title: t('title'), noindex: true })
 }
 
 export default async function FavoritesPage({ params }: { params: Promise<{ locale: string }> }) {

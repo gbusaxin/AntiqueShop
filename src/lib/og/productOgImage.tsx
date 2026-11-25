@@ -18,6 +18,8 @@ export interface ProductOgData {
   /** PNG/JPEG data URI (Satori cannot decode WebP, so convert before passing) */
   image?: string
   eyebrow: string
+  /** Small caps line bottom-right, e.g. the shop's domain */
+  footnote?: string
 }
 
 let fontsPromise: Promise<{ regular: Buffer; italic: Buffer }> | null = null
@@ -92,7 +94,7 @@ export async function renderProductOgImage(data: ProductOgData) {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
               <div style={{ display: 'flex', flex: 1, height: 1, background: `${BRONZE}66` }} />
-              <div style={{ display: 'flex', fontSize: 50, color: INK }}>{data.price}</div>
+              {data.price && <div style={{ display: 'flex', fontSize: 50, color: INK }}>{data.price}</div>}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 26 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 30, color: INK }}>
@@ -100,7 +102,9 @@ export async function renderProductOgImage(data: ProductOgData) {
                 <span>Vintag</span>
                 <span style={{ fontStyle: 'italic', color: BRONZE, marginLeft: -10 }}>Empire</span>
               </div>
-              <div style={{ display: 'flex', fontSize: 18, letterSpacing: 4, color: MUTED, textTransform: 'uppercase' }}>Wien · Est. 1987</div>
+              {data.footnote && (
+                <div style={{ display: 'flex', fontSize: 18, letterSpacing: 4, color: MUTED, textTransform: 'uppercase' }}>{data.footnote}</div>
+              )}
             </div>
           </div>
         </div>
@@ -114,4 +118,25 @@ export async function renderProductOgImage(data: ProductOgData) {
       ],
     }
   )
+}
+
+let brandMarkPromise: Promise<string | undefined> | null = null
+
+/** The shop's mark as a PNG data URI for the share card's arch */
+function loadBrandMark() {
+  brandMarkPromise ??= readFile(join(process.cwd(), 'public/brand-icon.png'))
+    .then((png) => `data:image/png;base64,${png.toString('base64')}`)
+    .catch(() => undefined)
+  return brandMarkPromise
+}
+
+/** Share card for pages without their own picture: page title + the shop's mark */
+export async function renderBrandOgImage(data: { title: string; eyebrow: string; footnote?: string }) {
+  return renderProductOgImage({
+    name: data.title,
+    eyebrow: data.eyebrow,
+    price: '',
+    footnote: data.footnote,
+    image: await loadBrandMark(),
+  })
 }

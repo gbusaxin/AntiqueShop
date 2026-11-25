@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ShoppingBag, Plus, Minus, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { useCartStore } from '@/store/cartStore'
+import { trackEcommerce } from '@/lib/analytics'
 import type { Product } from '@/types'
 
 interface AddToCartButtonProps {
@@ -53,7 +54,14 @@ export function AddToCartButton({ product, label, inCartLabel }: AddToCartButton
     <motion.button
       data-testid="add-to-cart"
       whileTap={{ scale: 0.98 }}
-      onClick={() => { addItem(product, product.price_eur); toast.success(t('addedToCart')) }}
+      onClick={() => {
+        addItem(product, product.price_eur)
+        toast.success(t('addedToCart'))
+        trackEcommerce('add_to_cart', {
+          value: product.price_eur,
+          items: [{ id: product.sku || product.id, name: product.name_en ?? product.name_ru ?? product.slug, price: product.price_eur }],
+        })
+      }}
       className="btn-lux group w-full !py-5"
     >
       <ShoppingBag size={16} aria-hidden="true" className="transition-transform duration-500 ease-lux group-hover:-rotate-6 group-hover:scale-110" />

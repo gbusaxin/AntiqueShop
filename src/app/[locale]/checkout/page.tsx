@@ -3,6 +3,7 @@ import { CheckoutForm } from '@/components/checkout/CheckoutForm'
 import { getProviderAvailability } from '@/lib/paymentConfig'
 import type { Locale } from '@/types'
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateMetadata({
   params,
@@ -11,7 +12,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'checkout' })
-  return { title: `${t('title')} — VintagEmpire` }
+  return pageMetadata({ locale, path: '/checkout', title: t('title'), noindex: true })
 }
 
 export default async function CheckoutPage({

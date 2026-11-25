@@ -138,7 +138,10 @@
     "priceLabel": "Preis",
     "descriptionTitle": "Beschreibung",
     "detailsTitle": "Details",
-    "viewPiece": "Objekt ansehen"
+    "viewPiece": "Objekt ansehen",
+    "soldLabel": "Verkauft",
+    "soldNotice": "Dieses Stück hat bereits einen neuen Besitzer gefunden. Entdecken Sie unten ähnliche Stücke oder schreiben Sie uns – wir melden uns, sobald etwas Vergleichbares eintrifft.",
+    "soldBrowse": "Ähnliche Stücke ansehen"
   },
   "cart": {
     "title": "Warenkorb",
@@ -592,5 +595,24 @@
     "unavailable": "Nicht mehr verfügbar",
     "clear": "Liste leeren",
     "recentlyViewed": "Zuletzt angesehen"
+  },
+  "seo": {
+    "homeTitle": "VintagEmpire — Antiquitäten: Porzellan, Kristall, Silber & Kunst",
+    "homeDescription": "Antikes und Vintage-Porzellan, Kristall, Silber, Gemälde und Dekorationsobjekte mit Geschichte. Jedes Stück ein Unikat – mit ausführlichen Fotos und Beschreibung.",
+    "catalogTitle": "Antiquitäten & Vintage kaufen",
+    "catalogDescription": "Antiquitäten und Vintage-Stücke kaufen: Porzellan, Kristall, Silber, Gemälde, Geschirr und Dekor. Jedes Stück ein Unikat, mit Fotos und Preis.",
+    "categoryTitle": "{category} – Antiquitäten & Vintage",
+    "categoryDescription": "{category}: antike und Vintage-Unikate mit ausführlichen Fotos, Beschreibung, Preis und sicherer Online-Zahlung.",
+    "pageSuffix": "Seite {page}",
+    "searchTitle": "Suche: {query}",
+    "aboutDescription": "Wer wir sind und wie wir die Antiquitäten bei VintagEmpire auswählen: Herkunft, sorgfältige Prüfung, Verpackung und Versand.",
+    "contactsDescription": "Kontaktieren Sie VintagEmpire zu einem Stück, Versand oder Zahlung. Wir antworten auf Deutsch, Englisch und Russisch.",
+    "offerDescription": "Verkaufsbedingungen bei VintagEmpire: Bestellung, Zahlung, Versand und Rückgabe.",
+    "privacyDescription": "Wie VintagEmpire Ihre personenbezogenen Daten verarbeitet und schützt.",
+    "productDescription": "{name}{details}. Echtes Unikat – {price}.",
+    "soldTitle": "{name} (verkauft)",
+    "breadcrumbHome": "Startseite",
+    "ogTagline": "Antiquitäten, Porzellan und Kunst mit Geschichte",
+    "ogEyebrow": "Antiquitätengeschäft"
   }
 }

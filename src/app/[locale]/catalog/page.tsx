@@ -8,21 +8,73 @@ import { SortControls } from '@/components/catalog/SortControls'
 import type { ProductCardItem } from '@/components/ProductCard'
 import type { Locale, Category } from '@/types'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { pageMetadata } from '@/lib/seo'
+import { JsonLd } from '@/components/JsonLd'
+import { breadcrumbJsonLd, itemListJsonLd } from '@/lib/structuredData'
 
 export const revalidate = 300
 
 const PAGE_SIZE = 24
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'catalog' })
-  return {
-    title: `${t('title')} — VintagEmpire`,
-    description: t('description'),
-  }
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+
+// Only these parameters make a distinct, indexable page; search, filters and sorting are variations of it
+const INDEXABLE_PARAMS = new Set(['category', 'page'])
+
+function catalogQuery(category: string, page: number) {
+  const query = new URLSearchParams()
+  if (category) query.set('category', category)
+  if (page > 1) query.set('page', String(page))
+  return query.size ? `?${query.toString()}` : ''
 }
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams: SearchParams
+}): Promise<Metadata> {
+  const { locale } = await params
+  const sp = await searchParams
+  const seo = await getTranslations({ locale, namespace: 'seo' })
+
+  const categorySlug = typeof sp.category === 'string' ? sp.category : ''
+  const pageParam = typeof sp.page === 'string' && /^\d{1,5}$/.test(sp.page) ? Number(sp.page) : 1
+  const search = typeof sp.search === 'string' ? sp.search.trim().slice(0, 60) : ''
+
+  let title = seo('catalogTitle')
+  let description = seo('catalogDescription')
+  if (categorySlug) {
+    const supabase = await createClient()
+    const { data: category } = await supabase
+      .from('categories')
+      .select('slug, name_ru, name_en, name_de, description_ru, description_en, description_de')
+      .eq('slug', categorySlug)
+      .eq('is_active', true)
+      .maybeSingle()
+    if (category) {
+      const record = category as unknown as Record<string, string | null | undefined>
+      const name = getLocalizedField(record, 'name', locale as Locale)
+      title = seo('categoryTitle', { category: name })
+      description = getLocalizedField(record, 'description', locale as Locale) || seo('categoryDescription', { category: name })
+    }
+  }
+  if (search) title = seo('searchTitle', { query: search })
+  if (pageParam > 1) title = `${title}, ${seo('pageSuffix', { page: pageParam })}`
+
+  const hasVariations = Object.keys(sp).some((key) => !INDEXABLE_PARAMS.has(key))
+  return pageMetadata({
+    locale,
+    path: '/catalog',
+    query: catalogQuery(categorySlug, pageParam),
+    title,
+    description,
+    noindex: hasVariations,
+  })
+}
+
 
 function toArray(val: string | string[] | undefined): string[] {
   if (!val) return []
@@ -38,7 +90,10 @@ export default async function CatalogPage({
 }) {
   const { locale } = await params
   const sp = await searchParams
-  const t = await getTranslations({ locale, namespace: 'catalog' })
+  const [t, seo] = await Promise.all([
+    getTranslations({ locale, namespace: 'catalog' }),
+    getTranslations({ locale, namespace: 'seo' }),
+  ])
 
   const materials = toArray(sp.material)
   const priceMin = Number(sp.price_min ?? sp.priceMin ?? 0)
@@ -53,7 +108,8 @@ export default async function CatalogPage({
   const { data: categoryRows } = await supabase.from('categories').select('*').eq('is_active', true).order('sort_order')
   const categories = (categoryRows ?? []) as Category[]
   const selectedCategory = categories.find((category) => category.slug === categorySlug)
-  const categoryNotFound = Boolean(categorySlug && !selectedCategory)
+  // An unknown category is a 404, not an empty page that search engines would index as thin content
+  if (categorySlug && !selectedCategory) notFound()
   const remainingParams = new URLSearchParams()
   for (const [key, value] of Object.entries(sp)) {
     if (key !== 'category' && key !== 'page' && value !== undefined) {
@@ -86,10 +142,20 @@ export default async function CatalogPage({
       query = query.order('created_at', { ascending: false })
   }
 
-  const { data, count } = categoryNotFound
-    ? { data: [], count: 0 }
-    : await query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1)
+  const { data, count } = await query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1)
   const products = (data ?? []) as ProductCardItem[]
+  const categoryRecord = selectedCategory as unknown as Record<string, string | null | undefined> | undefined
+  const categoryName = categoryRecord ? getLocalizedField(categoryRecord, 'name', locale as Locale) : ''
+  const categoryDescription = categoryRecord ? getLocalizedField(categoryRecord, 'description', locale as Locale) : ''
+  const breadcrumbs = breadcrumbJsonLd(locale, [
+    { name: seo('breadcrumbHome'), path: '/' },
+    { name: t('title'), path: '/catalog' },
+    ...(selectedCategory ? [{ name: categoryName, path: '/catalog', query: `?category=${encodeURIComponent(selectedCategory.slug)}` }] : []),
+  ])
+  const itemList = itemListJsonLd(
+    locale,
+    products.map((p) => ({ slug: p.slug, name: getLocalizedField(p as unknown as Record<string, string | null | undefined>, 'name', locale as Locale) }))
+  )
   const total = count ?? 0
   const totalPages = Math.ceil(total / PAGE_SIZE)
   const paginationParams = new URLSearchParams()
@@ -106,6 +172,8 @@ export default async function CatalogPage({
 
   return (
     <div className="min-h-screen bg-background pt-20 text-foreground">
+      <JsonLd data={breadcrumbs} />
+      {products.length > 0 && <JsonLd data={itemList} />}
       <header data-testid="catalog-header" className="relative overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-[30rem] w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(var(--gold-rgb)/0.12),transparent)]" />
         <div className="relative mx-auto max-w-5xl px-4 pb-12 pt-16 text-center sm:px-6 md:pb-16 md:pt-24 lg:px-8">
@@ -114,8 +182,8 @@ export default async function CatalogPage({
             <path d="M60 3l3.2 6.3L70 12l-6.8 2.7L60 21l-3.2-6.3L50 12l6.8-2.7z" fill="currentColor" />
           </svg>
           <p className="eyebrow eyebrow-center mt-6 justify-center">{t('eyebrow')}</p>
-          <h1 className="heading-display mx-auto mt-5 max-w-3xl text-5xl text-foreground md:text-7xl">{t('title')}</h1>
-          <p className="mx-auto mt-6 max-w-xl font-display text-lg italic leading-relaxed text-muted-foreground">{t('description')}</p>
+          <h1 className="heading-display mx-auto mt-5 max-w-3xl text-5xl text-foreground md:text-7xl">{categoryName || t('title')}</h1>
+          <p className="mx-auto mt-6 max-w-xl font-display text-lg italic leading-relaxed text-muted-foreground">{categoryDescription || t('description')}</p>
           <p data-visual="dynamic" className="mt-8 text-[10px] uppercase tracking-[0.32em] text-gold">{t('itemCount', { count: total })}</p>
         </div>
 
@@ -166,7 +234,7 @@ export default async function CatalogPage({
           <div className="flex-1">
             {categorySlug && (
               <div className="mb-6 inline-flex items-center gap-3 border border-gold/30 bg-card px-4 py-2 text-sm text-foreground">
-                <span>{categoryNotFound ? t('categoryNotFound') : t('selectedCategory', { name: getLocalizedField(selectedCategory as unknown as Record<string, string | null | undefined>, 'name', locale as Locale) })}</span>
+                <span>{t('selectedCategory', { name: categoryName })}</span>
                 <TransitionLink href={`/catalog${remainingParams.size ? `?${remainingParams.toString()}` : ''}`} className="inline-block text-gold transition-transform duration-300 hover:rotate-90" aria-label={t('clearCategoryFilter')}>✕</TransitionLink>
               </div>
             )}

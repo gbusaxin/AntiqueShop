@@ -138,7 +138,10 @@
     "priceLabel": "Price",
     "descriptionTitle": "Description",
     "detailsTitle": "Details",
-    "viewPiece": "View the piece"
+    "viewPiece": "View the piece",
+    "soldLabel": "Sold",
+    "soldNotice": "This piece has found a new home. Browse similar pieces below or write to us — we’ll let you know when something comparable arrives.",
+    "soldBrowse": "Browse similar pieces"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -592,5 +595,24 @@
     "unavailable": "No longer available",
     "clear": "Clear list",
     "recentlyViewed": "Recently viewed"
+  },
+  "seo": {
+    "homeTitle": "VintagEmpire — Antique Shop: Porcelain, Crystal, Silver & Fine Art",
+    "homeDescription": "Antique and vintage porcelain, crystal, silver, paintings and decorative objects with a story. Every piece is one of a kind, with detailed photos and descriptions.",
+    "catalogTitle": "Antiques & Vintage Collection",
+    "catalogDescription": "Shop antique and vintage pieces: porcelain, crystal, silver, paintings, tableware and decor. Every item is one of a kind, with photos and prices.",
+    "categoryTitle": "Antique & Vintage {category}",
+    "categoryDescription": "Antique and vintage {category}: one-of-a-kind pieces with detailed photos, descriptions, prices and secure online checkout.",
+    "pageSuffix": "page {page}",
+    "searchTitle": "Search: {query}",
+    "aboutDescription": "Who we are and how we choose the antiques at VintagEmpire: provenance, careful inspection, packing and shipping.",
+    "contactsDescription": "Contact VintagEmpire about a piece, shipping or payment. We reply in English, German and Russian.",
+    "offerDescription": "Terms of sale at VintagEmpire: ordering, payment, shipping and returns.",
+    "privacyDescription": "How VintagEmpire processes and protects your personal data.",
+    "productDescription": "{name}{details}. Authentic one-of-a-kind piece — {price}.",
+    "soldTitle": "{name} (sold)",
+    "breadcrumbHome": "Home",
+    "ogTagline": "Antiques, porcelain and art with a story",
+    "ogEyebrow": "Antique shop"
   }
 }

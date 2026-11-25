@@ -1,8 +1,8 @@
 import { getTranslations } from 'next-intl/server'
 import { SiteContentPage } from '@/components/SiteContentPage'
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://vintageempire.com'
 
 const TITLES: Record<string, string> = {
   en: 'Public Offer — VintagEmpire',
@@ -16,18 +16,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
-  return {
-    title: locale === 'ru' ? TITLES.ru : locale === 'de' ? TITLES.de : TITLES.en,
-    alternates: {
-      canonical: `${BASE_URL}/${locale}/legal/offer`,
-      languages: {
-        en: `${BASE_URL}/en/legal/offer`,
-        ru: `${BASE_URL}/ru/legal/offer`,
-        de: `${BASE_URL}/de/legal/offer`,
-        'x-default': `${BASE_URL}/en/legal/offer`,
-      },
-    },
-  }
+  const seo = await getTranslations({ locale, namespace: 'seo' })
+  const title = (locale === 'ru' ? TITLES.ru : locale === 'de' ? TITLES.de : TITLES.en).replace(/\s+—\s+VintagEmpire$/, '')
+  return pageMetadata({ locale, path: '/legal/offer', title, description: seo('offerDescription') })
 }
 
 export default async function PublicOfferPage({ params }: { params: Promise<{ locale: string }> }) {

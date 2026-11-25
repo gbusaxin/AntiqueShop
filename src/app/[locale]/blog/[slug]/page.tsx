@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { ArrowLeft } from 'lucide-react'
@@ -8,7 +9,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { BlogGallery } from '@/components/blog/BlogGallery'
 import { getBlogPost } from '@/components/blog/queries'
 import { localizedBlog } from '@/components/blog/types'
-import { blogAlternates, blogDate, blogListHref, blogUrl } from '@/components/blog/metadata'
+import { blogDate, blogListHref, blogUrl } from '@/components/blog/metadata'
 
 interface ArticlePageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -21,26 +22,22 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const t = await getTranslations({ locale, namespace: 'blog' })
   const title = localizedBlog(post, locale, 'title')
   const description = localizedBlog(post, locale, 'excerpt')
-  const path = `/blog/${encodeURIComponent(post.slug)}`
-  const url = blogUrl(locale, path)
 
-  return {
-    title: `${title} — VintagEmpire`,
+  return pageMetadata({
+    locale,
+    path: `/blog/${encodeURIComponent(post.slug)}`,
+    title,
     description,
-    alternates: blogAlternates(locale, path),
+    type: 'article',
+    images: post.images[0] ? [{ url: post.images[0], alt: t('imageAlt', { title, number: 1 }) }] : undefined,
     openGraph: {
-      type: 'article',
-      title,
-      description,
-      siteName: 'VintagEmpire',
       publishedTime: post.published_at ?? post.created_at,
       modifiedTime: post.updated_at,
       tags: post.tags,
-      ...(url ? { url } : {}),
-      ...(post.images[0] ? { images: [{ url: post.images[0], alt: t('imageAlt', { title, number: 1 }) }] } : {}),
     },
-  }
+  })
 }
+
 
 export default async function BlogArticlePage({ params }: ArticlePageProps) {
   const { locale, slug } = await params
