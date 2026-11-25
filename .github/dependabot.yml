@@ -1,25 +1,27 @@
 version: 2
 updates:
+  # One pull request a month with every minor/patch update, instead of a branch per package.
+  # Security fixes don't wait for this schedule: Dependabot security updates open on their own.
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: "09:00"
-      timezone: Europe/Moscow
-    open-pull-requests-limit: 10
+      timezone: Europe/Bratislava
+    open-pull-requests-limit: 3
     versioning-strategy: lockfile-only
     labels:
       - dependencies
     groups:
-      dev-dependencies:
-        dependency-type: development
+      production:
+        dependency-type: production
         update-types:
           - minor
           - patch
-      prod-dependencies:
-        dependency-type: production
+      development:
+        dependency-type: development
         update-types:
+          - minor
           - patch
     ignore:
       - dependency-name: "*"
@@ -33,10 +35,13 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: "09:00"
-      timezone: Europe/Moscow
+      timezone: Europe/Bratislava
+    groups:
+      actions:
+        patterns:
+          - "*"
     labels:
       - dependencies
       - github-actions
