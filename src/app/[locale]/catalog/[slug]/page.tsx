@@ -9,7 +9,7 @@ import { breadcrumbJsonLd, productJsonLd } from '@/lib/structuredData'
 import { getLocalizedField } from '@/lib/getLocalizedField'
 import { formatPrice, getPriceForRegion } from '@/lib/getPriceForRegion'
 import { getExchangeRates } from '@/lib/exchangeRates'
-import { getCookieRegion, getRegionFromCountryCode, REGION_CURRENCIES } from '@/lib/region'
+import { getCookieRegion, getRegionFromHeaders, REGION_CURRENCIES } from '@/lib/region'
 import { PhotoGallery } from '@/components/product/PhotoGallery'
 import { AddToCartButton } from '@/components/product/AddToCartButton'
 import { ViewTracker } from '@/components/product/ViewTracker'
@@ -136,8 +136,7 @@ export default async function ProductPage({
 
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()])
   const cookieRegion = getCookieRegion(cookieStore as Parameters<typeof getCookieRegion>[0])
-  const countryCode = headerStore.get('x-vercel-ip-country')
-  const region: Region = cookieRegion ?? (countryCode ? getRegionFromCountryCode(countryCode) : 'EU')
+  const region: Region = cookieRegion ?? getRegionFromHeaders(headerStore)
 
   const targetCurrency = regionCurrencies.get(region) ?? 'EUR'
   const exchangeRatesPromise = targetCurrency === 'EUR' || product.price_override?.currency === targetCurrency

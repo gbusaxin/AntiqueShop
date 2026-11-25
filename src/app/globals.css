@@ -578,3 +578,46 @@ body {
 ::view-transition-group(site-header) {
   z-index: 70;
 }
+
+/* Home hero entrance — CSS, not JS, so it plays from the first paint (faster LCP than waiting for hydration) */
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes hero-word {
+  from { transform: translateY(110%); }
+  to { transform: none; }
+}
+@keyframes hero-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes hero-reveal {
+  from { clip-path: inset(100% 0% 0% 0%); }
+  to { clip-path: inset(0% 0% 0% 0%); }
+}
+@keyframes hero-zoom {
+  from { transform: scale(1.15); }
+  to { transform: scale(1); }
+}
+@keyframes hero-pop {
+  from { opacity: 0; transform: scale(.85); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes hero-seal {
+  from { opacity: 0; transform: rotate(-40deg); }
+  to { opacity: 1; transform: none; }
+}
+.hero-rise { animation: hero-rise .9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-word { animation: hero-word 1.1s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-line { animation: hero-line 1.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-reveal { animation: hero-reveal 1.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-zoom { animation: hero-zoom 2.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-pop { animation: hero-pop 1.1s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-seal { animation: hero-seal 1.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise, .hero-word, .hero-line, .hero-reveal, .hero-zoom, .hero-pop, .hero-seal {
+    animation: none !important;
+  }
+}

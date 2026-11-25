@@ -41,17 +41,34 @@ export function getRegionFromCountryCode(countryCode: string): Region {
   return 'OTHER'
 }
 
-export function getRegionFromRequest(req: Request): Region {
-  const countryCode = req.headers.get('x-vercel-ip-country')
-  const forwardedFor = req.headers.get('x-forwarded-for')
-  const fallbackCountryCode = forwardedFor?.split(',')[0]?.trim()
+/**
+ * Best guess of the visitor's country without a geo-IP service: a CDN header when the host provides
+ * one (Vercel, Cloudflare), else the region part of the browser language (de-AT → AT, en-US → US).
+ */
+export function guessCountryFromHeaders(headers: Pick<Headers, 'get'>): string | null {
+  const geo = headers.get('x-vercel-ip-country') ?? headers.get('cf-ipcountry')
+  if (geo && /^[A-Za-z]{2}$/.test(geo) && geo.toUpperCase() !== 'XX') return geo.toUpperCase()
 
-  if (countryCode) return getRegionFromCountryCode(countryCode)
-  if (fallbackCountryCode && /^[A-Za-z]{2}$/.test(fallbackCountryCode)) {
-    return getRegionFromCountryCode(fallbackCountryCode)
+  const languages = (headers.get('accept-language') ?? '')
+    .split(',')
+    .map((part) => part.split(';')[0].trim())
+    .filter(Boolean)
+  for (const tag of languages) {
+    const region = tag.split('-')[1]
+    if (region && /^[A-Za-z]{2}$/.test(region)) return region.toUpperCase()
   }
+  // A bare "ru" usually means a Russian-speaking country; other bare languages say nothing about the country
+  if (languages[0]?.toLowerCase() === 'ru') return 'RU'
+  return null
+}
 
-  return 'EU'
+export function getRegionFromHeaders(headers: Pick<Headers, 'get'>): Region {
+  const country = guessCountryFromHeaders(headers)
+  return country ? getRegionFromCountryCode(country) : 'EU'
+}
+
+export function getRegionFromRequest(req: Request): Region {
+  return getRegionFromHeaders(req.headers)
 }
 
 export function getCookieRegion(cookieStore: ReadonlyRequestCookies): Region | null {

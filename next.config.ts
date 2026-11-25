@@ -30,7 +30,7 @@ const cspDirectives = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   `img-src 'self' data: blob: https://*.supabase.co https://*.basemaps.cartocdn.com ${AD_IMG_HOSTS}`,
-  `connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.yookassa.ru https://*.sentry.io https://o*.ingest.sentry.io https://eu.i.posthog.com https://us.i.posthog.com https://eu-assets.i.posthog.com https://us-assets.i.posthog.com https://app.posthog.com ${AD_CONNECT_HOSTS}`,
+  `connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.yookassa.ru https://*.sentry.io https://eu.i.posthog.com https://us.i.posthog.com https://eu-assets.i.posthog.com https://us-assets.i.posthog.com https://app.posthog.com ${AD_CONNECT_HOSTS}`,
   "frame-src https://js.stripe.com https://hooks.stripe.com https://yookassa.ru https://td.doubleclick.net https://www.googletagmanager.com",
   "frame-ancestors 'none'",
   "worker-src 'self' blob:",
@@ -45,6 +45,8 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  // Isolates the window from cross-origin popups (Stripe and YooKassa open as full-page redirects, not popups)
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   {
     key: 'Content-Security-Policy',
@@ -57,6 +59,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
+  experimental: {
+    // Puts the (small, Tailwind) stylesheet into the HTML instead of two render-blocking requests
+    inlineCss: true,
+  },
   // Fonts read from disk by the product share-card generator (opengraph-image)
   outputFileTracingIncludes: {
     '/**': ['./assets/fonts/**/*', './data/etsy-import/**/*'],

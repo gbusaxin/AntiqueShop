@@ -16,9 +16,13 @@ interface ProductCardProps {
   locale: Locale
   /** Position in the listing, shown as an auction-style lot number */
   lot?: number
+  /** Rendered width of the card for responsive images (defaults to the catalog grid) */
+  sizes?: string
 }
 
-export function ProductCard({ product, locale, lot }: ProductCardProps) {
+const GRID_SIZES = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw'
+
+export function ProductCard({ product, locale, lot, sizes = GRID_SIZES }: ProductCardProps) {
   const tCatalog = useTranslations('catalog')
   const name = getLocalizedField(product as unknown as Record<string, string | null | undefined>, 'name', locale)
   const [cover, alternate] = product.images ?? []
@@ -40,7 +44,7 @@ export function ProductCard({ product, locale, lot }: ProductCardProps) {
                   src={cover}
                   alt={name}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  sizes={sizes}
                   className={`object-cover transition-[transform,opacity] duration-[1200ms] ease-lux group-hover:scale-[1.06] ${alternate ? 'group-hover:opacity-0' : ''}`}
                 />
                 {alternate && (
@@ -48,8 +52,9 @@ export function ProductCard({ product, locale, lot }: ProductCardProps) {
                     src={alternate}
                     alt=""
                     fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="scale-[1.06] object-cover opacity-0 transition-[transform,opacity] duration-[1200ms] ease-lux group-hover:scale-100 group-hover:opacity-100"
+                    sizes={sizes}
+                    // Hover-only second photo: hidden (and so never downloaded) on touch screens
+                    className="hidden scale-[1.06] object-cover [@media(hover:hover)]:block opacity-0 transition-[transform,opacity] duration-[1200ms] ease-lux group-hover:scale-100 group-hover:opacity-100"
                   />
                 )}
               </>

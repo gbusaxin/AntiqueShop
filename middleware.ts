@@ -2,6 +2,7 @@ import createIntlMiddleware from 'next-intl/middleware'
 import { NextRequest } from 'next/server'
 import { routing } from './src/i18n/routing'
 import { updateSupabaseSession } from './src/lib/supabase/middleware'
+import { getRegionFromHeaders } from './src/lib/region'
 
 const intlMiddleware = createIntlMiddleware(routing)
 
@@ -37,6 +38,16 @@ export default async function middleware(request: NextRequest) {
   const supabaseResponse = await updateSupabaseSession(safeRequest)
 
   const intlResponse = intlMiddleware(safeRequest)
+
+  // First visit: remember a guessed region so prices show in the visitor's currency right away.
+  // The visitor can change it in the footer; that choice overwrites this cookie.
+  if (!safeRequest.cookies.get('user_region')) {
+    intlResponse.cookies.set('user_region', getRegionFromHeaders(safeRequest.headers), {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: 'lax',
+    })
+  }
 
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     intlResponse.cookies.set(cookie.name, cookie.value, cookie)

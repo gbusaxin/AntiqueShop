@@ -22,7 +22,6 @@ interface HeroSectionProps {
   items?: HeroItem[]
 }
 
-const EASE = [0.22, 1, 0.36, 1] as const
 
 /** Circular engraved seal that slowly turns — pure decoration. */
 function RotatingSeal() {
@@ -94,14 +93,9 @@ export function HeroSection({
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-16 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8">
         {/* Copy */}
         <motion.div style={{ y: textY, opacity: textOpacity }} className="relative lg:col-span-6">
-          <motion.p
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, ease: EASE }}
-            className="eyebrow"
-          >
+          <p className="hero-rise eyebrow">
             VintagEmpire · Est. 1987
-          </motion.p>
+          </p>
 
           <h1
             data-testid="hero-title"
@@ -112,14 +106,12 @@ export function HeroSection({
               return (
                 <span key={`${word}-${i}`}>
                   <span className="inline-block overflow-hidden pb-[0.14em] align-bottom">
-                    <motion.span
-                      className={`inline-block ${isLast ? 'text-gilded italic' : ''}`}
-                      initial={{ y: '110%' }}
-                      animate={{ y: '0%' }}
-                      transition={{ duration: 1.1, delay: 0.15 + i * 0.08, ease: EASE }}
+                    <span
+                      className={`hero-word inline-block ${isLast ? 'text-gilded italic' : ''}`}
+                      style={{ animationDelay: `${100 + i * 60}ms` }}
                     >
                       {word}
-                    </motion.span>
+                    </span>
                   </span>
                   {!isLast && ' '}
                 </span>
@@ -127,28 +119,18 @@ export function HeroSection({
             })}
           </h1>
 
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1.2, delay: 0.7, ease: EASE }}
-            className="mt-9 h-px w-24 origin-left bg-gold/60"
-          />
+          <div className="hero-line mt-9 h-px w-24 origin-left bg-gold/60" style={{ animationDelay: '500ms' }} />
 
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.85, ease: EASE }}
-            className="mt-8 max-w-md text-[15px] leading-relaxed text-muted-foreground"
+          {/* Entrance animations are plain CSS: they start with the first paint instead of waiting for
+              hydration, so the text (often the LCP element on phones) shows up seconds earlier */}
+          <p
+            className="hero-rise mt-8 max-w-md text-[15px] leading-relaxed text-muted-foreground"
+            style={{ animationDelay: '250ms' }}
           >
             {subtitle}
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 1.0, ease: EASE }}
-            className="mt-10 flex flex-wrap items-center gap-4"
-          >
+          <div className="hero-rise mt-10 flex flex-wrap items-center gap-4" style={{ animationDelay: '400ms' }}>
             <TransitionLink href="/catalog" className="btn-lux group">
               {ctaLabel}
               <ArrowRight size={14} aria-hidden="true" className="transition-transform duration-500 ease-lux group-hover:translate-x-1" />
@@ -156,38 +138,25 @@ export function HeroSection({
             <TransitionLink href="/about" className="btn-ghost">
               {secondaryLabel}
             </TransitionLink>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.3 }}
-            className="mt-14 flex items-center gap-5 border-t border-gold/15 pt-6"
-          >
+          <div className="hero-rise mt-14 flex items-center gap-5 border-t border-gold/15 pt-6" style={{ animationDelay: '700ms' }}>
             <span className="heading-display text-4xl text-gold-rich">{yearsValue}</span>
             <span className="max-w-[10rem] text-[10px] uppercase leading-relaxed tracking-[0.22em] text-muted-foreground">
               {yearsLabel}
             </span>
-          </motion.div>
+          </div>
         </motion.div>
 
         {/* Exhibit */}
         <div className="relative mx-auto w-full max-w-[26rem] lg:col-span-6 lg:max-w-[30rem]">
           <motion.div
-            style={{ y: archY }}
-            initial={{ clipPath: 'inset(100% 0% 0% 0%)' }}
-            animate={{ clipPath: 'inset(0% 0% 0% 0%)' }}
-            transition={{ duration: 1.4, delay: 0.3, ease: EASE }}
-            className="arch relative aspect-[4/5] overflow-hidden bg-deep shadow-[var(--shadow-lux)]"
+            style={{ y: archY, animationDelay: '150ms' }}
+            className="hero-reveal arch relative aspect-[4/5] overflow-hidden bg-deep shadow-[var(--shadow-lux)]"
           >
             {main ? (
               <motion.div style={{ y: imageY }} className="absolute -inset-y-[8%] inset-x-0">
-                <motion.div
-                  initial={{ scale: 1.15 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 2.4, delay: 0.3, ease: EASE }}
-                  className="relative h-full w-full"
-                >
+                <div className="hero-zoom relative h-full w-full" style={{ animationDelay: '150ms' }}>
                   <Image
                     src={main.src}
                     alt={main.name}
@@ -196,7 +165,7 @@ export function HeroSection({
                     sizes="(max-width: 1024px) 90vw, 480px"
                     className="object-cover"
                   />
-                </motion.div>
+                </div>
               </motion.div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_top,rgb(var(--gold-rgb)/0.18),transparent_70%)]">
@@ -210,12 +179,10 @@ export function HeroSection({
           {secondary && (
             <motion.div
               style={{ y: medallionY }}
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.1, delay: 1.0, ease: EASE }}
               className="absolute -left-6 bottom-16 hidden sm:block lg:-left-14"
             >
-              <TransitionLink
+              <div className="hero-pop" style={{ animationDelay: '800ms' }}>
+                <TransitionLink
                 href={`/catalog/${secondary.slug}`}
                 aria-label={secondary.name}
                 className="group relative block h-32 w-32 overflow-hidden rounded-full border-[5px] border-[var(--bg)] bg-deep shadow-[var(--shadow-lux)] lg:h-40 lg:w-40"
@@ -228,25 +195,16 @@ export function HeroSection({
                   className="object-cover transition-transform duration-700 ease-lux group-hover:scale-110"
                 />
               </TransitionLink>
+              </div>
             </motion.div>
           )}
 
-          <motion.div
-            initial={{ opacity: 0, rotate: -40 }}
-            animate={{ opacity: 1, rotate: 0 }}
-            transition={{ duration: 1.4, delay: 1.1, ease: EASE }}
-            className="absolute -right-3 -top-6 sm:-right-10"
-          >
+          <div className="hero-seal absolute -right-3 -top-6 sm:-right-10" style={{ animationDelay: '900ms' }}>
             <RotatingSeal />
-          </motion.div>
+          </div>
 
           {main && (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 1.4, ease: EASE }}
-              className="absolute -bottom-6 right-4 max-w-[15rem] sm:right-8"
-            >
+            <div className="hero-rise absolute -bottom-6 right-4 max-w-[15rem] sm:right-8" style={{ animationDelay: '1000ms' }}>
               <TransitionLink
                 href={`/catalog/${main.slug}`}
                 data-visual="dynamic"
@@ -258,7 +216,7 @@ export function HeroSection({
                 </span>
                 <ArrowRight size={12} aria-hidden="true" className="shrink-0 text-gold transition-transform duration-500 ease-lux group-hover:translate-x-1" />
               </TransitionLink>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

@@ -1,8 +1,10 @@
 rules:
   - id: no-dangerous-set-inner-html
     patterns:
-      - pattern: dangerouslySetInnerHTML={{ __html: $X }}
-      - pattern-not: dangerouslySetInnerHTML={{ __html: safeJsonLd($X) }}
+      - pattern: |
+          <$EL dangerouslySetInnerHTML={{ __html: $X }} />
+      - pattern-not: |
+          <$EL dangerouslySetInnerHTML={{ __html: safeJsonLd($X) }} />
     message: >
       dangerouslySetInnerHTML without sanitization detected at $X.
       Use safeJsonLd() for JSON-LD or DOMPurify.sanitize() for HTML.
@@ -41,7 +43,8 @@ rules:
       cwe: CWE-79
 
   - id: no-child-process-exec
-    patterns:
+    # Either form is a finding (a list under `patterns` would require both at once)
+    pattern-either:
       - pattern: require('child_process').exec($CMD, ...)
       - pattern: |
           const { exec } = require('child_process')
@@ -114,7 +117,7 @@ rules:
       cwe: CWE-798
 
   - id: sql-concat-injection
-    patterns:
+    pattern-either:
       - pattern: |
           $DB.query("..." + $USER_INPUT)
       - pattern: |

@@ -119,7 +119,7 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
                   transition={{ duration: 0.9, delay: Math.min(i, 4) * 0.08, ease: EASE }}
                   className="h-full"
                 >
-                  <ProductCard product={product} locale={locale} />
+                  <ProductCard product={product} locale={locale} sizes="(max-width: 768px) 260px, (max-width: 1024px) 300px, 25vw" />
                 </motion.div>
               </div>
             ))}
@@ -130,19 +130,20 @@ export function FeaturedCarousel({ products, locale, title }: FeaturedCarouselPr
           <span className="heading-display w-8 text-right text-lg tabular-nums text-gold">
             {String(selectedIndex + 1).padStart(2, '0')}
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center">
             {scrollSnaps.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => scrollTo(i)}
                 aria-current={i === selectedIndex ? 'true' : undefined}
-                className="group flex h-6 items-center"
+                // 44px tall, 24px+ wide: comfortable to tap even though the line itself is a hairline
+                className="group flex h-11 w-7 items-center justify-center"
                 aria-label={t('carouselSlide', { number: i + 1 })}
               >
                 <span
-                  className={`block h-px transition-all duration-700 ease-lux ${
-                    i === selectedIndex ? 'w-10 bg-gold' : 'w-4 bg-gold/30 group-hover:bg-gold/60'
+                  className={`block h-px w-6 origin-center transition-[transform,background-color] duration-700 ease-lux ${
+                    i === selectedIndex ? 'scale-x-100 bg-gold' : 'scale-x-[0.45] bg-gold/30 group-hover:bg-gold/60'
                   }`}
                 />
               </button>
